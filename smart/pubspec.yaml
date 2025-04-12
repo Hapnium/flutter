@@ -1,0 +1,165 @@
+name: smart
+description: "State management, common ui and utilities for Hapnium mobile platforms."
+
+publish_to: none
+
+version: 0.8.9
+homepage: https://github.com/Hapnium/flutter/tree/main/smart
+repository: https://github.com/Hapnium/flutter/tree/main/smart
+
+environment:
+  sdk: ^3.0.0
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  tracing:
+    path: ../tracing
+  hapnium:
+    path: ../hapnium
+
+flutter:
+  uses-material-design: true
+  assets:
+    # ANIM ASSETS
+    - packages/smart/assets/anim/darkWallpaper.png
+    - packages/smart/assets/anim/lightWallpaper.png
+    - packages/smart/assets/anim/messages.png
+    - packages/smart/assets/anim/notes.png
+    - packages/smart/assets/anim/review.png
+    - packages/smart/assets/anim/hapnium_chat.png
+    - packages/smart/assets/anim/verified.png
+    - packages/smart/assets/anim/wallet.png
+    # APP ASSETS
+    - packages/smart/assets/app/business.png
+    - packages/smart/assets/app/nearby.png
+    - packages/smart/assets/app/provider.png
+    - packages/smart/assets/app/user.png
+    # COMMON ASSETS
+    - packages/smart/assets/common/account.png
+    - packages/smart/assets/common/account_trust.png
+    - packages/smart/assets/common/bookmark.png
+    - packages/smart/assets/common/connect.png
+    - packages/smart/assets/common/drive.png
+    - packages/smart/assets/common/gender.png
+    - packages/smart/assets/common/notLaunched.png
+    - packages/smart/assets/common/onboard1.png
+    - packages/smart/assets/common/onboard2.png
+    - packages/smart/assets/common/organization.png
+    - packages/smart/assets/common/personal.png
+    - packages/smart/assets/common/referralProgram.png
+    - packages/smart/assets/common/share.png
+    - packages/smart/assets/common/sharedLink.png
+    - packages/smart/assets/common/shop.png
+    - packages/smart/assets/common/skill.png
+    - packages/smart/assets/common/speak.png
+    # DRIVE ASSETS
+    - packages/smart/assets/drive/driveBlack.png
+    - packages/smart/assets/drive/driveBlackReverse.png
+    - packages/smart/assets/drive/driveCarBlack.png
+    - packages/smart/assets/drive/driveCarBlackReverse.png
+    - packages/smart/assets/drive/driveTo.png
+    - packages/smart/assets/drive/driveWhite.png
+    - packages/smart/assets/drive/driveWhiteReverse.png
+    - packages/smart/assets/drive/driveCarWhite.png
+    - packages/smart/assets/drive/driveCarWhiteReverse.png
+    # MAP ASSETS
+    - packages/smart/assets/map/bing.png
+    - packages/smart/assets/map/current.png
+    - packages/smart/assets/map/destination.png
+    - packages/smart/assets/map/drive.png
+    - packages/smart/assets/map/fly.png
+    - packages/smart/assets/map/googleMap.png
+    - packages/smart/assets/map/location.png
+    - packages/smart/assets/map/mapRight.png
+    - packages/smart/assets/map/openStreetMap.png
+    - packages/smart/assets/map/upRight.png
+    - packages/smart/assets/map/world.png
+    # SOCIAL ASSETS
+    - packages/smart/assets/social/asterisk.png
+    - packages/smart/assets/social/instagram.png
+    - packages/smart/assets/social/twitter.png
+    - packages/smart/assets/social/tiktok.png
+    - packages/smart/assets/social/whatsapp.png
+    - packages/smart/assets/social/youtube.png
+    - packages/smart/assets/social/linkedin.png
+    # SOCIAL STYLED ASSETS
+    - packages/smart/assets/social_styled/instagram.png
+    - packages/smart/assets/social_styled/twitter.png
+    - packages/smart/assets/social_styled/whatsapp.png
+    - packages/smart/assets/social_styled/facebook.png
+    - packages/smart/assets/social_styled/snapchat.png
+    # THEME ASSETS
+    - packages/smart/assets/theme/dark.png
+    - packages/smart/assets/theme/light.png
+
+  fonts:
+    - family: League Spartan
+      fonts:
+        - asset: packages/smart/fonts/LeagueSpartan/LeagueSpartan-Black.ttf
+          weight: 900
+        - asset: packages/smart/fonts/LeagueSpartan/LeagueSpartan-Bold.ttf
+          weight: 700
+        - asset: packages/smart/fonts/LeagueSpartan/LeagueSpartan-ExtraBold.ttf
+          weight: 800
+        - asset: packages/smart/fonts/LeagueSpartan/LeagueSpartan-ExtraLight.ttf
+          weight: 200
+        - asset: packages/smart/fonts/LeagueSpartan/LeagueSpartan-Light.ttf
+          weight: 300
+        - asset: packages/smart/fonts/LeagueSpartan/LeagueSpartan-Medium.ttf
+          weight: 500
+        - asset: packages/smart/fonts/LeagueSpartan/LeagueSpartan-Regular.ttf
+          weight: 400
+        - asset: packages/smart/fonts/LeagueSpartan/LeagueSpartan-SemiBold.ttf
+          weight: 600
+        - asset: packages/smart/fonts/LeagueSpartan/LeagueSpartan-Thin.ttf
+          weight: 100
+        - asset: packages/smart/fonts/LeagueSpartan/LeagueSpartan-VariableFont_wght.ttf
+    - family: Nunito
+      fonts:
+        - asset: packages/smart/fonts/Nunito/Nunito-Black.ttf
+          weight: 900
+        - asset: packages/smart/fonts/Nunito/Nunito-BlackItalic.ttf
+          weight: 900
+          style: italic
+        - asset: packages/smart/fonts/Nunito/Nunito-Bold.ttf
+          weight: 700
+        - asset: packages/smart/fonts/Nunito/Nunito-BoldItalic.ttf
+          weight: 700
+          style: italic
+        - asset: packages/smart/fonts/Nunito/Nunito-ExtraBold.ttf
+          weight: 800
+        - asset: packages/smart/fonts/Nunito/Nunito-ExtraBoldItalic.ttf
+          weight: 800
+          style: italic
+        - asset: packages/smart/fonts/Nunito/Nunito-ExtraLight.ttf
+          weight: 200
+        - asset: packages/smart/fonts/Nunito/Nunito-ExtraLightItalic.ttf
+          weight: 200
+          style: italic
+        - asset: packages/smart/fonts/Nunito/Nunito-Italic.ttf
+          style: italic
+        - asset: packages/smart/fonts/Nunito/Nunito-Italic-VariableFont_wght.ttf
+        - asset: packages/smart/fonts/Nunito/Nunito-Light.ttf
+          weight: 300
+        - asset: packages/smart/fonts/Nunito/Nunito-LightItalic.ttf
+          weight: 300
+          style: italic
+        - asset: packages/smart/fonts/Nunito/Nunito-Medium.ttf
+          weight: 500
+        - asset: packages/smart/fonts/Nunito/Nunito-MediumItalic.ttf
+          weight: 500
+          style: italic
+        - asset: packages/smart/fonts/Nunito/Nunito-Regular.ttf
+          weight: 400
+        - asset: packages/smart/fonts/Nunito/Nunito-SemiBold.ttf
+          weight: 600
+        - asset: packages/smart/fonts/Nunito/Nunito-SemiBoldItalic.ttf
+          weight: 600
+          style: italic
+        - asset: packages/smart/fonts/Nunito/Nunito-VariableFont_wght.ttf
+    - family: Glow
+      fonts:
+        - asset: packages/smart/fonts/Glow/Glow.ttf

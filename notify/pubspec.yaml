@@ -1,0 +1,22 @@
+name: notify
+description: "Notification (In-App and Device) management for Hapnium mobile platforms."
+
+publish_to: none
+
+version: 0.3.5
+homepage: https://github.com/Hapnium/flutter/tree/main/notify
+repository: https://github.com/Hapnium/flutter/tree/main/notify
+
+environment:
+  sdk: ^3.0.0
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_local_notifications: ^18.0.1
+  fluttertoast: ^8.2.12
+  toastification: ^3.0.1
+
+  tracing:
+    path: ../tracing

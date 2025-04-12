@@ -1,0 +1,17 @@
+name: secure
+description: "Secure Flutter is a robust package offering comprehensive encryption and decryption utilities for Flutter projects."
+
+publish_to: none
+
+version: 0.2.1
+homepage: https://github.com/Hapnium/flutter/tree/main/secure
+repository: https://github.com/Hapnium/flutter/tree/main/secure
+
+environment:
+  sdk: ^3.0.0
+
+dependencies:
+  pointycastle: ^4.0.0
+
+  tracing:
+    path: ../tracing

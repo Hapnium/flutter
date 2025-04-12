@@ -1,0 +1,62 @@
+name: Check for existing release
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package_dir: [connectify, socket_client, tracing, secure, notify, smart, gallery, hapnium, sedat]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for changes in ${{ matrix.package_dir }}
+        id: check_changes
+        run: |
+          if git rev-parse --verify HEAD^ >/dev/null 2>&1; then
+            if git diff --quiet HEAD^ HEAD -- ${{ matrix.package_dir }}; then
+              echo "No changes detected in ${{ matrix.package_dir }}"
+              echo "CHANGES=false" >> $GITHUB_ENV
+            else
+              echo "Changes detected in ${{ matrix.package_dir }}"
+              echo "CHANGES=true" >> $GITHUB_ENV
+            fi
+          else
+            echo "Single commit or no parent to compare"
+            echo "CHANGES=true" >> $GITHUB_ENV
+          fi
+
+      - name: Stop if no changes detected
+        if: env.CHANGES == 'false'
+        run: echo "No changes detected in ${{ matrix.package_dir }}. Skipping this package."
+        continue-on-error: true
+
+      - name: Get version from pubspec.yaml in ${{ matrix.package_dir }}
+        id: get_version
+        if: env.CHANGES == 'true'
+        run: |
+          VERSION=$(grep '^version:' ${{ matrix.package_dir }}/pubspec.yaml | sed 's/version: //')
+          echo "VERSION=${{ matrix.package_dir }}/$VERSION" >> $GITHUB_ENV
+
+      - name: Check for existing tag
+        id: check_tag
+        run: |
+          git fetch --tags
+          if git tag --list | grep -q "${{ env.VERSION }}"; then
+            echo "Tag ${{ env.VERSION }} already exists."
+            echo "TAG_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "Tag ${{ env.VERSION }} does not exist."
+            echo "TAG_EXISTS=false" >> $GITHUB_ENV
+          fi
+
+      - name: Stop if tag already exists
+        if: env.TAG_EXISTS == 'true'
+        run: echo "Tag already exists for version ${{ env.VERSION }}. Skipping release."
+        continue-on-error: true
