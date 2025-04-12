@@ -583,7 +583,7 @@ class DeviceNotificationBuilder<T> implements DeviceNotificationBuilderService<T
       tz.TZDateTime.parse(tz.local, _parseTimeToDate(message.time)),
       notificationDetails,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.dateAndTime,
       payload: notifier.toString()
     );
 
