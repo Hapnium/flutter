@@ -11,10 +11,7 @@ class _PermissionConsentLayoutState extends State<PermissionConsentLayout> {
   }
 
   void _init() {
-    _consentController.init(
-      isGranted: widget.isGranted,
-      device: widget.device
-    );
+    _consentController.init(isGranted: widget.isGranted, sdk: widget.sdk);
 
     setState(() {});
   }
@@ -22,11 +19,11 @@ class _PermissionConsentLayoutState extends State<PermissionConsentLayout> {
   @override
   void didUpdateWidget(covariant PermissionConsentLayout oldWidget) {
     if(widget.isGranted.notEquals(oldWidget.isGranted)) {
-      _consentController.init(isGranted: widget.isGranted, device: widget.device);
+      _consentController.init(isGranted: widget.isGranted, sdk: widget.sdk);
     }
 
-    if(widget.device.notEquals(oldWidget.device)) {
-      _consentController.init(isGranted: widget.isGranted, device: widget.device);
+    if(widget.sdk.notEquals(oldWidget.sdk)) {
+      _consentController.init(isGranted: widget.isGranted, sdk: widget.sdk);
     }
 
     super.didUpdateWidget(oldWidget);

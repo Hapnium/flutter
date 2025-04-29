@@ -1,4 +1,3 @@
-import 'package:smart/smart.dart';
 import 'package:hapnium/hapnium.dart';
 
 class Device {

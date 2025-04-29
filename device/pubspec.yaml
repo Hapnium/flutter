@@ -1,0 +1,25 @@
+name: device
+description: >
+  A platform-aware utility for Flutter and Dart. Detect OS, device type, IP, and environment 
+  configuration from a single unified interface. Perfect for multi-platform apps.
+
+publish_to: none
+
+version: 0.0.1
+homepage: https://github.com/Hapnium/flutter/tree/main/device
+repository: https://github.com/Hapnium/flutter/tree/main/device
+
+environment:
+  sdk: ^3.0.0
+
+dependencies:
+  device_info_plus: ^11.4.0
+  meta: ^1.16.0
+  universal_io: ^2.2.2
+
+  tracing:
+    path: ../tracing
+  hapnium:
+    path: ../hapnium
+  connectify:
+    path: ../connectify

@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:smart/platform.dart';
 import 'package:hapnium/hapnium.dart';
 
 import '../../export.dart';
@@ -26,9 +25,8 @@ class ConsentLayout extends StatelessWidget {
   /// This helps in determining if the user has already accepted the permission requests.
   final bool isPermissionGranted;
 
-  /// The device object representing the current device's information.
-  /// Provides device-specific details like screen size or platform to adjust the layout.
-  final Device device;
+  /// The device sdk version.
+  final Integer sdk;
 
   /// The name of the service or app requesting permission.
   /// This can be used in the UI to personalize the consent messages.
@@ -214,7 +212,7 @@ class ConsentLayout extends StatelessWidget {
     required this.onCookieRejected,
     required this.onCookieAccepted,
     required this.isPermissionGranted,
-    required this.device,
+    required this.sdk,
     required this.requestPermissionAccess,
     this.onPermissionGranted,
     this.name = "Hapnium",
@@ -263,7 +261,7 @@ class ConsentLayout extends StatelessWidget {
     return PermissionConsentLayout(
       isGranted: isPermissionGranted,
       isWeb: isWeb,
-      device: device,
+      sdk: sdk,
       requestAccess: requestPermissionAccess,
       image: permissionImage,
       permissions: permissions,

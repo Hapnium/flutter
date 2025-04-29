@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:smart/platform.dart';
 import 'package:hapnium/hapnium.dart';
 
 import '../../../export.dart';
@@ -12,9 +11,9 @@ class PermissionConsentController {
   final StreamController<PermissionConsent> _consentController = StreamController.broadcast();
   Stream<PermissionConsent> get consentStream => _consentController.stream;
 
-  void init({required Boolean isGranted, required Device device}) {
+  void init({required Boolean isGranted, required int sdk}) {
     if (!isGranted) {
-      PermissionConsent consent = PermissionConsent(sdk: device.sdk, show: true, canPop: false);
+      PermissionConsent consent = PermissionConsent(sdk: sdk, show: true, canPop: false);
 
       _consent = consent;
       Future.microtask(() => _consentController.add(consent));

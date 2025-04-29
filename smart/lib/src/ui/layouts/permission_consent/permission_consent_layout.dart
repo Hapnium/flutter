@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:smart/platform.dart';
 import 'package:smart/utilities.dart';
 import 'package:hapnium/hapnium.dart';
 
@@ -23,8 +22,8 @@ class PermissionConsentLayout extends StatefulWidget {
   /// A boolean indicating whether the app is running on a web platform.
   final Boolean isWeb;
 
-  /// The device object representing the current device information.
-  final Device device;
+  /// The device sdk version.
+  final Integer sdk;
 
   /// A string representing the app or service name requesting permissions.
   final String name;
@@ -98,7 +97,7 @@ class PermissionConsentLayout extends StatefulWidget {
     required this.child,
     required this.isGranted,
     required this.isWeb,
-    required this.device,
+    required this.sdk,
     required this.requestAccess,
     this.onPermissionGranted,
     this.name = "Hapnium",

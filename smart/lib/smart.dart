@@ -7,7 +7,6 @@ export 'exceptions.dart';
 export 'enums.dart';
 export 'utilities.dart';
 export 'ui.dart';
-export 'platform.dart';
 export 'styles.dart';
 export 'responsive.dart';
 
