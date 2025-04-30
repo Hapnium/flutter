@@ -30,4 +30,9 @@ extension SmartAppExtension on SmartApp {
   ///
   /// This indicates that the current application is the nearby services application.
   bool get isNearby => this == SmartApp.nearby;
+
+  /// Returns `true` if the `SmartApp` value is set to [SmartApp.blink].
+  ///
+  /// This indicates that the current application is the blink services application.
+  bool get isBlink => this == SmartApp.blink;
 }

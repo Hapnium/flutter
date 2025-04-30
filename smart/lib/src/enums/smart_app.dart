@@ -12,6 +12,9 @@ enum SmartApp {
   /// Represents the application for finding nearby services.
   nearby("Nearby"),
 
+  /// Represents the application for blink ai.
+  blink("Blink"),
+
   /// Represents the application for managing businesses.
   business("Hapnium Business");
 

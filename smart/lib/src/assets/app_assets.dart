@@ -9,6 +9,9 @@ class SmartAppAssets {
   /// The path to the "nearby" asset.
   static String nearby = _base("nearby");
 
+  /// The path to the "blink" asset.
+  static String blink = _base("blink");
+
   /// The path to the "provider" asset.
   static String provider = _base("provider");
 

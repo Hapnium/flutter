@@ -3,7 +3,7 @@ description: "State management, common ui and utilities for Hapnium mobile platf
 
 publish_to: none
 
-version: 0.9.1
+version: 0.9.2
 homepage: https://github.com/Hapnium/flutter/tree/main/smart
 repository: https://github.com/Hapnium/flutter/tree/main/smart
 
@@ -35,6 +35,7 @@ flutter:
     # APP ASSETS
     - packages/smart/assets/app/business.png
     - packages/smart/assets/app/nearby.png
+    - packages/smart/assets/app/blink.png
     - packages/smart/assets/app/provider.png
     - packages/smart/assets/app/user.png
     # COMMON ASSETS

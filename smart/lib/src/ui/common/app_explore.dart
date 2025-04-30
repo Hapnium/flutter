@@ -31,6 +31,9 @@ class AppExplore extends StatelessWidget {
   /// The optional subtitle text size.
   final double? subtitleTextSize;
 
+  /// List of apps to exclude
+  final List<SmartApp> exclude;
+
   /// The optional border radius for images.
   final BorderRadiusGeometry? imageBorderRadius;
 
@@ -54,12 +57,13 @@ class AppExplore extends StatelessWidget {
     this.subtitleTextSize,
     this.imageBorderRadius,
     this.onAppClicked,
+    this.exclude = const [],
   });
 
   @override
   Widget build(BuildContext context) {
     List<ButtonView> more = [
-      if(!app.isUser) ...[
+      if(!app.isUser && !exclude.contains(SmartApp.user)) ...[
         ButtonView(
           header: "Hapnium",
           body: "Find service providers that can fix the issues you're having easily.",
@@ -67,7 +71,7 @@ class AppExplore extends StatelessWidget {
           index: 0
         )
       ],
-      if(!app.isProvider) ...[
+      if(!app.isProvider && !exclude.contains(SmartApp.provider)) ...[
         ButtonView(
           header: "Hapnium Provider",
           body: "Earn, grow and get certified with your skill as a service provider.",
@@ -75,7 +79,7 @@ class AppExplore extends StatelessWidget {
           index: 1
         )
       ],
-      if(!app.isBusiness) ...[
+      if(!app.isBusiness && !exclude.contains(SmartApp.business)) ...[
         ButtonView(
           header: "Hapnium Business",
           body: "Increase your revenue by moving your organization to our business platform.",
@@ -83,12 +87,20 @@ class AppExplore extends StatelessWidget {
           index: 2
         )
       ],
-      if(!app.isNearby) ...[
+      if(!app.isNearby && !exclude.contains(SmartApp.nearby)) ...[
         ButtonView(
           header: "Nearby",
           body: "Find nearby places that suits your style and taste.",
           image: SmartAppAssets.nearby,
           index: 3
+        )
+      ],
+      if(!app.isBlink && !exclude.contains(SmartApp.blink)) ...[
+        ButtonView(
+          header: "Blink",
+          body: "Your personal AI powered security guard, helping you protect you and your assets.",
+          image: SmartAppAssets.blink,
+          index: 4
         )
       ],
     ];
@@ -115,6 +127,7 @@ class AppExplore extends StatelessWidget {
         ? SmartAppAssets.business
         : app.isProvider ? SmartAppAssets.provider
         : app.isNearby ? SmartAppAssets.nearby
+        : app.isBlink ? SmartAppAssets.blink
         : SmartAppAssets.user;
     DomainAppLink appLink = app.isBusiness
         ? LinkUtils.instance.business
