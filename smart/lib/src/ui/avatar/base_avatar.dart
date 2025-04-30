@@ -143,6 +143,10 @@ abstract class BaseAvatar extends StatelessWidget {
   @protected
   @nonVirtual
   Widget build(BuildContext context) {
+    return avatar(context) ?? _default(context);
+  }
+
+  Widget _default(BuildContext context) {
     String fallback = isLightTheme ? SmartAnimAssets.darkWallpaper : SmartAnimAssets.lightWallpaper;
 
     final ImageProvider foreground = foregroundImageBuilder(context, fallback);
@@ -154,12 +158,12 @@ abstract class BaseAvatar extends StatelessWidget {
 
     final ImageProvider? background = backgroundImageBuilder.isNotNull ? backgroundImageBuilder!(context, fallback) : null;
     final ImageErrorListener? backgroundError = background.isNotNull
-      ? onBackgroundImageError ?? (Object exception, StackTrace? stackTrace) {
-        if (showLogs) {
-          console.log("${exception} || ${stackTrace}", from: "[BASE AVATAR - onBackgroundImageError]");
-        }
+        ? onBackgroundImageError ?? (Object exception, StackTrace? stackTrace) {
+      if (showLogs) {
+        console.log("${exception} || ${stackTrace}", from: "[BASE AVATAR - onBackgroundImageError]");
       }
-      : null;
+    }
+        : null;
 
     return GestureDetector(
       onTap: onClick,
@@ -177,4 +181,7 @@ abstract class BaseAvatar extends StatelessWidget {
       ),
     );
   }
+
+  @optionalTypeArgs
+  Widget? avatar(BuildContext context) => null;
 }

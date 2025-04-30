@@ -30,4 +30,9 @@ enum NotifyApp {
   ///
   /// This app is intended for local discovery, interactions, or finding nearby services.
   nearby,
+
+  /// The blink-focused app.
+  ///
+  /// This app is intended for AI security platform, blink.
+  blink,
 }
