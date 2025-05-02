@@ -50,8 +50,15 @@ class SmartAvatar extends BaseAvatar {
     super.onForegroundImageError,
     super.minRadius,
     super.maxRadius,
-    super.isLightTheme = false,
-    super.showLogs = false,
+    super.isLightTheme,
+    super.showLogs,
+    super.isCircular,
+    super.alignment,
+    super.rectangleBorderRadius,
+    super.rectangleDecoration,
+    super.rectangleForegroundDecoration,
+    super.foregroundImageDecorationBuilder,
+    super.imageDecorationBuilder
   });
 
   @override
@@ -60,17 +67,36 @@ class SmartAvatar extends BaseAvatar {
       return null;
     }
 
-    return GestureDetector(
-      onTap: onClick,
-      child: CircleAvatar(
-        radius: radius,
-        minRadius: minRadius,
-        maxRadius: maxRadius,
-        foregroundColor: foregroundColorBuilder?.call(context),
-        backgroundColor: _generateColorFromName(fullName ?? firstName ?? lastName ?? ""),
-        child: _buildInitialsOrFallback(fullName: fullName, firstName: firstName, lastName: lastName),
-      ),
-    );
+    final backgroundColor = (fullName != null || firstName != null || lastName != null)
+        ? _generateColorFromName(fullName ?? firstName ?? lastName ?? "")
+        : const Color(0xFFEEEEEE);
+    final Widget child = _buildInitialsOrFallback(fullName: fullName, firstName: firstName, lastName: lastName);
+
+    Widget buildAvatar() {
+      if(isCircular) {
+        return CircleAvatar(
+          radius: radius,
+          minRadius: minRadius,
+          maxRadius: maxRadius,
+          foregroundColor: foregroundColorBuilder?.call(context),
+          backgroundColor: backgroundColor,
+          child: child,
+        );
+      } else {
+        return Container(
+          height: radius,
+          width: radius,
+          alignment: alignment ?? Alignment.center,
+          decoration: rectangleDecoration ?? BoxDecoration(
+            color: backgroundColor,
+            borderRadius: rectangleBorderRadius ?? BorderRadius.circular(6),
+          ),
+          child: child,
+        );
+      }
+    }
+
+    return GestureDetector(onTap: onClick, child: buildAvatar());
   }
 
   /// Generates a consistent background color from a name string.

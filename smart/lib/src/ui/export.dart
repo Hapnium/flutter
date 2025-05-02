@@ -10,9 +10,12 @@ export 'animations/expandable.dart';
 export 'animations/heartbeat.dart';
 export 'animations/poll_animator.dart';
 export 'animations/swiper.dart';
+export 'animations/open_container.dart';
+export 'animations/animated.dart';
 
 /// AVATARS
 export 'avatar/base_avatar.dart';
+export 'avatar/smart_avatar.dart';
 export 'avatar/base_stacked_avatars.dart';
 
 /// BUTTON

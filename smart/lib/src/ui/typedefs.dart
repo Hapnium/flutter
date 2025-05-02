@@ -17,6 +17,8 @@ typedef ImageResource = ImageProvider<Object>;
 
 typedef ImageResourceBuilder = ImageResource Function(BuildContext context, String fallback);
 
+typedef ImageDecorationBuilder = Decoration Function(BuildContext context, ImageProvider? image, String fallback, Color? color, ImageErrorListener? listener);
+
 /// A function that builds a widget based on a given value of type [T].
 ///
 /// The [ItemTypeWidgetBuilder] of [T] typedef defines a function signature for

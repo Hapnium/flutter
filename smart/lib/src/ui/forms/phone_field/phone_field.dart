@@ -70,9 +70,6 @@ class PhoneField extends StatefulWidget {
   /// requirements.
   final bool disableLengthCheck;
 
-  /// Placeholder text for the phone input field.
-  final String? hint;
-
   /// Error message displayed when the phone number is invalid.
   final String? phoneNumberErrorMessage;
 
@@ -144,6 +141,62 @@ class PhoneField extends StatefulWidget {
   /// The default country, identified by code, ISO, dial code, or name.
   final String? country;
 
+  /// Padding inside the field.
+  ///
+  /// Controls the spacing between the edges of the field and its content.
+  final EdgeInsets? padding;
+
+  /// Whether to replace the hint with the label.
+  ///
+  /// If `true`, the label will be displayed as the placeholder text when the field is empty.
+  final bool replaceHintWithLabel;
+
+  /// Whether to show a label.
+  ///
+  /// Controls the visibility of the label above the field.
+  final bool needLabel;
+
+  /// Whether the field is enabled.
+  ///
+  /// If `false`, the field is disabled and cannot be interacted with.
+  final bool? enabled;
+
+  /// The background color of the field.
+  final Color? fillColor;
+
+  /// The color of the cursor.
+  final Color? cursorColor;
+
+  /// The color of the cursor when there is an error.
+  final Color? cursorErrorColor;
+
+  /// The height of the cursor.
+  final double? cursorHeight;
+
+  /// The border radius of the field.
+  final double? borderRadius;
+
+  /// The spacing between elements inside the field.
+  final double? spacing;
+
+  /// The cursor width inside the field.
+  final double cursorWidth;
+
+  /// The placeholder text inside the field.
+  ///
+  /// This text is displayed when the field is empty.
+  final String? hint;
+
+  /// The label text displayed above the field.
+  ///
+  /// This provides a descriptive label for the field.
+  final String? label;
+
+  /// Callback when tapping outside the field.
+  ///
+  /// This function is called when the user taps outside the field's boundaries.
+  final TapRegionCallback? onTapOutside;
+
   const PhoneField({
     super.key,
     this.controller,
@@ -177,7 +230,20 @@ class PhoneField extends StatefulWidget {
     this.flagTextColor,
     this.flagMainAxisAlignment,
     this.flagMainAxisSize,
-    this.flagCrossAxisAlignment
+    this.flagCrossAxisAlignment,
+    this.padding,
+    this.replaceHintWithLabel = true,
+    this.needLabel = false,
+    this.enabled,
+    this.fillColor,
+    this.cursorColor,
+    this.cursorErrorColor,
+    this.cursorHeight,
+    this.borderRadius,
+    this.spacing,
+    this.cursorWidth = 2.0,
+    this.label,
+    this.onTapOutside
   });
 
   @override

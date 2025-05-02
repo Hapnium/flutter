@@ -120,6 +120,25 @@ abstract class BaseAvatar extends StatelessWidget {
   /// The child for extra details like the user's initials
   final Widget? child;
 
+  /// Whether the avatar should be circular. Defaults to `true`.
+  final bool isCircular;
+
+  /// Alignment of child in rectangular avatar. Defaults to [Alignment.center].
+  final Alignment? alignment;
+
+  /// Border radius for rectangular avatar. Defaults to [BorderRadius.circular(6)].
+  final BorderRadiusGeometry? rectangleBorderRadius;
+
+  /// The decoration for the rectangular avatar.
+  final Decoration? rectangleDecoration;
+
+  /// The decoration for the rectangular avatar.
+  final Decoration? rectangleForegroundDecoration;
+
+  final ImageDecorationBuilder? imageDecorationBuilder;
+
+  final ImageDecorationBuilder? foregroundImageDecorationBuilder;
+
   /// Constructor for `BaseAvatar`. The `foregroundImageBuilder` is required for extensions.
   const BaseAvatar({
     super.key,
@@ -135,7 +154,14 @@ abstract class BaseAvatar extends StatelessWidget {
     this.maxRadius,
     this.isLightTheme = false,
     this.showLogs = false,
-    this.child
+    this.child,
+    this.isCircular = true,
+    this.alignment,
+    this.rectangleBorderRadius,
+    this.rectangleDecoration,
+    this.rectangleForegroundDecoration,
+    this.imageDecorationBuilder,
+    this.foregroundImageDecorationBuilder,
   });
 
   /// Builds the CircleAvatar with customizable behavior.
@@ -149,6 +175,7 @@ abstract class BaseAvatar extends StatelessWidget {
   Widget _default(BuildContext context) {
     String fallback = isLightTheme ? SmartAnimAssets.darkWallpaper : SmartAnimAssets.lightWallpaper;
 
+    final Color? foregroundColor = foregroundColorBuilder.isNotNull ? foregroundColorBuilder!(context) : null;
     final ImageProvider foreground = foregroundImageBuilder(context, fallback);
     final ImageErrorListener foregroundError = onForegroundImageError ?? (Object exception, StackTrace? stackTrace) {
       if (showLogs) {
@@ -156,30 +183,63 @@ abstract class BaseAvatar extends StatelessWidget {
       }
     };
 
+    final Color backgroundColor = backgroundColorBuilder.isNotNull ? backgroundColorBuilder!(context) : Theme.of(context).unselectedWidgetColor;
     final ImageProvider? background = backgroundImageBuilder.isNotNull ? backgroundImageBuilder!(context, fallback) : null;
-    final ImageErrorListener? backgroundError = background.isNotNull
-        ? onBackgroundImageError ?? (Object exception, StackTrace? stackTrace) {
+    final ImageErrorListener? backgroundError = background.isNotNull ? onBackgroundImageError ?? (Object exception, StackTrace? stackTrace) {
       if (showLogs) {
         console.log("${exception} || ${stackTrace}", from: "[BASE AVATAR - onBackgroundImageError]");
       }
-    }
-        : null;
+    } : null;
 
-    return GestureDetector(
-      onTap: onClick,
-      child: CircleAvatar(
-        radius: radius,
-        minRadius: minRadius,
-        maxRadius: maxRadius,
-        foregroundColor: foregroundColorBuilder.isNotNull ? foregroundColorBuilder!(context) : null,
-        backgroundColor: backgroundColorBuilder.isNotNull ? backgroundColorBuilder!(context) : Theme.of(context).unselectedWidgetColor,
-        foregroundImage: foreground,
-        backgroundImage: background,
-        onForegroundImageError: foregroundError,
-        onBackgroundImageError: backgroundError,
-        child: child,
-      ),
-    );
+    Widget buildAvatar() {
+      if(isCircular) {
+        return CircleAvatar(
+          radius: radius,
+          minRadius: minRadius,
+          maxRadius: maxRadius,
+          foregroundColor: foregroundColor,
+          backgroundColor: backgroundColor,
+          foregroundImage: foreground,
+          backgroundImage: background,
+          onForegroundImageError: foregroundError,
+          onBackgroundImageError: backgroundError,
+          child: child,
+        );
+      } else {
+        BorderRadiusGeometry borderRadius = rectangleBorderRadius ?? BorderRadius.circular(6);
+
+        Decoration backgroundDecoration = imageDecorationBuilder.isNotNull ? imageDecorationBuilder!(context, background, fallback, backgroundColor, backgroundError) : BoxDecoration(
+          color: backgroundColor,
+          borderRadius: borderRadius,
+          image: background != null ? DecorationImage(
+            image: background,
+            onError: backgroundError,
+            fit: BoxFit.cover
+          ) : null,
+        );
+
+        Decoration foregroundDecoration = imageDecorationBuilder.isNotNull ? imageDecorationBuilder!(context, foreground, fallback, foregroundColor, foregroundError) : BoxDecoration(
+          color: foregroundColor,
+          borderRadius: borderRadius,
+          image: DecorationImage(
+            image: foreground,
+            onError: foregroundError,
+            fit: BoxFit.cover
+          ),
+        );
+
+        return Container(
+          height: radius,
+          width: radius,
+          alignment: alignment ?? Alignment.center,
+          decoration: rectangleDecoration ?? backgroundDecoration,
+          foregroundDecoration: foregroundDecoration,
+          child: child,
+        );
+      }
+    }
+
+    return GestureDetector(onTap: onClick, child: buildAvatar());
   }
 
   @optionalTypeArgs

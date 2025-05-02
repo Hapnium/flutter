@@ -42,6 +42,19 @@ class _PhoneFieldState extends State<PhoneField> {
       onChanged: _handlePhoneChanged,
       validator: _handleValidate,
       onSaved: _handleOnSave,
+      onTapOutside: widget.onTapOutside,
+      label: widget.label,
+      cursorWidth: widget.cursorWidth,
+      spacing: widget.spacing,
+      borderRadius: widget.borderRadius,
+      cursorHeight: widget.cursorHeight,
+      cursorErrorColor: widget.cursorErrorColor,
+      cursorColor: widget.cursorColor,
+      fillColor: widget.fillColor,
+      enabled: widget.enabled,
+      needLabel: widget.needLabel,
+      replaceHintWithLabel: widget.replaceHintWithLabel,
+      padding: widget.padding
     );
   }
 
