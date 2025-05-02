@@ -93,10 +93,10 @@ class _CountryPickerState extends State<CountryPicker> {
   }
 
   void _search(String value) {
-    if (mounted) setState(() {
+    setState(() {
       _filteredCountries = value.isNumeric
           ? widget.countries.where((country) => country.dialCode.contains(value)).toList()
-          : widget.countries.where((country) => country.name.equalsIgnoreCase(value)).toList();
+          : widget.countries.where((country) => country.name.containsIgnoreCase(value)).toList();
     });
   }
 
