@@ -165,4 +165,92 @@ extension IterableExtension<T> on Iterable<T> {
 
   /// Filters elements based on a predicate (alias for `where`).
   Iterable<T> filter(ConditionTester<T> test) => where(test);
+
+  /// Groups the elements of the iterable by a key returned from the [keySelector] function.
+  ///
+  /// Returns a [Map] where each key is a value returned by [keySelector],
+  /// and the corresponding value is a list of all elements in the iterable
+  /// that produced that key.
+  ///
+  /// Example:
+  /// ```dart
+  /// final items = ['apple', 'banana', 'avocado'];
+  /// final grouped = items.group((item) => item[0]);
+  /// // grouped = {
+  /// //   'a': ['apple', 'avocado'],
+  /// //   'b': ['banana']
+  /// // }
+  /// ```
+  Map<K, List<T>> group<K>(K Function(T item) keySelector) {
+    final Map<K, List<T>> result = {};
+    for (final element in this) {
+      final key = keySelector(element);
+      result.putIfAbsent(key, () => []).add(element);
+    }
+    return result;
+  }
+
+  /// Groups elements of this iterable into a [Map] using the given [keySelector].
+  ///
+  /// Similar to Java's `Collectors.groupingBy`.
+  ///
+  /// Each entry in the resulting map has a key produced by [keySelector],
+  /// and the corresponding value is a list of elements that share that key.
+  ///
+  /// Example:
+  /// ```dart
+  /// class Interest {
+  ///   final String name;
+  ///   final String category;
+  ///   Interest(this.name, this.category);
+  /// }
+  ///
+  /// final interests = [
+  ///   Interest('Football', 'Sports'),
+  ///   Interest('Chess', 'Board Games'),
+  ///   Interest('Basketball', 'Sports'),
+  /// ];
+  ///
+  /// final grouped = interests.groupBy((i) => i.category);
+  /// print(grouped['Sports']!.map((i) => i.name)); // [Football, Basketball]
+  /// ```
+  Map<K, List<T>> groupBy<K>(K Function(T item) keySelector) {
+    return group(keySelector);
+  }
+
+  /// Groups elements of this iterable into a [Map] using [keySelector],
+  /// and applies [valueSelector] to each element before storing it.
+  ///
+  /// Similar to Java's `Collectors.groupingBy(..., Collectors.mapping(...))`.
+  ///
+  /// Example:
+  /// ```dart
+  /// class Interest {
+  ///   final String name;
+  ///   final String category;
+  ///   Interest(this.name, this.category);
+  /// }
+  ///
+  /// final interests = [
+  ///   Interest('Football', 'Sports'),
+  ///   Interest('Chess', 'Board Games'),
+  ///   Interest('Basketball', 'Sports'),
+  /// ];
+  ///
+  /// final groupedNames = interests.groupByAndMap(
+  ///   (i) => i.category,
+  ///   (i) => i.name,
+  /// );
+  ///
+  /// print(groupedNames['Sports']); // [Football, Basketball]
+  /// ```
+  Map<K, List<V>> groupByAndMap<K, V>(K Function(T item) keySelector, V Function(T item) valueSelector) {
+    final Map<K, List<V>> result = {};
+    for (final element in this) {
+      final key = keySelector(element);
+      result.putIfAbsent(key, () => []).add(valueSelector(element));
+    }
+
+    return result;
+  }
 }
