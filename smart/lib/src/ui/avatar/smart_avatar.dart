@@ -37,7 +37,7 @@ class SmartAvatar extends BaseAvatar {
   const SmartAvatar({
     super.key,
     required super.radius,
-    required super.foregroundImageBuilder,
+    super.foregroundImageBuilder,
     this.imageUrl,
     this.fullName,
     this.firstName,
@@ -58,7 +58,7 @@ class SmartAvatar extends BaseAvatar {
     super.rectangleDecoration,
     super.rectangleForegroundDecoration,
     super.foregroundImageDecorationBuilder,
-    super.imageDecorationBuilder
+    super.imageDecorationBuilder,
   });
 
   @override

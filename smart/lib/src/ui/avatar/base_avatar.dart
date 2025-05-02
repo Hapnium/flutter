@@ -69,7 +69,7 @@ abstract class BaseAvatar extends StatelessWidget {
   /// The foreground image of the avatar.
   ///
   /// Typically used as profile image. For fallback use [backgroundImageBuilder].
-  final ImageResourceBuilder foregroundImageBuilder;
+  final ImageResourceBuilder? foregroundImageBuilder;
 
   /// An optional error callback for errors emitted when loading
   /// [backgroundImageBuilder].
@@ -142,7 +142,7 @@ abstract class BaseAvatar extends StatelessWidget {
   /// Constructor for `BaseAvatar`. The `foregroundImageBuilder` is required for extensions.
   const BaseAvatar({
     super.key,
-    required this.foregroundImageBuilder,
+    this.foregroundImageBuilder,
     required this.radius,
     this.backgroundColorBuilder,
     this.onClick,
@@ -176,7 +176,7 @@ abstract class BaseAvatar extends StatelessWidget {
     String fallback = isLightTheme ? SmartAnimAssets.darkWallpaper : SmartAnimAssets.lightWallpaper;
 
     final Color? foregroundColor = foregroundColorBuilder.isNotNull ? foregroundColorBuilder!(context) : null;
-    final ImageProvider foreground = foregroundImageBuilder(context, fallback);
+    final ImageProvider? foreground = foregroundImageBuilder.isNotNull ? foregroundImageBuilder!(context, fallback) : null;
     final ImageErrorListener foregroundError = onForegroundImageError ?? (Object exception, StackTrace? stackTrace) {
       if (showLogs) {
         console.log("${exception} || ${stackTrace}", from: "[BASE AVATAR - onForegroundImageError]");
@@ -221,11 +221,11 @@ abstract class BaseAvatar extends StatelessWidget {
         Decoration foregroundDecoration = imageDecorationBuilder.isNotNull ? imageDecorationBuilder!(context, foreground, fallback, foregroundColor, foregroundError) : BoxDecoration(
           color: foregroundColor,
           borderRadius: borderRadius,
-          image: DecorationImage(
+          image: foreground != null ? DecorationImage(
             image: foreground,
             onError: foregroundError,
             fit: BoxFit.cover
-          ),
+          ) : null,
         );
 
         return Container(
