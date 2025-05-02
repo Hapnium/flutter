@@ -65,6 +65,7 @@ class _CountryPickerState extends State<CountryPicker> {
       inputConfigBuilder: widget.inputConfigBuilder,
       inputDecorationBuilder: widget.decorationConfigBuilder,
       onChanged: _search,
+      fillColor: widget.formBackgroundColor,
     );
   }
 
@@ -131,6 +132,7 @@ class _CountryPickerState extends State<CountryPicker> {
             bodyColor: widget.itemDialCodeColor,
             fontWeight: widget.itemNameWeight,
             bodyWeight: widget.itemDialCodeWeight,
+            backgroundColor: widget.itemBackgroundColor,
             notification: TextBuilder(
               text: country.code,
               size: Sizing.font(widget.itemCodeSize ?? 20),
@@ -165,6 +167,10 @@ class _CountryPickerState extends State<CountryPicker> {
       sheetPadding: widget.dialogPadding ?? EdgeInsets.all(16),
       padding: widget.bodyPadding ?? EdgeInsets.all(10),
       borderRadius: widget.bottomSheetBorderRadius ?? BorderRadius.circular(24),
+      backgroundColor: widget.backgroundColor ?? Theme.of(context).splashColor,
+      height: widget.height,
+      uiConfig: widget.uiConfig,
+      useDefaultBorderRadius: widget.useDefaultBorderRadius,
       child: Column(
         spacing: widget.bodySpacing ?? 20,
         mainAxisSize: widget.mainAxisSize ?? MainAxisSize.min,

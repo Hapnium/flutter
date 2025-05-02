@@ -54,6 +54,12 @@ class CountryPicker extends StatefulWidget {
   /// Color for the country dial code text.
   final Color? itemDialCodeColor;
 
+  /// Color for the item background.
+  final Color? itemBackgroundColor;
+
+  /// The color of the form background.
+  final Color? formBackgroundColor;
+
   /// Padding for the body of the country picker.
   final EdgeInsetsGeometry? bodyPadding;
 
@@ -126,6 +132,19 @@ class CountryPicker extends StatefulWidget {
   /// A widget displayed as an icon.
   final Widget? icon;
 
+  /// The height of the modal sheet.
+  final Double? height;
+
+  /// UI Config to override other settings
+  ///
+  /// Defaults to null
+  final UiConfig? uiConfig;
+
+  /// This specifies that when `sheetPadding` is not null, default border radius will be applied
+  ///
+  /// Can be overriden by making this false
+  final Boolean useDefaultBorderRadius;
+
   /// Private constructor for the country picker.
   CountryPicker._({
     required this.placeholder,
@@ -142,6 +161,8 @@ class CountryPicker extends StatefulWidget {
     required this.itemCodeColor,
     required this.itemFlagColor,
     required this.itemDialCodeColor,
+    required this.itemBackgroundColor,
+    required this.formBackgroundColor,
     required this.bodyPadding,
     required this.inputConfigBuilder,
     required this.decorationConfigBuilder,
@@ -165,7 +186,10 @@ class CountryPicker extends StatefulWidget {
     required this.bottomSheetBorderRadius,
     required this.mainAxisSize,
     required this.indicator,
-    required this.icon
+    required this.icon,
+    this.height,
+    this.uiConfig,
+    this.useDefaultBorderRadius = true
   });
 
   /// Opens the country picker as a dialog.
@@ -188,6 +212,8 @@ class CountryPicker extends StatefulWidget {
     Color? itemCodeColor,
     Color? itemFlagColor,
     Color? itemDialCodeColor,
+    Color? itemBackgroundColor,
+    Color? formBackgroundColor,
     EdgeInsetsGeometry? bodyPadding,
     FieldInputConfigBuilder? inputConfigBuilder,
     FieldDecorationConfigBuilder? decorationConfigBuilder,
@@ -252,6 +278,8 @@ class CountryPicker extends StatefulWidget {
           itemCodeColor: itemCodeColor,
           itemFlagColor: itemFlagColor,
           itemDialCodeColor: itemDialCodeColor,
+          itemBackgroundColor: itemBackgroundColor,
+          formBackgroundColor: formBackgroundColor,
           bodyPadding: bodyPadding,
           inputConfigBuilder: inputConfigBuilder,
           decorationConfigBuilder: decorationConfigBuilder,
@@ -300,6 +328,8 @@ class CountryPicker extends StatefulWidget {
     Color? itemCodeColor,
     Color? itemFlagColor,
     Color? itemDialCodeColor,
+    Color? itemBackgroundColor,
+    Color? formBackgroundColor,
     EdgeInsetsGeometry? bodyPadding,
     FieldInputConfigBuilder? inputConfigBuilder,
     FieldDecorationConfigBuilder? decorationConfigBuilder,
@@ -334,7 +364,10 @@ class CountryPicker extends StatefulWidget {
     bool enableDrag = true,
     bool? showDragHandle,
     bool useSafeArea = false,
-    double? elevation
+    double? elevation,
+    UiConfig? uiConfig,
+    Double? height,
+    Boolean? useDefaultBorderRadius
   }) async {
     route ??= _defaultRoute;
     
@@ -375,6 +408,8 @@ class CountryPicker extends StatefulWidget {
           itemCodeColor: itemCodeColor,
           itemFlagColor: itemFlagColor,
           itemDialCodeColor: itemDialCodeColor,
+          itemBackgroundColor: itemBackgroundColor,
+          formBackgroundColor: formBackgroundColor,
           bodyPadding: bodyPadding,
           inputConfigBuilder: inputConfigBuilder,
           decorationConfigBuilder: decorationConfigBuilder,
@@ -398,7 +433,10 @@ class CountryPicker extends StatefulWidget {
           bottomSheetBorderRadius: bottomSheetBorderRadius,
           mainAxisSize: mainAxisSize,
           indicator: indicator,
-          icon: icon
+          icon: icon,
+          height: height,
+          uiConfig: uiConfig,
+          useDefaultBorderRadius: useDefaultBorderRadius ?? true
         ),
       ),
     );
