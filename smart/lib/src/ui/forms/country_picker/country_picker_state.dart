@@ -13,6 +13,29 @@ class _CountryPickerState extends State<CountryPicker> {
   }
 
   @override
+  void didUpdateWidget(covariant CountryPicker oldWidget) {
+    if(oldWidget.selected != widget.selected) {
+      setState(() {
+        _selectedCountry = widget.selected;
+      });
+    } else if(oldWidget.countries != widget.countries) {
+      setState(() {
+        _filteredCountries = widget.countries.isEmpty ? CountryData.instance.countries : widget.countries;
+      });
+    } else {
+      setState(() {});
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if(widget.isDialog) {
       return _buildWithDialog(context);
@@ -70,11 +93,11 @@ class _CountryPickerState extends State<CountryPicker> {
   }
 
   void _search(String value) {
-    _filteredCountries = value.isNumeric
-      ? widget.countries.where((country) => country.dialCode.contains(value)).toList()
-      : widget.countries.where((country) => country.name.equalsIgnoreCase(value)).toList();
-
-    if (mounted) setState(() {});
+    if (mounted) setState(() {
+      _filteredCountries = value.isNumeric
+          ? widget.countries.where((country) => country.dialCode.contains(value)).toList()
+          : widget.countries.where((country) => country.name.equalsIgnoreCase(value)).toList();
+    });
   }
 
   Widget _buildCountryListView(BuildContext context) {
