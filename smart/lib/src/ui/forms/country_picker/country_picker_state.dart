@@ -2,12 +2,14 @@ part of 'country_picker.dart';
 
 class _CountryPickerState extends State<CountryPicker> {
   late List<Country> _filteredCountries;
+  late List<Country> _countries;
   Country? _selectedCountry;
 
   @override
   void initState() {
     _selectedCountry = widget.selected;
     _filteredCountries = widget.countries.isEmpty ? CountryData.instance.countries : widget.countries;
+    _countries = widget.countries.isEmpty ? CountryData.instance.countries : widget.countries;
 
     super.initState();
   }
@@ -21,6 +23,7 @@ class _CountryPickerState extends State<CountryPicker> {
     } else if(oldWidget.countries != widget.countries) {
       setState(() {
         _filteredCountries = widget.countries.isEmpty ? CountryData.instance.countries : widget.countries;
+        _countries = widget.countries.isEmpty ? CountryData.instance.countries : widget.countries;
       });
     } else {
       setState(() {});
@@ -93,11 +96,11 @@ class _CountryPickerState extends State<CountryPicker> {
   }
 
   void _search(String value) {
-    setState(() {
-      _filteredCountries = value.isNumeric
-          ? widget.countries.where((country) => country.dialCode.contains(value)).toList()
-          : widget.countries.where((country) => country.name.containsIgnoreCase(value)).toList();
-    });
+    _filteredCountries = value.isNumeric
+        ? _countries.where((country) => country.dialCode.contains(value)).toList()
+        : _countries.where((country) => country.name.containsIgnoreCase(value)).toList();
+
+    if(mounted) setState(() { });
   }
 
   Widget _buildCountryListView(BuildContext context) {
