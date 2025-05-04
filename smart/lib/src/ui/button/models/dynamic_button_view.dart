@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hapnium/hapnium.dart';
 
 /// Represents a dynamic icon button for navigation.
-class DynamicIconButtonView {
+class DynamicButtonView {
   /// The default icon displayed when inactive.
   final IconData icon;
 
@@ -18,12 +18,16 @@ class DynamicIconButtonView {
   /// The navigation path associated with the button.
   final String path;
 
-  /// Creates a `DynamicIconButtonView` instance.
-  DynamicIconButtonView({
+  /// The image associated with the button.
+  final String image;
+
+  /// Creates a `DynamicButtonView` instance.
+  DynamicButtonView({
     this.icon = Icons.copy,
     this.index = 0,
     this.active = Icons.copy,
     this.title = "",
-    this.path = "/",
+    this.path = "",
+    this.image = ""
   });
 }

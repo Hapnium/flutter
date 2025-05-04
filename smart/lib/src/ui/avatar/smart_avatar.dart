@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smart/utilities.dart';
 
 import 'base_avatar.dart';
 
@@ -33,6 +34,18 @@ class SmartAvatar extends BaseAvatar {
   /// Optional last name of the user. Used if [fullName] and [firstName] are not provided.
   final String? lastName;
 
+  /// Optional text size for the initials text.
+  final double? textSize;
+
+  /// Optional text weight for the initials text.
+  final FontWeight? textWeight;
+
+  /// Optional text color for the initials text.
+  final Color? textColor;
+
+  /// Optional default icon to display when no name or image is provided.
+  final IconData? defaultIcon;
+
   /// Creates a [SmartAvatar] widget that displays a user profile image, initials, or fallback icon.
   const SmartAvatar({
     super.key,
@@ -42,6 +55,10 @@ class SmartAvatar extends BaseAvatar {
     this.fullName,
     this.firstName,
     this.lastName,
+    this.textSize,
+    this.textWeight,
+    this.textColor,
+    this.defaultIcon,
     super.onClick,
     super.backgroundColorBuilder,
     super.foregroundColorBuilder,
@@ -68,7 +85,7 @@ class SmartAvatar extends BaseAvatar {
     }
 
     final backgroundColor = (fullName != null || firstName != null || lastName != null)
-        ? _generateColorFromName(fullName ?? firstName ?? lastName ?? "")
+        ? SmartUtils.generateColorFromName(fullName ?? firstName ?? lastName ?? "")
         : const Color(0xFFEEEEEE);
     final Widget child = _buildInitialsOrFallback(fullName: fullName, firstName: firstName, lastName: lastName);
 
@@ -99,48 +116,21 @@ class SmartAvatar extends BaseAvatar {
     return GestureDetector(onTap: onClick, child: buildAvatar());
   }
 
-  /// Generates a consistent background color from a name string.
-  static Color _generateColorFromName(String name) {
-    if (name.isEmpty) return Colors.grey.shade400;
-    final hash = name.hashCode;
-    final hue = (hash % 360).toDouble();
-
-    return HSLColor.fromAHSL(1.0, hue, 0.5, 0.65).toColor();
-  }
-
   /// Builds either the initials text or a fallback icon if no name is provided.
-  static Widget _buildInitialsOrFallback({String? fullName, String? firstName, String? lastName}) {
-    final String initials = _getInitials(fullName: fullName, firstName: firstName, lastName: lastName);
+  Widget _buildInitialsOrFallback({String? fullName, String? firstName, String? lastName}) {
+    final String initials = SmartUtils.getInitials(fullName: fullName, firstName: firstName, lastName: lastName);
 
     if (initials.isEmpty) {
-      return const Icon(Icons.person, color: Colors.white54);
+      return Icon(defaultIcon ?? Icons.person, color: textColor ?? Colors.white54, size: textSize);
     }
 
     return Text(
       initials,
-      style: const TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.w600,
-        fontSize: 14,
+      style: TextStyle(
+        color: textColor ?? Colors.white,
+        fontWeight: textWeight ?? FontWeight.w600,
+        fontSize: textSize ?? 14,
       ),
     );
-  }
-
-  /// Extracts initials from full name, or falls back to first/last name.
-  static String _getInitials({String? fullName, String? firstName, String? lastName}) {
-    if (fullName != null && fullName.trim().isNotEmpty) {
-      final parts = fullName.trim().split(RegExp(r'\s+'));
-      return parts.length >= 2 ? parts[0][0].toUpperCase() + parts[1][0].toUpperCase() : parts[0][0].toUpperCase();
-    }
-
-    if (firstName != null && firstName.trim().isNotEmpty) {
-      return firstName.trim()[0].toUpperCase();
-    }
-
-    if (lastName != null && lastName.trim().isNotEmpty) {
-      return lastName.trim()[0].toUpperCase();
-    }
-
-    return "";
   }
 }

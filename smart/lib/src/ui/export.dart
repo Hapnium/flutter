@@ -26,7 +26,7 @@ export 'button/info_button.dart';
 export 'button/sized_button.dart';
 
 export 'button/models/button_view.dart';
-export 'button/models/dynamic_icon_button_view.dart';
+export 'button/models/dynamic_button_view.dart';
 export 'button/models/update_log_view.dart';
 
 /// COMMON
