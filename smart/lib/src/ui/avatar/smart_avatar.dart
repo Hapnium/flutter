@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hapnium/hapnium.dart';
 import 'package:smart/utilities.dart';
 
 import 'base_avatar.dart';
@@ -22,9 +23,6 @@ import 'base_avatar.dart';
 /// )
 /// ```
 class SmartAvatar extends BaseAvatar {
-  /// Optional user image URL to determine if an image is available.
-  final String? imageUrl;
-
   /// Optional full name of the user. Used for generating initials and consistent colors.
   final String? fullName;
 
@@ -51,7 +49,6 @@ class SmartAvatar extends BaseAvatar {
     super.key,
     required super.radius,
     super.foregroundImageBuilder,
-    this.imageUrl,
     this.fullName,
     this.firstName,
     this.lastName,
@@ -80,11 +77,11 @@ class SmartAvatar extends BaseAvatar {
 
   @override
   Widget? avatar(BuildContext context) {
-    if(imageUrl != null && imageUrl!.trim().isNotEmpty) {
+    if(super.foregroundImageBuilder.isNotNull) {
       return null;
     }
 
-    final backgroundColor = (fullName != null || firstName != null || lastName != null)
+    final backgroundColor = (fullName.isNotNull || firstName.isNotNull || lastName.isNotNull)
         ? SmartUtils.generateColorFromName(fullName ?? firstName ?? lastName ?? "")
         : const Color(0xFFEEEEEE);
     final Widget child = _buildInitialsOrFallback(fullName: fullName, firstName: firstName, lastName: lastName);

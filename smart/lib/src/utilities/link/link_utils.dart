@@ -162,19 +162,25 @@ class LinkUtils {
   ];
 
   /// A list of help and support options.
-  List<ButtonView> helpAndSupport({bool showSafeGuard = false}) => [
+  List<ButtonView> helpAndSupport({
+    bool showSafeGuard = false,
+    String? emailAddress,
+    String? supportPhoneNumber,
+    String? safeGuardUrl,
+    String? helpCenter,
+  }) => [
     ButtonView(
       header: "Mail",
       body: "Send us an email when it is your best option.",
       icon: CupertinoIcons.bubble_left_bubble_right_fill,
-      path: accountEmailAddress,
+      path: emailAddress ?? accountEmailAddress,
       index: 0
     ),
     ButtonView(
       header: "Call us",
       body: "Get all the help you need with a live assistant.",
       icon: CupertinoIcons.phone_circle,
-      path: supportPhoneNumber,
+      path: supportPhoneNumber ?? this.supportPhoneNumber,
       index: 1
     ),
     if(showSafeGuard) ...[
@@ -182,7 +188,7 @@ class LinkUtils {
         header: "Safe-Guard Community",
         body: "Join Hapnium SG Community and help us improve our safety measures.",
         image: SmartSocialAssets.whatsapp,
-        path: safeGuardUrl,
+        path: safeGuardUrl ?? this.safeGuardUrl,
         index: 2
       )
     ],
@@ -190,7 +196,7 @@ class LinkUtils {
       header: "Visit help center",
       body: "Browse our help documentation to find possible solutions",
       image: SmartSocialAssets.asterisk,
-      path: helpCenter,
+      path: helpCenter ?? this.helpCenter,
       index: 3
     ),
   ];
@@ -234,20 +240,26 @@ class LinkUtils {
   }
 
   /// List of support when a platform error occurs
-  List<ButtonView> platformErrorSupport({bool showWebApp = false, required SmartApp app}) => [
+  List<ButtonView> platformErrorSupport({
+    bool showWebApp = false,
+    required SmartApp app,
+    String? helpCenter,
+    String? teamEmailAddress,
+    String? baseUrl,
+  }) => [
     ButtonView(
       header: "Hapnium Help Center",
       body: "Learn why you might be getting platform error.",
       icon: Icons.rule_rounded,
       index: 0,
-      path: helpCenter
+      path: helpCenter ?? this.helpCenter
     ),
     ButtonView(
       header: "Reach out to the team",
       body: "Let the team know if this is an abnormal behaviour.",
       icon: Icons.polymer_sharp,
       index: 1,
-      path: teamEmailAddress
+      path: teamEmailAddress ?? this.teamEmailAddress
     ),
     if(showWebApp.isFalse) ...[
       ButtonView(
@@ -255,7 +267,7 @@ class LinkUtils {
         body: "Understand more about Hapnium and why we value safety.",
         icon: Icons.web_stories,
         index: 2,
-        path: baseUrl
+        path: baseUrl ?? this.baseUrl
       ),
     ] else ...[
       ButtonView(
