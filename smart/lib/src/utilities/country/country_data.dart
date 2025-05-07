@@ -2492,7 +2492,7 @@ class CountryData {
         code: code,
         dialCode: "234",
         min: 10,
-        max: 10,
+        max: 11,
         image: _image(code)
     );
   }

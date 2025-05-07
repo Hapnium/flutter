@@ -100,4 +100,73 @@ class CountryUtil {
       return TextBuilder(text: country.flag, size: size ?? 18);
     }
   }
+
+  /// Finds the country that most likely matches the given phone number.
+  ///
+  /// This method attempts to identify the correct country using the following logic:
+  ///
+  /// 1. **Dial Code with '+'**: If the number starts with '+', it strips the '+' and
+  ///    checks which country's dial code it starts with (e.g., "+234" → Nigeria).
+  ///
+  /// 2. **Dial Code without '+'**: If the number does not start with '+', it checks
+  ///    if it starts with any known dial code (e.g., "234803..." → Nigeria).
+  ///
+  /// 3. **Length-based Matching**: If no dial code matches, it attempts to match the
+  ///    number to a country based on whether its length falls within the country's
+  ///    expected `min` and `max` phone number lengths.
+  ///
+  /// 4. **Fallback**: If no match is found using the above strategies, the first
+  ///    country in the list is returned as a fallback.
+  ///
+  /// This method assumes that the country data (with dial codes and number lengths)
+  /// is already initialized in `CountryUtil`.
+  ///
+  /// Example inputs and expected behavior:
+  ///
+  /// - "+2348011111111" → Matches Nigeria
+  /// - "2348011111111"  → Matches Nigeria
+  /// - "08011111111"    → Falls back to length match (Nigeria if it fits)
+  /// - "14155552671"    → Matches USA
+  ///
+  /// Parameters:
+  /// - [phoneNumber]: The input phone number string (can be raw, formatted, or with '+').
+  /// - [countryLocale]: The default country to use if no match is found.
+  ///
+  /// Returns:
+  /// - A [Country] object representing the most likely match.
+  Country findByPhoneNumber(String phoneNumber, {String countryLocale = ""}) {
+    List<Country> sorted = countries..sort((Country a, Country b) => b.dialCode.length.compareTo(a.dialCode.length));
+
+    // 1. If it starts with '+', extract dial code and match
+    if (phoneNumber.startsWith('+')) {
+      for (Country country in sorted) {
+        if (phoneNumber.startsWith(country.dialCode)) {
+          return country;
+        }
+      }
+    }
+
+    // 2. If it doesn't start with '+', try matching dial codes without '+'
+    for (Country country in sorted) {
+      if (phoneNumber.startsWith(country.dialCode)) {
+        return country;
+      }
+    }
+
+    // 3. Fallback: Match by length
+    int numberLength = phoneNumber.length;
+    for (var country in countries) {
+      if (numberLength >= country.min && numberLength <= country.max) {
+        return country;
+      }
+    }
+
+    /// 4. If no match is found, check the country locale
+    if(countryLocale.isNotEmpty) {
+      return findByCode(countryLocale);
+    }
+
+    // 4. Final fallback
+    return countries.first;
+  }
 }
