@@ -40,6 +40,27 @@ class AppExplore extends StatelessWidget {
   /// Callback triggered when an app section is clicked.
   final AppDetailsSelector? onAppClicked;
 
+  /// The optional padding for the container.
+  final EdgeInsetsGeometry? padding;
+
+  /// The optional padding for each item.
+  final EdgeInsetsGeometry? itemPadding;
+
+  /// The optional spacing between items.
+  final double? itemSpacing;
+
+  /// The optional spacing between sections.
+  final double? spacing;
+
+  /// The optional spacing between text.
+  final double? textSpacing;
+
+  /// The optional background color for each item.
+  final Color? itemBackgroundColor;
+
+  /// The optional border radius for each item.
+  final BorderRadiusGeometry? itemBorderRadius;
+
   /// Creates an instance of [AppExplore].
   ///
   /// The [app] parameter is required.
@@ -58,6 +79,13 @@ class AppExplore extends StatelessWidget {
     this.imageBorderRadius,
     this.onAppClicked,
     this.exclude = const [],
+    this.padding,
+    this.itemPadding,
+    this.itemSpacing,
+    this.spacing,
+    this.textSpacing,
+    this.itemBackgroundColor,
+    this.itemBorderRadius,
   });
 
   @override
@@ -139,15 +167,22 @@ class AppExplore extends StatelessWidget {
     BorderRadiusGeometry _imageBorderRadius = imageBorderRadius ?? BorderRadius.circular(10);
     double _headerTextSize = headerTextSize ?? Sizing.font(14);
     double _subtitleTextSize = subtitleTextSize ?? Sizing.font(12);
+    double _spacing = spacing ?? Sizing.font(10);
+    EdgeInsetsGeometry _padding = padding ?? const EdgeInsets.all(12);
+    EdgeInsetsGeometry _itemPadding = itemPadding ?? EdgeInsets.symmetric(horizontal: 8.0, vertical: 12);
+    double _itemSpacing = itemSpacing ?? Sizing.font(10);
+    double _textSpacing = textSpacing ?? Sizing.font(2);
+    Color? _itemBackgroundColor = itemBackgroundColor ?? Theme.of(context).textSelectionTheme.selectionColor;
+    BorderRadiusGeometry _itemBorderRadius = itemBorderRadius ?? BorderRadius.circular(12);
 
     return Column(
-      spacing: 10,
+      spacing: _spacing,
       children: [
         if(more.isNotEmpty) ...[
           Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: _padding,
             child: Column(
-              spacing: 10,
+              spacing: _spacing,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextBuilder(
@@ -156,19 +191,20 @@ class AppExplore extends StatelessWidget {
                   color: _primaryColorLight
                 ),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: _itemBorderRadius,
                   child: Container(
-                    color: Theme.of(context).textSelectionTheme.selectionColor,
+                    color: _itemBackgroundColor,
                     child: Column(
+                      spacing: _itemSpacing,
                       children: more.map((view) {
                         return Material(
                           color: Colors.transparent,
                           child: InkWell(
                             onTap: () => handle(view),
                             child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
+                              padding: _itemPadding,
                               child: Row(
-                                spacing: 10,
+                                spacing: _spacing,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   ClipRRect(
@@ -177,7 +213,7 @@ class AppExplore extends StatelessWidget {
                                   ),
                                   Expanded(
                                     child: Column(
-                                      spacing: 2,
+                                      spacing: _textSpacing,
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         TextBuilder(
@@ -209,7 +245,7 @@ class AppExplore extends StatelessWidget {
         ],
         if(isWeb) ...[
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: _padding,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -224,10 +260,11 @@ class AppExplore extends StatelessWidget {
                     tab: ButtonView(
                       header: "Download the ${app.type} app",
                       body: "Click to download from your favorite stores",
-                      image: appImage
+                      image: appImage,
                     ),
                     bodyTextSize: _subtitleTextSize,
                     headerTextSize: _headerTextSize,
+                    backgroundColor: _itemBackgroundColor,
                     onTap: () {
                       if(onAppClicked.isNotNull) {
                         onAppClicked!(appLink);
