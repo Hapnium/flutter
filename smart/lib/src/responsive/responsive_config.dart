@@ -16,5 +16,5 @@ class ResponsiveConfig {
   ///
   /// You can specify breakpoints for different screen sizes using the
   /// corresponding properties.
-  ResponsiveConfig({this.mobile = 600, this.tablet = 1024, this.desktop = 2046});
+  const ResponsiveConfig({this.mobile = 600, this.tablet = 1024, this.desktop = 2046});
 }

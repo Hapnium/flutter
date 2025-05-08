@@ -110,3 +110,6 @@ export 'paged/models/paged.dart';
 export 'paged/models/paged_child_builder_delegate.dart';
 
 export 'paged/pull_to_refresh.dart';
+
+/// STEPPER
+export 'stepper/timeline.dart';

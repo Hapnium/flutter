@@ -9,6 +9,7 @@ export 'utilities.dart';
 export 'ui.dart';
 export 'styles.dart';
 export 'responsive.dart';
+export 'flutter.dart';
 
 /// SERCH
 export 'package:hapnium/hapnium.dart';
