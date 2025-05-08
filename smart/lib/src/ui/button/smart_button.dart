@@ -240,41 +240,41 @@ class SmartButton extends StatelessWidget {
             onTap: onTap,
             child: Padding(
               padding: padding ?? EdgeInsets.all(8.0),
-              child: Center(
-                child: Column(
-                  spacing: spacing ?? 10,
-                  mainAxisSize: mainAxisSize,
-                  crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
-                  mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      tab.icon,
-                      color: color ?? tab.color,
-                      size: iconSize ?? 18,
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: TextBuilder.center(
-                            text: tab.header,
-                            color: color ?? tab.color,
-                            size: Sizing.font(selectiveTextSize ?? 12),
-                            flow: TextOverflow.ellipsis,
-                            weight: fontWeight ?? FontWeight.normal
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              ),
+              child: Center(child: _selectiveChild(context)),
             ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _selectiveChild(BuildContext context) {
+    Widget child = TextBuilder.center(
+      text: tab.header,
+      color: color ?? tab.color,
+      size: Sizing.font(selectiveTextSize ?? 12),
+      flow: TextOverflow.ellipsis,
+      weight: fontWeight ?? FontWeight.normal
+    );
+
+    if(showIcon) {
+      return Column(
+        spacing: spacing ?? 10,
+        mainAxisSize: mainAxisSize,
+        crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
+        mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.center,
+        children: [
+          Icon(
+            tab.icon,
+            color: color ?? tab.color,
+            size: iconSize ?? 18,
+          ),
+          child
+        ],
+      );
+    } else {
+      return child;
+    }
   }
 
   /// Standard button mode
