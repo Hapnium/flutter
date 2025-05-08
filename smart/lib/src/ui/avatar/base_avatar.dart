@@ -135,8 +135,10 @@ abstract class BaseAvatar extends StatelessWidget {
   /// The decoration for the rectangular avatar.
   final Decoration? rectangleForegroundDecoration;
 
+  /// The background decoration for the rectangular avatar.
   final ImageDecorationBuilder? imageDecorationBuilder;
 
+  /// The foreground decoration for the rectangular avatar.
   final ImageDecorationBuilder? foregroundImageDecorationBuilder;
 
   /// Constructor for `BaseAvatar`. The `foregroundImageBuilder` is required for extensions.
@@ -218,7 +220,7 @@ abstract class BaseAvatar extends StatelessWidget {
           ) : null,
         );
 
-        Decoration foregroundDecoration = imageDecorationBuilder.isNotNull ? imageDecorationBuilder!(context, foreground, fallback, foregroundColor, foregroundError) : BoxDecoration(
+        Decoration foregroundDecoration = foregroundImageDecorationBuilder.isNotNull ? foregroundImageDecorationBuilder!(context, foreground, fallback, foregroundColor, foregroundError) : BoxDecoration(
           color: foregroundColor,
           borderRadius: borderRadius,
           image: foreground != null ? DecorationImage(

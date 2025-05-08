@@ -84,6 +84,74 @@ class SmartAvatar extends BaseAvatar {
     this.padding
   });
 
+  /// Creates a [SmartAvatar] widget that displays a user profile image, initials, or fallback icon.
+  const SmartAvatar.circular({
+    super.key,
+    required super.radius,
+    super.foregroundImageBuilder,
+    this.fullName,
+    this.firstName,
+    this.lastName,
+    this.textSize,
+    this.textWeight,
+    this.textColor,
+    this.defaultIcon,
+    super.onClick,
+    super.backgroundColorBuilder,
+    super.foregroundColorBuilder,
+    super.backgroundImageBuilder,
+    super.onBackgroundImageError,
+    super.onForegroundImageError,
+    super.minRadius,
+    super.maxRadius,
+    super.isLightTheme,
+    super.showLogs,
+    this.applyPadding = true,
+    this.padding
+  }) : super(
+    isCircular: true,
+    rectangleBorderRadius: null,
+    rectangleDecoration: null,
+    rectangleForegroundDecoration: null,
+    alignment: null,
+    foregroundImageDecorationBuilder: null,
+    imageDecorationBuilder: null,
+  );
+
+  /// Creates a [SmartAvatar] widget that displays a user profile image, initials, or fallback icon.
+  const SmartAvatar.square({
+    super.key,
+    required super.radius,
+    this.fullName,
+    this.firstName,
+    this.lastName,
+    this.textSize,
+    this.textWeight,
+    this.textColor,
+    this.defaultIcon,
+    super.onClick,
+    super.backgroundColorBuilder,
+    super.foregroundColorBuilder,
+    super.onBackgroundImageError,
+    super.onForegroundImageError,
+    super.isLightTheme,
+    super.showLogs,
+    super.alignment,
+    super.rectangleBorderRadius,
+    super.rectangleDecoration,
+    super.rectangleForegroundDecoration,
+    super.foregroundImageDecorationBuilder,
+    super.imageDecorationBuilder,
+    this.applyPadding = true,
+    this.padding
+  }) : super(
+    isCircular: false,
+    minRadius: null,
+    maxRadius: null,
+    foregroundImageBuilder: null,
+    backgroundImageBuilder: null,
+  );
+
   @override
   Widget? avatar(BuildContext context) {
     if(super.foregroundImageBuilder.isNotNull) {

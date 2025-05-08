@@ -4,7 +4,7 @@ import 'package:smart/smart.dart';
 /// A customizable timeline widget that displays a title, optional description,
 /// and a vertical line with an indicator. Commonly used to represent steps or
 /// chronological events in a vertical or horizontal layout.
-class Timeline extends StatefulWidget {
+class Stepping extends StatefulWidget {
   /// The main title text displayed alongside the indicator.
   final String title;
 
@@ -104,8 +104,11 @@ class Timeline extends StatefulWidget {
   /// Spacing between title and description widgets.
   final double? contentSpacing;
 
+  /// Custom indicator widget to be displayed instead of the line.
+  final Widget? indicator;
+
   /// Creates a customizable timeline widget for step-like or event-based layouts.
-  const Timeline({
+  const Stepping({
     super.key,
     this.showBottomLine = true,
     required this.title,
@@ -140,13 +143,14 @@ class Timeline extends StatefulWidget {
     this.contentCrossAxisAlignment,
     this.contentSpacing,
     this.width,
-  }) ;
+    this.indicator
+  });
 
   @override
-  State<Timeline> createState() => _TimelineState();
+  State<Stepping> createState() => _SteppingState();
 }
 
-class _TimelineState extends State<Timeline> {
+class _SteppingState extends State<Stepping> {
   final GlobalKey _key = GlobalKey();
   late double _height;
 
@@ -194,6 +198,14 @@ class _TimelineState extends State<Timeline> {
       weight: widget.descriptionWeight ?? FontWeight.normal,
     );
 
+    Widget indicator = widget.indicator ?? Container(
+      padding: widget.indicatorPadding ?? EdgeInsets.all(Sizing.space(4)),
+      decoration: BoxDecoration(
+        color: lineColor,
+        borderRadius: widget.indicatorRadius ?? BorderRadius.circular(1)
+      ),
+    );
+
     return SizedBox(
       key: _key,
       width: widget.width ?? MediaQuery.of(context).size.width,
@@ -217,13 +229,7 @@ class _TimelineState extends State<Timeline> {
                 if(widget.showTopLine) ...[
                   Container(height: widget.topLineHeight ?? 15, width: lineWidth, color: lineColor)
                 ],
-                Container(
-                  padding: widget.indicatorPadding ?? EdgeInsets.all(Sizing.space(4)),
-                  decoration: BoxDecoration(
-                    color: lineColor,
-                    borderRadius: widget.indicatorRadius ?? BorderRadius.circular(1)
-                  ),
-                ),
+                indicator,
                 if(widget.showBottomLine) ...[
                   Container(height: _height, width: lineWidth, color: lineColor)
                 ],
