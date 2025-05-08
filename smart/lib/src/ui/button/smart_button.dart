@@ -203,6 +203,7 @@ class SmartButton extends StatelessWidget {
     this.selectiveTextSize,
     this.selectiveBorderRadius,
     this.selectiveWidth,
+    this.showIcon = true,
     this.mainAxisSize = MainAxisSize.min
   }) : this.bodyWeight = null,
     this.isSelective = true,
@@ -211,7 +212,6 @@ class SmartButton extends StatelessWidget {
     this.notificationColor = null,
     this.notificationPadding = null,
     this.needNotification = false,
-    this.showIcon = true,
     this.notification = null,
     this.headerTextSize = null,
     this.bodyTextSize = null,

@@ -44,6 +44,13 @@ class SmartAvatar extends BaseAvatar {
   /// Optional default icon to display when no name or image is provided.
   final IconData? defaultIcon;
 
+  /// Whether to apply padding to the initials text.
+  /// Defaults to `true`.
+  final Boolean applyPadding;
+
+  /// Optional padding for the initials text.
+  final EdgeInsetsGeometry? padding;
+
   /// Creates a [SmartAvatar] widget that displays a user profile image, initials, or fallback icon.
   const SmartAvatar({
     super.key,
@@ -73,6 +80,8 @@ class SmartAvatar extends BaseAvatar {
     super.rectangleForegroundDecoration,
     super.foregroundImageDecorationBuilder,
     super.imageDecorationBuilder,
+    this.applyPadding = true,
+    this.padding
   });
 
   @override
@@ -97,9 +106,11 @@ class SmartAvatar extends BaseAvatar {
           child: child,
         );
       } else {
+        double size = radius * 2;
+
         return Container(
-          height: radius,
-          width: radius,
+          height: size,
+          width: size,
           alignment: alignment ?? Alignment.center,
           decoration: rectangleDecoration ?? BoxDecoration(
             color: backgroundColor,
@@ -121,7 +132,7 @@ class SmartAvatar extends BaseAvatar {
       return Icon(defaultIcon ?? Icons.person, color: textColor ?? Colors.white54, size: textSize);
     }
 
-    return Text(
+    Widget child = Text(
       initials,
       style: TextStyle(
         color: textColor ?? Colors.white,
@@ -129,5 +140,11 @@ class SmartAvatar extends BaseAvatar {
         fontSize: textSize ?? 14,
       ),
     );
+
+    if(applyPadding) {
+      return Padding(padding: padding ?? EdgeInsets.only(top: 6), child: child);
+    } else {
+      return child;
+    }
   }
 }
