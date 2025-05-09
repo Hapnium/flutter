@@ -1,6 +1,6 @@
 import 'package:camera/camera.dart' show CameraDescription;
 import 'package:flutter/material.dart' show BuildContext, ImageProvider, Widget;
-import 'package:multimedia/multimedia.dart' show Album, Medium;
+import 'package:gallery/gallery.dart' show Album, Medium;
 
 import 'models/selected_media.dart';
 
