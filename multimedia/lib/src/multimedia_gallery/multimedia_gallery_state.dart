@@ -98,15 +98,10 @@ class _MultimediaGalleryState extends SmartState<MultimediaGallery> {
       );
     }).toList();
 
-    log("Selected: ${list.length}");
-
     List<SelectedMedia> files = [];
     for(Future<SelectedMedia> file in list) {
       files.add(await file);
     }
-
-    log(files.map((SelectedMedia media) => media.path).toList().toString());
-    log("Selected files: ${files.length}");
 
     if(parent.onMediaReceived.isNotNull) {
       parent.onMediaReceived!(files);
