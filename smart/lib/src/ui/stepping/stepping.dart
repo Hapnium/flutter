@@ -111,7 +111,7 @@ class Stepping extends StatefulWidget {
   const Stepping({
     super.key,
     this.showBottomLine = true,
-    required this.title,
+    this.title = "",
     this.child = const SizedBox(),
     this.lineColor,
     this.titleColor,
@@ -217,7 +217,7 @@ class _SteppingState extends State<Stepping> {
           mainAxisAlignment: widget.mainAxisAlignment ?? MainAxisAlignment.start,
           mainAxisSize: widget.mainAxisSize ?? MainAxisSize.max,
           children: [
-            if(widget.startWithTitle) ...[
+            if(widget.startWithTitle && widget.title.isNotEmpty) ...[
               Padding(padding: widget.titlePadding ?? EdgeInsets.only(top: 11), child: text)
             ],
             Column(
@@ -251,17 +251,27 @@ class _SteppingState extends State<Stepping> {
                       crossAxisAlignment: widget.contentCrossAxisAlignment ?? CrossAxisAlignment.start,
                       mainAxisAlignment: widget.contentMainAxisAlignment ?? MainAxisAlignment.start,
                       mainAxisSize: widget.contentMainAxisSize ?? MainAxisSize.min,
-                      children: [text, description],
+                      children: [
+                        if(widget.title.isNotEmpty) ...[
+                          text
+                        ],
+                        description
+                      ],
                     ) : Row(
                       spacing: widget.contentSpacing ?? 0,
                       crossAxisAlignment: widget.contentCrossAxisAlignment ?? CrossAxisAlignment.start,
                       mainAxisAlignment: widget.contentMainAxisAlignment ?? MainAxisAlignment.spaceBetween,
                       mainAxisSize: widget.contentMainAxisSize ?? MainAxisSize.max,
-                      children: [Expanded(child: text), description]
+                      children: [
+                        if(widget.title.isNotEmpty) ...[
+                          Expanded(child: text)
+                        ],
+                        description
+                      ]
                     ),
                   ),
                 )
-              ] else ...[
+              ] else if(widget.title.isNotEmpty) ...[
                 Expanded(
                   child: Padding(
                     padding: widget.titlePadding ?? EdgeInsets.all(Sizing.space(10)),
