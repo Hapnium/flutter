@@ -21,3 +21,7 @@ export 'src/progress_slider/progress_slider.dart';
 
 /// UTILS
 export 'src/utils/multimedia_utils.dart';
+
+/// MULTIMEDIA
+export 'src/multimedia_gallery/multimedia_gallery.dart';
+export 'src/multimedia_camera/multimedia_camera.dart';
