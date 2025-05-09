@@ -12,10 +12,6 @@ export 'src/models/multimedia_gallery_configuration.dart';
 export 'src/models/multimedia_gallery_album_configuration.dart';
 export 'src/models/multimedia_camera_configuration.dart';
 
-/// GALLERY
-export 'src/gallery/common/medium_type.dart';
-export 'src/gallery/gallery.dart';
-
 /// PROGRESS SLIDER
 export 'src/progress_slider/progress_slider.dart';
 
@@ -25,3 +21,5 @@ export 'src/utils/multimedia_utils.dart';
 /// MULTIMEDIA
 export 'src/multimedia_gallery/multimedia_gallery.dart';
 export 'src/multimedia_camera/multimedia_camera.dart';
+
+export 'package:gallery/gallery.dart';
