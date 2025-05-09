@@ -74,16 +74,16 @@ class _MultimediaGalleryAlbumState extends State<MultimediaGalleryAlbum> {
 
   void _send(List<Medium> selected) {
     if(widget.onMediumReceived.isNotNull) {
-      widget.onMediumReceived!(_selected);
+      widget.onMediumReceived!(selected);
     } else if(parent.popAllWhileGoingBack) {
       // First pop returns to the album page
       Navigator.pop(context);
       // Delay the second pop until the current pop completes
       Future.delayed(Duration.zero, () {
-        Navigator.pop(context, _selected); // Pop album page with result
+        Navigator.pop(context, selected); // Pop album page with result
       });
     } else {
-      Navigator.pop(context, _selected);
+      Navigator.pop(context, selected);
     }
   }
 
