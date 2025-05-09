@@ -105,6 +105,9 @@ class MultimediaGalleryConfiguration {
   /// Optional permission check override.
   final Future<bool> Function()? hasPermission;
 
+  /// If true, pops all previous routes when navigating back.
+  final bool popAllWhileGoingBack;
+
   /// Creates a [MultimediaGalleryConfiguration] with optional customization.
   const MultimediaGalleryConfiguration({
     this.title = "",
@@ -141,5 +144,6 @@ class MultimediaGalleryConfiguration {
     this.crossAxisAlignment,
     this.onLayoutChanged,
     this.hasPermission,
+    this.popAllWhileGoingBack = true,
   });
 }

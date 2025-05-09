@@ -32,6 +32,12 @@ class _MultimediaGalleryAlbumState extends State<MultimediaGalleryAlbum> {
       setState(() { });
     }
 
+    if(oldWidget.configuration != widget.configuration) {
+      setState(() {
+        parent = widget.configuration;
+      });
+    }
+
     super.didUpdateWidget(oldWidget);
   }
 

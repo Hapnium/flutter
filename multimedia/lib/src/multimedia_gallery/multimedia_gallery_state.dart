@@ -17,7 +17,9 @@ class _MultimediaGalleryState extends SmartState<MultimediaGallery> {
   @override
   void didUpdateWidget(covariant MultimediaGallery oldWidget) {
     if(oldWidget.configuration != widget.configuration) {
-      parent = widget.configuration;
+      setState(() {
+        parent = widget.configuration;
+      });
     }
 
     super.didUpdateWidget(oldWidget);
@@ -103,7 +105,14 @@ class _MultimediaGalleryState extends SmartState<MultimediaGallery> {
 
     if(parent.onMediaReceived.isNotNull) {
       parent.onMediaReceived!(files);
-    } else {
+    } else if(parent.popAllWhileGoingBack) {
+      // First pop returns to the album page
+      Navigator.pop(context);
+      // Delay the second pop until the current pop completes
+      Future.delayed(Duration.zero, () {
+        Navigator.pop(context, files); // Pop album page with result
+      });
+    }else {
       Navigator.pop(context, files);
     }
   }
