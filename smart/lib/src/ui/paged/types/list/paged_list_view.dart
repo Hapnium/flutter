@@ -151,6 +151,9 @@ class PagedListView<PageKeyType, ItemType> extends StatefulWidget {
   /// This is the applied spacing between each item in the list
   final Widget spacing;
 
+  /// Whether to apply a separator to the last item.
+  final bool applySeparatorToLastItem;
+
   /// Creates a [PagedListView] with pagination support.
   ///
   /// Use this constructor for a standard paged list without separators.
@@ -181,7 +184,7 @@ class PagedListView<PageKeyType, ItemType> extends StatefulWidget {
     this.prototypeItem,
     this.separatorStrategy,
     this.spacing = _defaultSpacing
-  }) : separatorBuilder = null;
+  }) : separatorBuilder = null, applySeparatorToLastItem = false;
 
   /// Creates a [PagedListView] with pagination support and separators.
   ///
@@ -209,6 +212,7 @@ class PagedListView<PageKeyType, ItemType> extends StatefulWidget {
     this.findChildIndexCallback,
     this.hitTestBehavior = HitTestBehavior.opaque,
     this.separatorStrategy,
+    this.applySeparatorToLastItem = false,
     this.spacing = _defaultSpacing
   }) : itemExtent = null, semanticChildCount = null, itemExtentBuilder = null, prototypeItem = null;
 
@@ -247,5 +251,6 @@ class PagedListView<PageKeyType, ItemType> extends StatefulWidget {
     properties.add(DiagnosticsProperty<Widget?>('prototypeItem', prototypeItem));
     properties.add(DiagnosticsProperty<PagedItemSeparatorStrategy?>('separatorStrategy', separatorStrategy));
     properties.add(DiagnosticsProperty<Widget>('spacing', spacing));
+    properties.add(FlagProperty('applySeparatorToLastItem', value: applySeparatorToLastItem, ifTrue: 'apply separator to last item'));
   }
 }

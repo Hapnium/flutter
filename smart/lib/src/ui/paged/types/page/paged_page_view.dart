@@ -306,7 +306,11 @@ class PagedPageView<PageKeyType, ItemType> extends StatefulWidget {
   /// Defaults to null.
   final FloatingConfig? floatConfig;
 
+  /// Whether to use a [Stack] or a [PageView].
   final bool useStack;
+
+  /// Whether to apply a separator to the last item.
+  final bool applySeparatorToLastItem;
 
   /// Creates a [PagedPageView] with pagination support.
   ///
@@ -341,7 +345,8 @@ class PagedPageView<PageKeyType, ItemType> extends StatefulWidget {
     alignment = null,
     fit = null,
     floatConfig = null,
-    itemClipBehavior = null;
+    itemClipBehavior = null,
+    applySeparatorToLastItem = false;
 
   /// Creates a [PagedPageView] with pagination support and separators.
   ///
@@ -372,6 +377,7 @@ class PagedPageView<PageKeyType, ItemType> extends StatefulWidget {
     this.verticalDirection,
     this.textBaseline,
     this.spacing,
+    this.applySeparatorToLastItem = false
   }) : useStack = false, alignment = null, fit = null, floatConfig = null, itemClipBehavior = null;
 
   /// Creates a [PagedPageView] with pagination support.
@@ -407,6 +413,7 @@ class PagedPageView<PageKeyType, ItemType> extends StatefulWidget {
     separatorStrategy = null,
     crossAxisAlignment = null,
     mainAxisAlignment = null,
+    applySeparatorToLastItem = false,
     mainAxisSize = null;
 
   /// Creates a [PagedPageView] with pagination support and separators.
@@ -435,7 +442,8 @@ class PagedPageView<PageKeyType, ItemType> extends StatefulWidget {
     this.itemClipBehavior,
     this.alignment,
     this.fit,
-    this.floatConfig
+    this.floatConfig,
+    this.applySeparatorToLastItem = false
   }) : useStack = true,
       spacing = null,
       textBaseline = null,
@@ -481,5 +489,7 @@ class PagedPageView<PageKeyType, ItemType> extends StatefulWidget {
     properties.add(DiagnosticsProperty<AlignmentGeometry?>('alignment', alignment));
     properties.add(EnumProperty<StackFit?>('fit', fit));
     properties.add(DiagnosticsProperty<FloatingConfig?>('floatConfig', floatConfig));
+    properties.add(FlagProperty('useStack', value: useStack, ifTrue: 'useStack enabled'));
+    properties.add(FlagProperty('applySeparatorToLastItem', value: applySeparatorToLastItem, ifTrue: 'applySeparatorToLastItem enabled'));
   }
 }

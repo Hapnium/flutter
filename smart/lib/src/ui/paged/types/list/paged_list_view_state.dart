@@ -71,7 +71,10 @@ class _PagedListViewState<PageKeyType, ItemType> extends State<PagedListView<Pag
             shrinkWrap: widget.shrinkWrap,
             padding: widget.padding,
             separatorBuilder: (context, index) {
-              if(strategy(index)) {
+              final isLast = index == itemCount - 1;
+              final shouldApply = strategy(index) && (widget.applySeparatorToLastItem || !isLast);
+
+              if (shouldApply) {
                 return child(context, index, separatorBuilder!);
               } else {
                 return spacing;

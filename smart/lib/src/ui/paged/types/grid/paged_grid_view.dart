@@ -201,6 +201,9 @@ class PagedGridView<PageKeyType, ItemType> extends StatefulWidget {
   /// Creates a scrollable, linear array of widgets that are created on demand.
   final ChildIndexGetter? findChildIndexCallback;
 
+  /// Whether to apply a separator to the last item.
+  final bool applySeparatorToLastItem;
+
   /// Creates a [PagedGridView] with pagination support.
   ///
   /// Use this constructor for a standard paged list without separators.
@@ -229,7 +232,7 @@ class PagedGridView<PageKeyType, ItemType> extends StatefulWidget {
     this.addRepaintBoundaries = true,
     this.addSemanticIndexes = true,
     this.findChildIndexCallback,
-  }) : separatorBuilder = null, separatorStrategy = null;
+  }) : separatorBuilder = null, separatorStrategy = null, applySeparatorToLastItem = false;
 
   /// Creates a [PagedGridView] with pagination support and separators.
   ///
@@ -257,6 +260,7 @@ class PagedGridView<PageKeyType, ItemType> extends StatefulWidget {
     this.hitTestBehavior = HitTestBehavior.opaque,
     this.separatorStrategy,
     this.addAutomaticKeepAlives = true,
+    this.applySeparatorToLastItem = false,
     this.addRepaintBoundaries = true,
     this.addSemanticIndexes = true,
     this.findChildIndexCallback,
@@ -296,5 +300,6 @@ class PagedGridView<PageKeyType, ItemType> extends StatefulWidget {
     properties.add(FlagProperty('addRepaintBoundaries', value: addRepaintBoundaries, ifTrue: 'adds repaint boundaries'));
     properties.add(FlagProperty('addSemanticIndexes', value: addSemanticIndexes, ifTrue: 'adds semantic indexes'));
     properties.add(DiagnosticsProperty<ChildIndexGetter?>('findChildIndexCallback', findChildIndexCallback));
+    properties.add(FlagProperty('applySeparatorToLastItem', value: applySeparatorToLastItem, ifTrue: 'apply separator to last item'));
   }
 }

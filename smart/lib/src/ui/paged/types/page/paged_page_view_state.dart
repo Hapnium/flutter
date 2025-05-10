@@ -79,7 +79,13 @@ class _PagedPageViewState<PageKeyType, ItemType> extends State<PagedPageView<Pag
             ? PagedHelper.calculateTotalSeparators(strategy, separatorBuilder, context, itemCount)
             : 0;
         int totalItemCount = (PagedHelper.canAddExtra(status) ? itemCount - 1 : itemCount) + totalSeparators;
-        bool canShowSeparator(int index) => hasSeparator && totalSeparators.isGt(0) && strategy(index);
+        // bool canShowSeparator(int index) => hasSeparator && totalSeparators.isGt(0) && strategy(index);
+
+        bool canShowSeparator(int index) {
+          final isLast = index == totalItemCount - 1;
+          return hasSeparator && totalSeparators.isGt(0) && strategy(index) &&
+              (widget.applySeparatorToLastItem || !isLast);
+        }
 
         Widget? child(BuildContext context, int index) {
           Widget? child;
