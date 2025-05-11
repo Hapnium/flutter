@@ -11,7 +11,20 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        package_dir: [connectify, socket_client, tracing, secure, notify, smart, gallery, hapnium, sedat, device, multimedia]
+        package_dir: [
+          connectify,
+          socket_client,
+          tracing,
+          secure,
+          notify,
+          smart,
+          gallery,
+          hapnium,
+          sedat,
+          device,
+          multimedia,
+          link_preview
+        ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

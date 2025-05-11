@@ -208,7 +208,8 @@ class ProgressSlider extends LeafRenderObjectWidget {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
     final textStyle = timeLabelTextStyle ?? theme.textTheme.bodyLarge;
-    final textScaleFactor = MediaQuery.textScaleFactorOf(context);
+    final textScaleFactor = MediaQuery.textScalerOf(context);
+
     return _RenderProgressBar(
       progress: progress,
       total: total,
@@ -218,21 +219,20 @@ class ProgressSlider extends LeafRenderObjectWidget {
       onDragUpdate: onDragUpdate,
       onDragEnd: onDragEnd,
       barHeight: barHeight,
-      baseBarColor: baseBarColor ?? primaryColor.withOpacity(0.24),
+      baseBarColor: baseBarColor ?? primaryColor.withValues(alpha: 0.24),
       progressBarColor: progressBarColor ?? primaryColor,
-      bufferedBarColor: bufferedBarColor ?? primaryColor.withOpacity(0.24),
+      bufferedBarColor: bufferedBarColor ?? primaryColor.withValues(alpha: 0.24),
       barCapShape: barCapShape,
       thumbRadius: thumbRadius,
       thumbColor: thumbColor ?? primaryColor,
-      thumbGlowColor:
-      thumbGlowColor ?? (thumbColor ?? primaryColor).withAlpha(80),
+      thumbGlowColor: thumbGlowColor ?? (thumbColor ?? primaryColor).withAlpha(80),
       thumbGlowRadius: thumbGlowRadius,
       thumbCanPaintOutsideBar: thumbCanPaintOutsideBar,
       timeLabelLocation: timeLabelLocation ?? TimeLabelLocation.below,
       timeLabelType: timeLabelType ?? TimeLabelType.totalTime,
       timeLabelTextStyle: textStyle,
       timeLabelPadding: timeLabelPadding,
-      textScaleFactor: textScaleFactor,
+      textScaleFactor: textScaleFactor.scale(1),
     );
   }
 
@@ -241,7 +241,8 @@ class ProgressSlider extends LeafRenderObjectWidget {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
     final textStyle = timeLabelTextStyle ?? theme.textTheme.bodyLarge;
-    final textScaleFactor = MediaQuery.textScaleFactorOf(context);
+    final textScaleFactor = MediaQuery.textScalerOf(context);
+
     (renderObject as _RenderProgressBar)
       ..progress = progress
       ..total = total
@@ -251,9 +252,9 @@ class ProgressSlider extends LeafRenderObjectWidget {
       ..onDragUpdate = onDragUpdate
       ..onDragEnd = onDragEnd
       ..barHeight = barHeight
-      ..baseBarColor = baseBarColor ?? primaryColor.withOpacity(0.24)
+      ..baseBarColor = baseBarColor ?? primaryColor.withValues(alpha: 0.24)
       ..progressBarColor = progressBarColor ?? primaryColor
-      ..bufferedBarColor = bufferedBarColor ?? primaryColor.withOpacity(0.24)
+      ..bufferedBarColor = bufferedBarColor ?? primaryColor.withValues(alpha: 0.24)
       ..barCapShape = barCapShape
       ..thumbRadius = thumbRadius
       ..thumbColor = thumbColor ?? primaryColor
@@ -265,7 +266,7 @@ class ProgressSlider extends LeafRenderObjectWidget {
       ..timeLabelType = timeLabelType ?? TimeLabelType.totalTime
       ..timeLabelTextStyle = textStyle
       ..timeLabelPadding = timeLabelPadding
-      ..textScaleFactor = textScaleFactor;
+      ..textScaleFactor = textScaleFactor.scale(1);
   }
 
   @override
@@ -521,7 +522,7 @@ class _RenderProgressBar extends RenderBox {
     TextPainter textPainter = TextPainter(
       text: TextSpan(text: text, style: _timeLabelTextStyle),
       textDirection: TextDirection.ltr,
-      textScaleFactor: textScaleFactor,
+      textScaler: TextScaler.linear(textScaleFactor),
     );
     textPainter.layout(minWidth: 0, maxWidth: double.infinity);
     return textPainter;

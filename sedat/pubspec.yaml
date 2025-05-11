@@ -3,7 +3,7 @@ description: A secured database for Hapnium platforms.
 
 publish_to: none
 
-version: 0.1.9
+version: 0.2.0
 homepage: https://github.com/Hapnium/flutter/tree/main/sedat
 repository: https://github.com/Hapnium/flutter/tree/main/sedat
 
@@ -20,5 +20,5 @@ dependencies:
     path: ../hapnium
 
 dev_dependencies:
-  hive_ce_generator: ^1.9.0
+  hive_ce_generator: ^1.9.1
   test: ^1.25.15
