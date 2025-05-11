@@ -14,3 +14,6 @@ export 'src/models/link_preview_image.dart';
 
 /// UI
 export 'src/ui/linkify.dart';
+
+/// OTHERS
+export 'package:linkify/linkify.dart' show LinkifyOptions, LinkifyElement, LinkableElement, Linkifier;
