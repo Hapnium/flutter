@@ -46,7 +46,7 @@ class SmartWave extends StatefulWidget {
   final double Function(int index, double animationValue)? customHeightBuilder;
 
   const SmartWave({
-    Key? key,
+    super.key,
     this.count = 13,
     this.minHeight = 6,
     this.maxHeight = 26,
@@ -57,7 +57,7 @@ class SmartWave extends StatefulWidget {
     this.duration = const Duration(milliseconds: 1000),
     this.curve = Curves.easeInOut,
     this.customHeightBuilder,
-  }) : super(key: key);
+  });
 
   @override
   State<SmartWave> createState() => _SmartWaveState();
@@ -69,11 +69,25 @@ class _SmartWaveState extends State<SmartWave> with SingleTickerProviderStateMix
 
   @override
   void initState() {
+    _setupAnimation();
+
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(SmartWave oldWidget) {
+    if(oldWidget.isAnimated != widget.isAnimated) {
+      _setupAnimation();
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  void _setupAnimation() {
     if (widget.isAnimated) {
       _controller = AnimationController(vsync: this, duration: widget.duration)..repeat();
       _animation = CurvedAnimation(parent: _controller, curve: widget.curve);
     }
-    super.initState();
   }
 
   @override
@@ -81,6 +95,7 @@ class _SmartWaveState extends State<SmartWave> with SingleTickerProviderStateMix
     if (widget.isAnimated) {
       _controller.dispose();
     }
+
     super.dispose();
   }
 
@@ -90,6 +105,7 @@ class _SmartWaveState extends State<SmartWave> with SingleTickerProviderStateMix
     final phaseShift = (index / widget.count) * 2 * pi;
     final waveValue = sin(animationValue * 2 * pi + phaseShift); // -1 to 1
     final normalized = (waveValue + 1) / 2; // 0 to 1
+
     return widget.minHeight + (widget.maxHeight - widget.minHeight) * symmetryFactor * normalized;
   }
 
@@ -97,6 +113,7 @@ class _SmartWaveState extends State<SmartWave> with SingleTickerProviderStateMix
     if (widget.customHeightBuilder != null) {
       return widget.customHeightBuilder!(index, value);
     }
+
     return _defaultHeightBuilder(index, value);
   }
 
@@ -105,14 +122,18 @@ class _SmartWaveState extends State<SmartWave> with SingleTickerProviderStateMix
     if (!widget.isAnimated) {
       // Static wave with symmetrical heights
       final mid = (widget.count - 1) / 2;
+
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: List.generate(widget.count * 2 - 1, (i) {
-          if (i.isOdd) return SizedBox(width: widget.spacing);
+          if (i.isOdd) {
+            return SizedBox(width: widget.spacing);
+          }
+
           final index = i ~/ 2;
           final symmetryFactor = 1 - ((index - mid).abs() / mid);
-          final height = widget.minHeight +
-              (widget.maxHeight - widget.minHeight) * symmetryFactor;
+          final height = widget.minHeight + (widget.maxHeight - widget.minHeight) * symmetryFactor;
+
           return _buildBar(height);
         }),
       );
@@ -123,12 +144,17 @@ class _SmartWaveState extends State<SmartWave> with SingleTickerProviderStateMix
       animation: _animation,
       builder: (_, __) {
         final value = _animation.value;
+
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: List.generate(widget.count * 2 - 1, (i) {
-            if (i.isOdd) return SizedBox(width: widget.spacing);
+            if (i.isOdd) {
+              return SizedBox(width: widget.spacing);
+            }
+
             final index = i ~/ 2;
             final height = _barHeight(index, value);
+
             return _buildBar(height);
           }),
         );
