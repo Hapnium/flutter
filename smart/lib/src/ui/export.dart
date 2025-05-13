@@ -12,6 +12,7 @@ export 'animations/poll_animator.dart';
 export 'animations/swiper.dart';
 export 'animations/open_container.dart';
 export 'animations/animated.dart';
+export 'animations/smart_wave.dart';
 
 /// AVATARS
 export 'avatar/base_avatar.dart';
