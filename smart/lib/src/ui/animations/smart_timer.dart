@@ -66,6 +66,9 @@ class SmartTimer extends StatefulWidget {
   /// Animated color for the progress bar value.
   final Animation<Color?>? valueColor;
 
+  /// Text color.
+  final Color? textColor;
+
   /// Creates a circular countdown timer.
   const SmartTimer.circular({
     super.key,
@@ -85,7 +88,8 @@ class SmartTimer extends StatefulWidget {
     this.valueColor,
     this.textDirection,
     this.padding,
-    this.timerBuilder
+    this.timerBuilder,
+    this.textColor
   })  : isCircular = true, borderRadius = null;
 
   /// Creates a square/linear countdown timer.
@@ -107,7 +111,8 @@ class SmartTimer extends StatefulWidget {
     this.clipBehavior,
     this.textDirection,
     this.valueColor,
-    this.timerBuilder
+    this.timerBuilder,
+    this.textColor
   })  : isCircular = false, strokeWidth = null;
 
   @override
@@ -229,7 +234,7 @@ class _SmartTimerState extends State<SmartTimer> {
             style: widget.textStyle ?? TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 12,
-              color: widget.color,
+              color: widget.textColor,
             ),
           ),
         ),
