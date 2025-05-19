@@ -196,31 +196,6 @@ class ViewLayout extends StatelessWidget {
       layout = PopScope(onPopInvokedWithResult: onWillPop, child: layout);
     }
 
-    if (floater.isNotNull) {
-      // Use floatConfig if available; otherwise, create a FloatingConfig using floaterPosition
-      final FloatingConfig config = floatConfig ?? FloatingConfig(bottom: floaterPosition);
-      final Widget floatChild = useFloaterWidth ? SizedBox(
-        width: floaterWidth ?? MediaQuery.sizeOf(context).width,
-        child: floater!,
-      ) : floater!;
-
-      layout = Stack(
-        fit: floatFit ?? StackFit.expand,
-        children: [
-          layout,
-          Positioned(
-            left: config.left,
-            right: config.right,
-            top: config.top,
-            bottom: config.bottom,
-            height: config.height,
-            width: config.width,
-            child: floatChild,
-          ),
-        ],
-      );
-    }
-
     return layout;
   }
 
@@ -300,12 +275,43 @@ class ViewLayout extends StatelessWidget {
         endDrawer: endDrawer,
         extendBodyBehindAppBar: extendBehindAppbar,
         backgroundColor: backgroundColor ?? Theme.of(context).scaffoldBackgroundColor,
-        body: needSafeArea ? SafeArea(child: child) : child,
+        body: _buildChild(context),
         floatingActionButton: floatingButton,
         floatingActionButtonLocation: floatingLocation,
         bottomNavigationBar: bottomNavbar,
         bottomSheet: bottomSheet,
       )
     );
+  }
+
+  Widget _buildChild(BuildContext context) {
+    Widget child = this.child;
+
+    if (floater.isNotNull) {
+      // Use floatConfig if available; otherwise, create a FloatingConfig using floaterPosition
+      final FloatingConfig config = floatConfig ?? FloatingConfig(bottom: floaterPosition);
+      final Widget floatChild = useFloaterWidth ? SizedBox(
+        width: floaterWidth ?? MediaQuery.sizeOf(context).width,
+        child: floater!,
+      ) : floater!;
+
+      child = Stack(
+        fit: floatFit ?? StackFit.expand,
+        children: [
+          child,
+          Positioned(
+            left: config.left,
+            right: config.right,
+            top: config.top,
+            bottom: config.bottom,
+            height: config.height,
+            width: config.width,
+            child: floatChild,
+          ),
+        ],
+      );
+    }
+
+    return needSafeArea ? SafeArea(child: child) : child;
   }
 }
