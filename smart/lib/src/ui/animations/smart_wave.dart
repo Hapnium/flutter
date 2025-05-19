@@ -69,32 +69,32 @@ class _SmartWaveState extends State<SmartWave> with SingleTickerProviderStateMix
 
   @override
   void initState() {
-    _setupAnimation();
+    _controller = AnimationController(vsync: this, duration: widget.duration);
+    _animation = CurvedAnimation(parent: _controller, curve: widget.curve);
+
+    if (widget.isAnimated) {
+      _controller.repeat();
+    }
 
     super.initState();
   }
 
   @override
   void didUpdateWidget(SmartWave oldWidget) {
-    if(oldWidget.isAnimated != widget.isAnimated) {
-      _setupAnimation();
+    if (oldWidget.isAnimated != widget.isAnimated) {
+      if (widget.isAnimated) {
+        _controller.repeat();
+      } else {
+        _controller.stop();
+      }
     }
 
     super.didUpdateWidget(oldWidget);
   }
 
-  void _setupAnimation() {
-    if (widget.isAnimated) {
-      _controller = AnimationController(vsync: this, duration: widget.duration)..repeat();
-      _animation = CurvedAnimation(parent: _controller, curve: widget.curve);
-    }
-  }
-
   @override
   void dispose() {
-    if (widget.isAnimated) {
-      _controller.dispose();
-    }
+    _controller.dispose();
 
     super.dispose();
   }
