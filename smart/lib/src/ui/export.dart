@@ -13,6 +13,7 @@ export 'animations/swiper.dart';
 export 'animations/open_container.dart';
 export 'animations/animated.dart';
 export 'animations/smart_wave.dart';
+export 'animations/smart_timer.dart';
 
 /// AVATARS
 export 'avatar/base_avatar.dart';
