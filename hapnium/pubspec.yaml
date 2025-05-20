@@ -3,7 +3,7 @@ description: A starting point for Dart libraries or applications.
 
 publish_to: none
 
-version: 0.0.7
+version: 0.0.8
 homepage: https://github.com/Hapnium/flutter/tree/main/hapnium
 repository: https://github.com/Hapnium/flutter/tree/main/hapnium
 
@@ -11,4 +11,4 @@ environment:
   sdk: ^3.7.0
 
 dev_dependencies:
-  test: ^1.25.15
+  test: ^1.26.1
