@@ -6,7 +6,7 @@ import '../http/modifier/zap_modifier.dart';
 import '../http/request/request.dart';
 import '../http/response/response.dart';
 import '../http/utils/http_status.dart';
-import '../models/zap_parser_config.dart';
+import '../models/zap_response_parser.dart';
 import '../models/zap_pulse_config.dart';
 import '../models/session_response.dart';
 import '../models/zap_cancel_token.dart';
@@ -255,7 +255,7 @@ class ZapPulse implements ZapPulseInterface {
   }
 
   /// Creates a decoder function for ApiResponse with custom data parsing.
-  ResponseDecoder<ApiResponse<T>> _createDecoder<T>(ZapDataParser<T>? parserConfig) {
+  ResponseDecoder<ApiResponse<T>> _createDecoder<T>(ZapResponseParser<T>? parserConfig) {
     return (HttpStatus status, dynamic responseData) {
       final response = ApiResponse.fromJson(responseData);
 
@@ -355,27 +355,27 @@ class ZapPulse implements ZapPulseInterface {
   }
 
   @override
-  Future<ZapResponse<ApiResponse<T>>> delete<T>({required String endpoint, RequestParam? query, dynamic body, bool useAuth = true, ZapDataParser<T>? parser, ZapCancelToken? token}) async {
+  Future<ZapResponse<ApiResponse<T>>> delete<T>({required String endpoint, RequestParam? query, dynamic body, bool useAuth = true, ZapResponseParser<T>? parser, ZapCancelToken? token}) async {
     return _execute<T>((headers, cancelToken) => _zap.delete<ApiResponse<T>>(endpoint, headers: headers, query: query, decoder: _createDecoder<T>(parser), cancelToken: cancelToken), 'DELETE', endpoint, useAuth, token);
   }
 
   @override
-  Future<ZapResponse<ApiResponse<T>>> get<T>({required String endpoint, RequestParam? query, bool useAuth = true, ZapDataParser<T>? parser, ZapCancelToken? token}) async {
+  Future<ZapResponse<ApiResponse<T>>> get<T>({required String endpoint, RequestParam? query, bool useAuth = true, ZapResponseParser<T>? parser, ZapCancelToken? token}) async {
     return _execute<T>((headers, cancelToken) => _zap.get<ApiResponse<T>>(endpoint, headers: headers, query: query, decoder: _createDecoder<T>(parser), cancelToken: cancelToken), 'GET', endpoint, useAuth, token);
   }
 
   @override
-  Future<ZapResponse<ApiResponse<T>>> patch<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, ZapDataParser<T>? parser, ZapCancelToken? token}) async {
+  Future<ZapResponse<ApiResponse<T>>> patch<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, ZapResponseParser<T>? parser, ZapCancelToken? token}) async {
     return _execute<T>((headers, cancelToken) => _zap.patch<ApiResponse<T>>(endpoint, body, headers: headers, query: query, decoder: _createDecoder<T>(parser), uploadProgress: onProgress, cancelToken: cancelToken), 'PATCH', endpoint, useAuth, token);
   }
 
   @override
-  Future<ZapResponse<ApiResponse<T>>> post<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, ZapDataParser<T>? parser, ZapCancelToken? token}) async {
+  Future<ZapResponse<ApiResponse<T>>> post<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, ZapResponseParser<T>? parser, ZapCancelToken? token}) async {
     return _execute<T>((headers, cancelToken) => _zap.post<ApiResponse<T>>(endpoint, body, headers: headers, query: query, decoder: _createDecoder<T>(parser), uploadProgress: onProgress, cancelToken: cancelToken), 'POST', endpoint, useAuth, token);
   }
 
   @override
-  Future<ZapResponse<ApiResponse<T>>> put<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, ZapDataParser<T>? parser, ZapCancelToken? token}) async {
+  Future<ZapResponse<ApiResponse<T>>> put<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, ZapResponseParser<T>? parser, ZapCancelToken? token}) async {
     return _execute<T>((headers, cancelToken) => _zap.put<ApiResponse<T>>(endpoint, body, headers: headers, query: query, decoder: _createDecoder<T>(parser), uploadProgress: onProgress, cancelToken: cancelToken), 'PUT', endpoint, useAuth, token);
   }
 }

@@ -30,6 +30,7 @@ export 'src/models/zap_pulse_config.dart';
 export 'src/models/zap_realtime_config.dart';
 export 'src/models/zap_realtime_error_response.dart';
 export 'src/models/zap_realtime_response.dart';
+export 'src/models/zap_response_parser.dart';
 
 export 'src/zap_pulse/zap_pulse.dart';
 export 'src/zap_pulse/zap_pulse_interface.dart';

@@ -110,12 +110,12 @@ typedef MultiParser<T> = Map<HttpStatus, DataParser<T>>;
 ///
 /// ## Best Practices
 ///
-/// - Use `ZapDataParser.single()` for simple APIs with consistent response structure
-/// - Use `ZapDataParser.multi()` for APIs that return different structures based on status codes
+/// - Use `ZapResponseParser.single()` for simple APIs with consistent response structure
+/// - Use `ZapResponseParser.multi()` for APIs that return different structures based on status codes
 /// - Always provide a `defaultParser` when using `statusParsers` to handle unexpected status codes
 /// - Consider the return type `T` carefully - use `dynamic` when different parsers return different types
 /// - Test your parsers with actual API responses to ensure they handle all expected data structures
-class ZapDataParser<T> {
+class ZapResponseParser<T> {
   /// The default parser to use when no status-specific parser is found.
   ///
   /// This parser will be used as a fallback when:
@@ -151,7 +151,7 @@ class ZapDataParser<T> {
   ///
   /// At least one of [defaultParser] or [statusParsers] should be provided,
   /// otherwise no parsing will occur.
-  const ZapDataParser({
+  const ZapResponseParser({
     this.defaultParser,
     this.statusParsers,
   });
@@ -168,7 +168,7 @@ class ZapDataParser<T> {
   /// ```dart
   /// ZapDataParser.single((data) => User.fromJson(data))
   /// ```
-  const ZapDataParser.single(DataParser<T> parser)
+  const ZapResponseParser.single(DataParser<T> parser)
       : defaultParser = parser,
         statusParsers = null;
 
@@ -187,7 +187,7 @@ class ZapDataParser<T> {
   ///   400: (data) => ErrorResponse.fromJson(data),
   /// })
   /// ```
-  const ZapDataParser.multi(MultiParser<T> parsers)
+  const ZapResponseParser.multi(MultiParser<T> parsers)
       : defaultParser = null,
         statusParsers = parsers;
 

@@ -3,7 +3,7 @@ import 'package:zap/src/models/api_response.dart';
 import 'package:zap/src/models/zap_cancel_token.dart';
 
 import '../http/response/response.dart';
-import '../models/zap_parser_config.dart';
+import '../models/zap_response_parser.dart';
 
 /// Interface defining the contract for ZapPulse HTTP operations.
 /// 
@@ -20,7 +20,7 @@ abstract class ZapPulseInterface {
   /// - [token]: Optional cancellation token for request cancellation
   /// 
   /// Returns a [ZapResponse] containing an [ApiResponse] with parsed data of type T.
-  Future<ZapResponse<ApiResponse<T>>> get<T>({required String endpoint, RequestParam? query, bool useAuth = true, ZapDataParser<T>? parser, ZapCancelToken? token});
+  Future<ZapResponse<ApiResponse<T>>> get<T>({required String endpoint, RequestParam? query, bool useAuth = true, ZapResponseParser<T>? parser, ZapCancelToken? token});
 
   /// Performs a POST request.
   /// 
@@ -39,7 +39,7 @@ abstract class ZapPulseInterface {
     RequestParam? query,
     Progress? onProgress,
     bool useAuth = true,
-    ZapDataParser<T>? parser,
+    ZapResponseParser<T>? parser,
     ZapCancelToken? token,
   });
 
@@ -60,7 +60,7 @@ abstract class ZapPulseInterface {
     RequestParam? query,
     Progress? onProgress,
     bool useAuth = true,
-    ZapDataParser<T>? parser,
+    ZapResponseParser<T>? parser,
     ZapCancelToken? token,
   });
 
@@ -81,7 +81,7 @@ abstract class ZapPulseInterface {
     RequestParam? query,
     Progress? onProgress,
     bool useAuth = true,
-    ZapDataParser<T>? parser,
+    ZapResponseParser<T>? parser,
     ZapCancelToken? token,
   });
 
@@ -95,5 +95,5 @@ abstract class ZapPulseInterface {
   /// - [token]: Optional cancellation token for request cancellation
   /// 
   /// Returns a [ZapResponse] containing an [ApiResponse] with parsed data of type T.
-  Future<ZapResponse<ApiResponse<T>>> delete<T>({required String endpoint, RequestParam? query, dynamic body, bool useAuth = true, ZapDataParser<T>? parser, ZapCancelToken? token  });
+  Future<ZapResponse<ApiResponse<T>>> delete<T>({required String endpoint, RequestParam? query, dynamic body, bool useAuth = true, ZapResponseParser<T>? parser, ZapCancelToken? token  });
 }
