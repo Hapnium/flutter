@@ -1,4 +1,4 @@
-import 'package:connectify/connectify.dart';
+import 'package:zap/zap.dart' show ZapUtils;
 import 'package:flutter/foundation.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:universal_io/io.dart';
@@ -41,7 +41,7 @@ class DeviceEngine {
 
   Future<String> _fetchDeviceIpAddress() async {
     if(isWeb) {
-      return ConnectifyUtils.instance.fetchIpAddress();
+      return ZapUtils.instance.fetchIpAddress();
     }
 
     var networks = await NetworkInterface.list();

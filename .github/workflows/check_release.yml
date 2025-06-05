@@ -12,8 +12,7 @@ jobs:
     strategy:
       matrix:
         package_dir: [
-          connectify,
-          socket_client,
+          zap,
           tracing,
           secure,
           notify,
