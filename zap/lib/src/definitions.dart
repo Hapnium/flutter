@@ -1,3 +1,5 @@
+import 'package:zap/src/http/utils/http_status.dart';
+
 import 'enums/zap_realtime_state.dart';
 import 'models/session_response.dart';
 import 'models/zap_realtime_response.dart';
@@ -40,20 +42,6 @@ typedef AsyncSessionCallback = Future<SessionResponse?> Function();
 /// The `HeaderBuilder` function receives a `SessionResponse` object and returns a `Headers` object.
 typedef HeaderBuilder = Headers Function(SessionResponse session);
 
-/// Signature for a data parser function that converts raw response data to a specific type.
-///
-/// The `DataParser` function receives the raw data from the API response
-/// and should return a parsed object of type T.
-/// 
-/// Example:
-/// ```dart
-/// DataParser<User> userParser = (data) => User.fromJson(data);
-/// DataParser<List<Post>> postsParser = (data) => (data as List)
-///     .map((item) => Post.fromJson(item))
-///     .toList();
-/// ```
-typedef DataParser<T> = T Function(dynamic data);
-
 /// Signature for a generic callback function with no arguments.
 typedef Callback = void Function();
 
@@ -62,6 +50,11 @@ typedef Callback = void Function();
 /// Keys are header names (e.g., 'Content-Type', 'Authorization') and
 /// values are their corresponding values.
 typedef Headers = Map<String, String>;
+
+/// Represents a stream of bytes as the body of a request or response.
+/// 
+/// This is used to represent the body of a request or response.
+typedef BodyBytes = Stream<List<int>>;
 
 /// Represents a generic message structure.
 ///
@@ -86,7 +79,7 @@ typedef RequestParam = Map<String, dynamic>;
 typedef RequestBody = dynamic;
 
 /// A function that decodes the response body into a specific type [T].
-typedef ResponseDecoder<T> = T Function(dynamic data);
+typedef ResponseDecoder<T> = T Function(HttpStatus status, dynamic data);
 
 /// A function used to track upload progress by returning the current percentage (0.0 - 100.0).
 typedef Progress = Function(double percent);

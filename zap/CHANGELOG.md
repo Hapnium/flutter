@@ -32,3 +32,13 @@
 ## 0.0.3
 
 - Fixed Uri parameter encoding issue
+
+## 0.0.4
+
+- Fixed response body decoding issue
+- Added support for custom response body decoding
+- Added support for custom response body encoding
+- Added support for custom response body parsing
+- Modified `ZapPulse` to support custom response body parsing
+- Modified `HttpStatus` to support custom status codes
+- Added `ZapParserConfig` to support custom response body parsing

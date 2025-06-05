@@ -51,10 +51,10 @@ class ZapUtils {
       // Make a GET request to a public IP API
       final response = await _client.get<Map<String, dynamic>>(
         "https://api64.ipify.org?format=json",
-        decoder: (data) => data as Map<String, dynamic>,
+        decoder: (status, data) => data as Map<String, dynamic>,
       );
 
-      if (response.statusCode == 200 && response.body?['ip'] != null) {
+      if (response.status == HttpStatus.OK && response.body?['ip'] != null) {
         return response.body!['ip'] as String;
       }
     } catch (e) {
@@ -69,7 +69,7 @@ class ZapUtils {
   /// Fetches image data from the specified [url].
   ///
   /// This method performs a network request to the given [url] to retrieve image data in byte format.
-  /// If the request is successful (HTTP status code 200), the [onSuccess] callback is invoked with
+  /// If the request is successful (HTTP status code HttpStatus.OK), the [onSuccess] callback is invoked with
   /// the image data (as a `Uint8List`). If the request fails, the [onError] callback is invoked with an
   /// error message.
   ///
@@ -101,7 +101,7 @@ class ZapUtils {
       // Make a GET request expecting binary data
       final response = await _client.get<List<int>>(
         url,
-        decoder: (data) {
+        decoder: (status, data) {
           if (data is List<int>) {
             return data;
           } else if (data is String) {
@@ -112,12 +112,12 @@ class ZapUtils {
         },
       );
 
-      if (response.statusCode == 200 && response.body != null) {
+      if (response.status == HttpStatus.OK && response.body != null) {
         // Convert the response data to a Uint8List (byte array)
         Uint8List imageData = Uint8List.fromList(response.body!);
         onSuccess.call(imageData);
       } else {
-        onError.call('Failed to fetch image data: HTTP ${response.statusCode}');
+        onError.call('Failed to fetch image data: HTTP ${response.status}');
       }
     } catch (error) {
       if (log) {
@@ -147,7 +147,7 @@ class ZapUtils {
     try {
       final response = await _client.get<List<int>>(
         url,
-        decoder: (data) {
+        decoder: (status, data) {
           if (data is List<int>) {
             return data;
           } else if (data is String) {
@@ -157,7 +157,7 @@ class ZapUtils {
         },
       );
 
-      if (response.statusCode == 200 && response.body != null) {
+      if (response.status == HttpStatus.OK && response.body != null) {
         return Uint8List.fromList(response.body!);
       }
     } catch (e) {
@@ -227,10 +227,10 @@ class ZapUtils {
       final response = await _client.get<Map<String, dynamic>>(
         "https://maps.googleapis.com/maps/api/distancematrix/json",
         query: queryParams,
-        decoder: (data) => data as Map<String, dynamic>,
+        decoder: (status, data) => data as Map<String, dynamic>,
       );
 
-      if (response.statusCode == 200 && response.body != null) {
+      if (response.status == HttpStatus.OK && response.body != null) {
         final responseData = response.body!;
         
         // Check if the API returned an error
@@ -247,7 +247,7 @@ class ZapUtils {
           throw Exception('No route data found in response');
         }
       } else {
-        throw Exception('HTTP ${response.statusCode}: Failed to fetch distance data');
+        throw Exception('HTTP ${response.status}: Failed to fetch distance data');
       }
     } catch (e) {
       if (log) {
@@ -304,14 +304,14 @@ class ZapUtils {
         "https://nominatim.openstreetmap.org/reverse",
         query: queryParams,
         headers: headers,
-        decoder: (data) => data as Map<String, dynamic>,
+        decoder: (status, data) => data as Map<String, dynamic>,
       );
 
-      if (response.statusCode == 200 && response.body != null) {
+      if (response.status == HttpStatus.OK && response.body != null) {
         return LocationInformation.fromJson(response.body!);
       } else {
         if (log) {
-          console.log('ZapUtils: Failed to fetch location information - HTTP ${response.statusCode}');
+          console.log('ZapUtils: Failed to fetch location information - HTTP ${response.status}');
         }
       }
     } catch (e) {

@@ -21,7 +21,7 @@ import '../utils/http_status.dart';
 /// - [request]: The original request.
 /// - [targetType]: The expected type of the response body.
 /// - [response]: The raw HTTP response.
-typedef ResponseInterceptor<T> = Future<ZapResponse<T>?> Function(ZapRequest<T> request, Type targetType, HttpClientResponse response);
+typedef ZapResponseInterceptor<T> = Future<ZapResponse<T>?> Function(ZapRequest<T> request, Type targetType, HttpClientResponse response);
 
 /// The core HTTP client used to configure and send HTTP requests.
 ///
@@ -91,7 +91,7 @@ class ZapClient {
   /// The default function to intercept and optionally modify HTTP responses.
   ///
   /// Can be used for logging, error handling, or data transformation.
-  ResponseInterceptor? defaultResponseInterceptor;
+  ZapResponseInterceptor? defaultResponseInterceptor;
 
   /// The maximum duration to wait before a request times out.
   ///
@@ -117,7 +117,7 @@ class ZapClient {
   /// A callback that returns a proxy URL for a given request URL.
   ///
   /// If `null`, no proxy is used. Useful for custom proxy logic.
-  String Function(Uri url)? findProxy;
+  ProxyFinder? findProxy;
 
   /// Creates a new instance of [ZapClient] with customizable networking behavior.
   ///
@@ -253,7 +253,7 @@ class ZapClient {
     String method,
     Map<String, dynamic>? query,
     ResponseDecoder<T>? decoder,
-    ResponseInterceptor<T>? responseInterceptor,
+    ZapResponseInterceptor<T>? responseInterceptor,
     Progress? uploadProgress,
   ) async {
     List<int>? bodyBytes;
@@ -361,34 +361,32 @@ class ZapClient {
 
     _client.timeout = timeout;
     try {
-      var response = await _client.send<T>(newRequest);
+      var res = await _client.send<T>(newRequest);
+      var response = await _modifier.modifyResponse<T>(newRequest, res);
 
-      final newResponse = await _modifier.modifyResponse<T>(newRequest, response);
-
-      if (HttpStatus.unauthorized == newResponse.statusCode && _modifier.authenticator != null && requestNumber <= maxAuthRetries) {
+      if (response.status.isUnauthorized && _modifier.authenticator != null && requestNumber <= maxAuthRetries) {
         return _performRequest<T>(
           handler,
           authenticate: true,
           requestNumber: requestNumber + 1,
           headers: newRequest.headers,
         );
-      } else if (HttpStatus.unauthorized == newResponse.statusCode) {
+      } else if (response.status.isUnauthorized) {
         if (!errorSafety) {
           throw ZapUnauthorizedException();
         } else {
           return ZapResponse<T>(
             request: newRequest,
-            headers: newResponse.headers,
-            statusCode: newResponse.statusCode,
-            body: newResponse.body,
-            bodyBytes: newResponse.bodyBytes,
-            bodyString: newResponse.bodyString,
-            statusText: newResponse.statusText,
+            headers: response.headers,
+            status: response.status,
+            body: response.body,
+            bodyBytes: response.bodyBytes,
+            bodyString: response.bodyString,
           );
         }
       }
 
-      return newResponse;
+      return response;
     } on Exception catch (err) {
       if (!errorSafety) {
         throw ZapException(err.toString());
@@ -396,9 +394,10 @@ class ZapClient {
         return ZapResponse<T>(
           request: newRequest,
           headers: null,
-          statusCode: null,
+          status: HttpStatus.CONNECTION_NOT_REACHABLE,
           body: null,
-          statusText: "$err",
+          bodyBytes: null,
+          bodyString: "$err",
         );
       }
     }
@@ -409,7 +408,7 @@ class ZapClient {
     String? contentType,
     Map<String, dynamic>? query,
     ResponseDecoder<T>? decoder,
-    ResponseInterceptor<T>? responseInterceptor,
+    ZapResponseInterceptor<T>? responseInterceptor,
   ) {
     final headers = <String, String>{};
     _setSimpleHeaders(headers, contentType);
@@ -427,7 +426,7 @@ class ZapClient {
     ));
   }
 
-  ResponseInterceptor<T>? _responseInterceptor<T>(ResponseInterceptor<T>? actual) {
+  ZapResponseInterceptor<T>? _responseInterceptor<T>(ZapResponseInterceptor<T>? actual) {
     if (actual != null) return actual;
 
     if (defaultResponseInterceptor != null) {
@@ -447,7 +446,7 @@ class ZapClient {
     required dynamic body,
     required Map<String, dynamic>? query,
     ResponseDecoder<T>? decoder,
-    ResponseInterceptor<T>? responseInterceptor,
+    ZapResponseInterceptor<T>? responseInterceptor,
     required Progress? uploadProgress,
   }) {
     return _requestWithBody<T>(
@@ -467,7 +466,7 @@ class ZapClient {
     String? contentType,
     Map<String, dynamic>? query,
     ResponseDecoder<T>? decoder,
-    ResponseInterceptor<T>? responseInterceptor,
+    ZapResponseInterceptor<T>? responseInterceptor,
   ) {
     final headers = <String, String>{};
     _setSimpleHeaders(headers, contentType);
@@ -500,7 +499,8 @@ class ZapClient {
         throw ZapException(e.toString());
       }
       return Future.value(ZapResponse<T>(
-        statusText: 'Can not connect to server. Reason: $e',
+        status: HttpStatus.CONNECTION_NOT_REACHABLE,
+        message: 'Can not connect to server. Reason: $e',
       ));
     }
   }
@@ -528,7 +528,7 @@ class ZapClient {
     Map<String, String>? headers,
     Map<String, dynamic>? query,
     ResponseDecoder<T>? decoder,
-    ResponseInterceptor<T>? responseInterceptor,
+    ZapResponseInterceptor<T>? responseInterceptor,
     Progress? uploadProgress,
     // List<MultipartFile> files,
   }) async {
@@ -551,7 +551,8 @@ class ZapClient {
         throw ZapException(e.toString());
       }
       return Future.value(ZapResponse<T>(
-        statusText: 'Can not connect to server. Reason: $e',
+        status: HttpStatus.CONNECTION_NOT_REACHABLE,
+        message: 'Can not connect to server. Reason: $e',
       ));
     }
   }
@@ -579,7 +580,7 @@ class ZapClient {
     Map<String, String>? headers,
     Map<String, dynamic>? query,
     ResponseDecoder<T>? decoder,
-    ResponseInterceptor<T>? responseInterceptor,
+    ZapResponseInterceptor<T>? responseInterceptor,
     Progress? uploadProgress,
     // List<MultipartFile> files,
   }) async {
@@ -603,7 +604,8 @@ class ZapClient {
         throw ZapException(e.toString());
       }
       return Future.value(ZapResponse<T>(
-        statusText: 'Can not connect to server. Reason: $e',
+        status: HttpStatus.CONNECTION_NOT_REACHABLE,
+        message: 'Can not connect to server. Reason: $e',
       ));
     }
   }
@@ -635,7 +637,7 @@ class ZapClient {
     Map<String, String>? headers,
     Map<String, dynamic>? query,
     ResponseDecoder<T>? decoder,
-    ResponseInterceptor<T>? responseInterceptor,
+    ZapResponseInterceptor<T>? responseInterceptor,
     Progress? uploadProgress,
   }) async {
     try {
@@ -658,7 +660,8 @@ class ZapClient {
         throw ZapException(e.toString());
       }
       return Future.value(ZapResponse<T>(
-        statusText: 'Can not connect to server. Reason: $e',
+        status: HttpStatus.CONNECTION_NOT_REACHABLE,
+        message: 'Can not connect to server. Reason: $e',
       ));
     }
   }
@@ -686,7 +689,7 @@ class ZapClient {
     Map<String, String>? headers,
     Map<String, dynamic>? query,
     ResponseDecoder<T>? decoder,
-    ResponseInterceptor<T>? responseInterceptor,
+    ZapResponseInterceptor<T>? responseInterceptor,
     Progress? uploadProgress,
   }) async {
     try {
@@ -709,7 +712,8 @@ class ZapClient {
         throw ZapException(e.toString());
       }
       return Future.value(ZapResponse<T>(
-        statusText: 'Can not connect to server. Reason: $e',
+        status: HttpStatus.CONNECTION_NOT_REACHABLE,
+        message: 'Can not connect to server. Reason: $e',
       ));
     }
   }
@@ -734,7 +738,7 @@ class ZapClient {
     String? contentType,
     Map<String, dynamic>? query,
     ResponseDecoder<T>? decoder,
-    ResponseInterceptor<T>? responseInterceptor,
+    ZapResponseInterceptor<T>? responseInterceptor,
   }) async {
     try {
       var response = await _performRequest<T>(
@@ -747,7 +751,8 @@ class ZapClient {
         throw ZapException(e.toString());
       }
       return Future.value(ZapResponse<T>(
-        statusText: 'Can not connect to server. Reason: $e',
+        status: HttpStatus.CONNECTION_NOT_REACHABLE,
+        message: 'Can not connect to server. Reason: $e',
       ));
     }
   }
@@ -771,7 +776,7 @@ class ZapClient {
     String? contentType,
     Map<String, dynamic>? query,
     ResponseDecoder<T>? decoder,
-    ResponseInterceptor<T>? responseInterceptor,
+    ZapResponseInterceptor<T>? responseInterceptor,
   }) async {
     try {
       var response = await _performRequest<T>(
@@ -784,7 +789,8 @@ class ZapClient {
         throw ZapException(e.toString());
       }
       return Future.value(ZapResponse<T>(
-        statusText: 'Can not connect to server. Reason: $e',
+        status: HttpStatus.CONNECTION_NOT_REACHABLE,
+        message: 'Can not connect to server. Reason: $e',
       ));
     }
   }

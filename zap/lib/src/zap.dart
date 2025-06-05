@@ -3,6 +3,7 @@ import 'exceptions/exceptions.dart';
 import 'http/request/request.dart';
 import 'http/response/graphql_response.dart';
 import 'http/response/response.dart';
+import 'http/utils/http_status.dart';
 import 'models/zap_cancel_token.dart';
 import 'models/zap_config.dart';
 import 'zap_socket.dart';
@@ -319,6 +320,7 @@ class Zap extends ZapInterface {
       final listError = res.body['errors'];
       if ((listError is List) && listError.isNotEmpty) {
         return GraphQLResponse<T>(
+          status: res.status,
           graphQLErrors: listError.map((e) => GraphQLError(
             code: (e['extensions'] != null ? e['extensions']['code'] ?? '' : '').toString(),
             message: (e['message'] ?? '').toString(),
@@ -327,12 +329,15 @@ class Zap extends ZapInterface {
       }
       return GraphQLResponse<T>.fromResponse(res);
     } on Exception catch (err) {
-      return GraphQLResponse<T>(graphQLErrors: [
-        GraphQLError(
-          code: null,
-          message: err.toString(),
-        )
-      ]);
+      return GraphQLResponse<T>(
+        status: HttpStatus.CONNECTION_NOT_REACHABLE,
+        graphQLErrors: [
+          GraphQLError(
+            code: null,
+            message: err.toString(),
+          )
+        ]
+      );
     }
   }
 
@@ -355,6 +360,7 @@ class Zap extends ZapInterface {
       final listError = res.body['errors'];
       if ((listError is List) && listError.isNotEmpty) {
         return GraphQLResponse<T>(
+          status: res.status,
           graphQLErrors: listError.map((e) => GraphQLError(
             code: e['extensions']['code']?.toString(),
             message: e['message']?.toString(),
@@ -363,12 +369,15 @@ class Zap extends ZapInterface {
       }
       return GraphQLResponse<T>.fromResponse(res);
     } on Exception catch (err) {
-      return GraphQLResponse<T>(graphQLErrors: [
-        GraphQLError(
-          code: null,
-          message: err.toString(),
-        )
-      ]);
+      return GraphQLResponse<T>(
+        status: HttpStatus.CONNECTION_NOT_REACHABLE,
+        graphQLErrors: [
+          GraphQLError(
+            code: null,
+            message: err.toString(),
+          )
+        ]
+      );
     }
   }
 

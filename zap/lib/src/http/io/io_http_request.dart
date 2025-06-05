@@ -8,6 +8,7 @@ import '../request/request.dart';
 import '../response/helpers.dart';
 import '../response/response.dart';
 import '../utils/body_decoder.dart';
+import '../utils/http_status.dart';
 import 'io_http_response.dart';
 
 /// A `dart:io` implementation of [HttpRequestInterface].
@@ -68,13 +69,14 @@ class HttpRequestImplementation extends HttpRequestInterface {
         request,
         stringBody,
         response.headers.contentType?.mimeType,
+        HttpStatus.fromCode(response.statusCode)
       );
 
       return ZapResponse(
         headers: headers,
         request: request,
-        statusCode: response.statusCode,
-        statusText: response.reasonPhrase,
+        status: HttpStatus.fromCode(response.statusCode),
+        message: response.reasonPhrase,
         bodyBytes: bodyBytes,
         body: body,
         bodyString: stringBody,

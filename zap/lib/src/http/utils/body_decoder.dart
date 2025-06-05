@@ -3,8 +3,9 @@ import 'dart:convert';
 import 'package:tracing/tracing.dart';
 
 import '../request/request.dart';
+import 'http_status.dart';
 
-T? bodyDecoded<T>(ZapRequest<T> request, String stringBody, String? mimeType) {
+T? bodyDecoded<T>(ZapRequest<T> request, String stringBody, String? mimeType, HttpStatus status) {
   T? body;
   dynamic bodyToDecode;
 
@@ -25,7 +26,7 @@ T? bodyDecoded<T>(ZapRequest<T> request, String stringBody, String? mimeType) {
     } else if (request.decoder == null) {
       body = bodyToDecode as T?;
     } else {
-      body = request.decoder!(bodyToDecode);
+      body = request.decoder!(status, bodyToDecode);
     }
   } on Exception catch (_) {
     body = stringBody as T;

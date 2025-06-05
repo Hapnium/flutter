@@ -9,7 +9,7 @@ class GraphQLResponse<T> extends ZapResponse<T> {
   /// List of GraphQL errors returned by the server.
   final List<GraphQLError>? graphQLErrors;
 
-  GraphQLResponse({super.body, this.graphQLErrors});
+  GraphQLResponse({required super.status, super.body, this.graphQLErrors});
 
   /// Constructs a [GraphQLResponse] from a standard [ZapResponse],
   /// extracting the GraphQL `data` field as the response body.
@@ -17,10 +17,10 @@ class GraphQLResponse<T> extends ZapResponse<T> {
     : graphQLErrors = null,
       super(
         request: res.request,
-        statusCode: res.statusCode,
+        status: res.status,
+        message: res.message,
         bodyBytes: res.bodyBytes,
         bodyString: res.bodyString,
-        statusText: res.statusText,
         headers: res.headers,
         body: res.body['data'] as T?
       );

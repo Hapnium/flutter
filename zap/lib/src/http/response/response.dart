@@ -1,101 +1,137 @@
+import 'package:zap/src/definitions.dart';
+
 import '../request/request.dart';
 import '../utils/http_status.dart';
 
-/// A class that encapsulates an HTTP response, including the decoded body, headers, and status.
+/// A class that encapsulates an HTTP response, including the decoded body,
+/// headers, status code, and raw response data.
+///
+/// This class is generic and can be used to represent the body of any type [T],
+/// which allows flexibility in decoding different types of responses.
+///
+/// Typical usage:
+/// ```dart
+/// final response = ZapResponse<User>(
+///   status: HttpStatus.ok,
+///   body: User.fromJson(json),
+///   headers: {...},
+/// );
+/// if (response.isOk) {
+///   // Use response.body
+/// }
+/// ```
 class ZapResponse<T> {
-  const ZapResponse({
+  /// The original request that triggered this response.
+  ///
+  /// This includes request details like the HTTP method, URL, headers, and body.
+  final ZapRequest? request;
+
+  /// The HTTP response headers returned by the server.
+  ///
+  /// These might include metadata such as content type, authorization info, etc.
+  final Headers? headers;
+
+  /// The HTTP status code and description.
+  ///
+  /// This includes both the numeric status code (e.g., 200, 404)
+  /// and a human-readable message (e.g., "OK", "Not Found").
+  final HttpStatus status;
+
+  /// A human-readable message describing the response.
+  ///
+  /// Defaults to [status.description] if not explicitly provided.
+  final String message;
+
+  /// The raw response body as a stream of bytes.
+  ///
+  /// Useful for downloading binary data such as files or images.
+  final BodyBytes? bodyBytes;
+
+  /// The raw response body decoded as a UTF-8 string.
+  ///
+  /// Suitable for logging or fallback access when deserialization fails.
+  final String? bodyString;
+
+  /// The parsed/deserialized response body of type [T].
+  ///
+  /// This is usually the result of applying a response parser on the raw response body.
+  final T? body;
+
+  /// Constructs a new [ZapResponse] with the given fields.
+  ///
+  /// If [message] is not provided, it will default to the status description.
+  ZapResponse({
     this.request,
-    this.statusCode,
+    required this.status,
     this.bodyBytes,
     this.bodyString,
-    this.statusText = '',
     this.headers = const {},
     this.body,
-  });
+    String? message,
+  }) : message = message ?? status.description;
 
   /// Creates a copy of this response with optional overrides.
+  ///
+  /// This is useful for modifying or updating specific fields without
+  /// reconstructing the entire response object.
   ZapResponse<T> copyWith({
     ZapRequest? request,
-    int? statusCode,
+    HttpStatus? status,
     Stream<List<int>>? bodyBytes,
     String? bodyString,
-    String? statusText,
     Map<String, String>? headers,
     T? body,
   }) {
     return ZapResponse<T>(
       request: request ?? this.request,
-      statusCode: statusCode ?? this.statusCode,
+      status: status ?? this.status,
       bodyBytes: bodyBytes ?? this.bodyBytes,
       bodyString: bodyString ?? this.bodyString,
-      statusText: statusText ?? this.statusText,
       headers: headers ?? this.headers,
       body: body ?? this.body,
     );
   }
 
-  /// The original request that triggered this response.
-  final ZapRequest? request;
-
-  /// The HTTP response headers.
-  final Map<String, String>? headers;
-
-  /// The HTTP status code (e.g. 200, 404, 500).
-  final int? statusCode;
-
-  /// Human-readable status message (e.g. "OK", "Not Found").
-  final String? statusText;
-
-  /// The raw response body as a byte stream.
-  final Stream<List<int>>? bodyBytes;
-
-  /// The raw response body as a UTF-8 decoded string.
-  final String? bodyString;
-
-  /// The deserialized response body.
-  final T? body;
-
-  /// [HttpStatus] from [ZapResponse]. `status.connectionError` is true
-  /// when statusCode is null. `status.isUnauthorized` is true when
-  /// statusCode is equal `401`. `status.isNotFound` is true when
-  /// statusCode is equal `404`. `status.isServerError` is true when
-  /// statusCode is between `500` and `599`.
-  HttpStatus get status => HttpStatus(statusCode);
-
-  /// `hasError` is true when statusCode is not between 200 and 299.
+  /// Returns `true` if the response indicates an error.
+  ///
+  /// Error responses typically have status codes outside the 200–299 range.
   bool get hasError => status.hasError;
 
-  /// `isOk` is true when statusCode is between 200 and 299.
+  /// Returns `true` if the response indicates a successful request.
+  ///
+  /// Equivalent to `!hasError`, covering status codes 200–299.
   bool get isOk => !hasError;
 
-  /// `unauthorized` is true when statusCode is equal `401`.
+  /// Returns `true` if the response status code is 401 (Unauthorized).
+  ///
+  /// This is useful for detecting authentication failures.
   bool get unauthorized => status.isUnauthorized;
 
-  /// Returns true when statusCode is between 200 and 299.
-  /// 
-  /// This is a helper method to check if the response is successful.
+  /// Returns `true` if the status code is in the 2xx range (200–299).
+  ///
+  /// This typically indicates success.
   bool is2xxSuccessful() {
-    return statusCode != null && statusCode! >= 200 && statusCode! < 300;
+    return status.code >= 200 && status.code < 300;
   }
 
-  /// Returns true when statusCode is between 300 and 399.
-  /// 
-  /// This is a helper method to check if the response is a redirection.
+  /// Returns `true` if the status code is in the 3xx range (300–399).
+  ///
+  /// This indicates a redirection response.
   bool is3xxRedirection() {
-    return statusCode != null && statusCode! >= 300 && statusCode! < 400;
+    return status.code >= 300 && status.code < 400;
   }
 
-  /// Returns true when statusCode is between 400 and 499.
-  /// 
-  /// This is a helper method to check if the response is a client error.
+  /// Returns `true` if the status code is in the 4xx range (400–499).
+  ///
+  /// This indicates a client error such as bad request or unauthorized access.
   bool is4xxClientError() {
-    return statusCode != null && statusCode! >= 400 && statusCode! < 500;
+    return status.code >= 400 && status.code < 500;
   }
 
-  /// Returns true when statusCode is between 500 and 599.
-  /// 
-  /// This is a helper method to check if the response is a server error.
+  /// Returns `true` if the status code is in the 5xx range (500–599).
+  ///
+  /// This indicates a server-side error.
   bool is5xxServerError() {
-    return statusCode != null && statusCode! >= 500 && statusCode! < 600;
+    return status.code >= 500 && status.code < 600;
   }
 }

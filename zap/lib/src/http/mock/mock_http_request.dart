@@ -35,12 +35,14 @@ class MockHttpRequest extends HttpRequestInterface {
       request,
       stringBody,
       mimeType,
+      response.status
     );
+
     return ZapResponse(
       headers: response.headers,
       request: request,
-      statusCode: response.statusCode,
-      statusText: response.statusText,
+      status: response.status,
+      message: response.message,
       bodyBytes: bodyBytes,
       body: body,
       bodyString: stringBody,

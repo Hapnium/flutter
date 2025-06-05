@@ -5,6 +5,8 @@ import '../exceptions/exceptions.dart';
 import '../http/modifier/zap_modifier.dart';
 import '../http/request/request.dart';
 import '../http/response/response.dart';
+import '../http/utils/http_status.dart';
+import '../models/zap_parser_config.dart';
 import '../models/zap_pulse_config.dart';
 import '../models/session_response.dart';
 import '../models/zap_cancel_token.dart';
@@ -215,7 +217,7 @@ class ZapPulse implements ZapPulseInterface {
 
   /// Handles session refresh when authentication fails.
   /// 
-  /// This method is called when a request returns 401 Unauthorized.
+  /// This method is called when a request returns HttpStatus.UNAUTHORIZED Unauthorized.
   /// It attempts to refresh the session using the provided callback.
   Future<SessionResponse?> _handleSessionRefresh() async {
     if (config.onSessionRefreshed != null) {
@@ -248,32 +250,37 @@ class ZapPulse implements ZapPulseInterface {
   /// Logs response information if response logging is enabled.
   void _logResponse<T>(ZapResponse<ApiResponse<T>> response) {
     if (config.showResponseLogs) {
-      console.log('ZapPulse Response: ${response.statusCode} - ${response.body?.status} - ${response.body?.message}');
+      console.log('ZapPulse Response: ${response.status} - ${response.body?.status} - ${response.body?.message}');
     }
   }
 
   /// Creates a decoder function for ApiResponse with custom data parsing.
-  ResponseDecoder<ApiResponse<T>> _createDecoder<T>(DataParser<T>? parser) {
-    return (dynamic responseData) {
+  ResponseDecoder<ApiResponse<T>> _createDecoder<T>(ZapDataParser<T>? parserConfig) {
+    return (HttpStatus status, dynamic responseData) {
       final response = ApiResponse.fromJson(responseData);
-      
-      if (parser != null && response.data != null) {
-        try {
-          final parsedData = parser(response.data);
-          return ApiResponse<T>(
-            status: response.status,
-            message: response.message,
-            data: parsedData,
-            code: response.code,
-          );
-        } catch (e) {
-          if (config.showErrorLogs) {
-            console.log('ZapPulse Parser Error: $e');
+
+      if (parserConfig != null && response.data != null) {
+        // Use the getParser helper method to find the appropriate parser
+        final parser = parserConfig.getParser(HttpStatus.fromCode(response.code));
+
+        if (parser != null) {
+          try {
+            final parsedData = parser(response.data);
+            return ApiResponse<T>(
+              status: response.status,
+              message: response.message,
+              data: parsedData,
+              code: response.code,
+            );
+          } catch (e) {
+            if (config.showErrorLogs) {
+              console.log('ZapPulse Parser Error for status ${response.code}: $e');
+            }
+            return ApiResponse<T>.error('Failed to parse response data for status ${response.code}: $e');
           }
-          return ApiResponse<T>.error('Failed to parse response data: $e');
         }
       }
-      
+
       return ApiResponse<T>(
         status: response.status,
         message: response.message,
@@ -299,8 +306,7 @@ class ZapPulse implements ZapPulseInterface {
 
     // Create unauthorized response
     return ZapResponse<ApiResponse<T>>(
-      statusCode: 401,
-      statusText: 'Unauthorized',
+      status: HttpStatus.UNAUTHORIZED,
       headers: {},
       body: ApiResponse<T>.error('Unable to complete request due to authentication failure'),
     );
@@ -312,7 +318,7 @@ class ZapPulse implements ZapPulseInterface {
   /// 1. Validates authentication requirements
   /// 2. Builds headers with configurable authentication
   /// 3. Executes the request
-  /// 4. Handles 401 errors with session refresh
+  /// 4. Handles HttpStatus.UNAUTHORIZED errors with session refresh
   /// 5. Logs request/response if enabled
   /// 6. Parses response data using provided parser
   Future<ZapResponse<ApiResponse<T>>> _execute<T>(_RequestExecutor<T> execute, String method, String endpoint, bool useAuth, ZapCancelToken? cancelToken) async {
@@ -328,8 +334,8 @@ class ZapPulse implements ZapPulseInterface {
 
       final response = await execute(headers, cancelToken);
       
-      // Handle 401 Unauthorized - attempt session refresh
-      if (response.statusCode == 401 && useAuth) {
+      // Handle HttpStatus.UNAUTHORIZED Unauthorized - attempt session refresh
+      if (response.status == HttpStatus.UNAUTHORIZED && useAuth) {
         return await _retryRequest(execute, cancelToken);
       }
 
@@ -342,35 +348,34 @@ class ZapPulse implements ZapPulseInterface {
       
       // Return error response
       return ZapResponse<ApiResponse<T>>(
-        statusCode: 500,
-        statusText: 'Internal Error',
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
         body: ApiResponse<T>.error(e is ZapException ? e.message : e.toString()),
       );
     }
   }
 
   @override
-  Future<ZapResponse<ApiResponse<T>>> delete<T>({required String endpoint, RequestParam? query, dynamic body, bool useAuth = true, DataParser<T>? parser, ZapCancelToken? token}) async {
+  Future<ZapResponse<ApiResponse<T>>> delete<T>({required String endpoint, RequestParam? query, dynamic body, bool useAuth = true, ZapDataParser<T>? parser, ZapCancelToken? token}) async {
     return _execute<T>((headers, cancelToken) => _zap.delete<ApiResponse<T>>(endpoint, headers: headers, query: query, decoder: _createDecoder<T>(parser), cancelToken: cancelToken), 'DELETE', endpoint, useAuth, token);
   }
 
   @override
-  Future<ZapResponse<ApiResponse<T>>> get<T>({required String endpoint, RequestParam? query, bool useAuth = true, DataParser<T>? parser, ZapCancelToken? token}) async {
+  Future<ZapResponse<ApiResponse<T>>> get<T>({required String endpoint, RequestParam? query, bool useAuth = true, ZapDataParser<T>? parser, ZapCancelToken? token}) async {
     return _execute<T>((headers, cancelToken) => _zap.get<ApiResponse<T>>(endpoint, headers: headers, query: query, decoder: _createDecoder<T>(parser), cancelToken: cancelToken), 'GET', endpoint, useAuth, token);
   }
 
   @override
-  Future<ZapResponse<ApiResponse<T>>> patch<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, DataParser<T>? parser, ZapCancelToken? token}) async {
+  Future<ZapResponse<ApiResponse<T>>> patch<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, ZapDataParser<T>? parser, ZapCancelToken? token}) async {
     return _execute<T>((headers, cancelToken) => _zap.patch<ApiResponse<T>>(endpoint, body, headers: headers, query: query, decoder: _createDecoder<T>(parser), uploadProgress: onProgress, cancelToken: cancelToken), 'PATCH', endpoint, useAuth, token);
   }
 
   @override
-  Future<ZapResponse<ApiResponse<T>>> post<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, DataParser<T>? parser, ZapCancelToken? token}) async {
+  Future<ZapResponse<ApiResponse<T>>> post<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, ZapDataParser<T>? parser, ZapCancelToken? token}) async {
     return _execute<T>((headers, cancelToken) => _zap.post<ApiResponse<T>>(endpoint, body, headers: headers, query: query, decoder: _createDecoder<T>(parser), uploadProgress: onProgress, cancelToken: cancelToken), 'POST', endpoint, useAuth, token);
   }
 
   @override
-  Future<ZapResponse<ApiResponse<T>>> put<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, DataParser<T>? parser, ZapCancelToken? token}) async {
+  Future<ZapResponse<ApiResponse<T>>> put<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, ZapDataParser<T>? parser, ZapCancelToken? token}) async {
     return _execute<T>((headers, cancelToken) => _zap.put<ApiResponse<T>>(endpoint, body, headers: headers, query: query, decoder: _createDecoder<T>(parser), uploadProgress: onProgress, cancelToken: cancelToken), 'PUT', endpoint, useAuth, token);
   }
 }

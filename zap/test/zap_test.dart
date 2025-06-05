@@ -20,7 +20,7 @@ void main() {
       );
 
       // Assert
-      expect(response.statusCode, 200);
+      expect(response.status.code, 200);
       expect(response.body, isA<Map<String, dynamic>>());
       expect(response.body?['id'], 1);
       expect(response.body?['title'], isNotEmpty);
@@ -35,7 +35,7 @@ void main() {
       );
 
       // Assert
-      expect(response.statusCode, 200);
+      expect(response.status.code, 200);
       expect(response.body, isA<List<dynamic>>());
       expect(response.body?.isNotEmpty, true);
       
@@ -60,7 +60,7 @@ void main() {
       );
 
       // Assert
-      expect(response.statusCode, 201);
+      expect(response.status.code, 201);
       expect(response.body, isA<Map<String, dynamic>>());
       expect(response.body?['id'], isNotNull);
       expect(response.body?['title'], postData['title']);
@@ -84,7 +84,7 @@ void main() {
       );
 
       // Assert
-      expect(response.statusCode, 200);
+      expect(response.status.code, 200);
       expect(response.body, isA<Map<String, dynamic>>());
       expect(response.body?['id'], 1);
       expect(response.body?['title'], updateData['title']);
@@ -104,7 +104,7 @@ void main() {
       );
 
       // Assert
-      expect(response.statusCode, 200);
+      expect(response.status.code, 200);
       expect(response.body, isA<Map<String, dynamic>>());
       expect(response.body?['title'], patchData['title']);
       expect(response.body?['id'], 1); // Should still have original id
@@ -117,7 +117,7 @@ void main() {
       );
 
       // Assert
-      expect(response.statusCode, 200);
+      expect(response.status.code, 200);
     });
 
     test('Request with custom headers', () async {
@@ -134,7 +134,7 @@ void main() {
       );
 
       // Assert
-      expect(response.statusCode, 200);
+      expect(response.status.code, 200);
       expect(response.body?['headers']?['X-Custom-Header'], 'TestValue');
       expect(response.body?['headers']?['User-Agent'], 'Zap-Test-Client/1.0');
     });
@@ -165,7 +165,7 @@ void main() {
       );
 
       // Assert
-      expect(response.statusCode, 404);
+      expect(response.status.code, 404);
     });
 
     test('Error handling for invalid URL', () async {
@@ -175,7 +175,7 @@ void main() {
       );
 
       // Assert
-      expect(response.statusCode, 0); // Network error
+      expect(response.status.code, 0); // Network error
       expect(response.hasError, true);
     });
 
@@ -195,7 +195,7 @@ void main() {
       // Assert
       expect(responses.length, 5);
       for (int i = 0; i < responses.length; i++) {
-        expect(responses[i].statusCode, 200);
+        expect(responses[i].status.code, 200);
         expect(responses[i].body?['id'], i + 1);
       }
     });

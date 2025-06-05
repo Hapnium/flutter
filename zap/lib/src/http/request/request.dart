@@ -6,47 +6,73 @@ import 'dart:typed_data';
 
 import 'package:zap/src/definitions.dart';
 
-import '../client/zap_client.dart' show ResponseInterceptor;
+import '../client/zap_client.dart' show ZapResponseInterceptor;
 import '../multipart/form_data.dart';
 
-/// The request to send to server
-/// 
-/// This handles all the request data and send it to server
+/// Represents a network request sent through the Zap client.
+///
+/// This class holds all configuration and data associated with an HTTP request,
+/// such as method, headers, body, redirect behavior, files, and more. It also
+/// supports response decoding and intercepting for flexible response handling.
 class ZapRequest<T> {
-  /// Headers attach to this [ZapRequest]
-  final Map<String, String> headers;
+  /// The HTTP headers attached to this request.
+  ///
+  /// Example: `{'Content-Type': 'application/json', 'Authorization': 'Bearer ...'}`
+  final Headers headers;
 
-  /// The [Uri] from request
+  /// The URI (Uniform Resource Identifier) to which the request is sent.
+  ///
+  /// Example: `Uri.parse("https://api.example.com/v1/data")`
   final Uri url;
 
-  /// The decoder to decode the response body
+  /// A custom decoder to convert the raw response body into a typed object [T].
+  ///
+  /// This allows structured deserialization of the response into models.
   final ResponseDecoder<T>? decoder;
 
-  /// The response interceptor to intercept the response
-  final ResponseInterceptor<T>? responseInterceptor;
+  /// An optional interceptor to inspect or modify the response before it's returned.
+  ///
+  /// This is useful for adding logging, error handling, or transforming the response.
+  final ZapResponseInterceptor<T>? responseInterceptor;
 
-  /// The Http Method from this [ZapRequest]
-  /// ex: `GET`,`POST`,`PUT`,`DELETE`
+  /// The HTTP method of the request.
+  ///
+  /// Common methods include: `'GET'`, `'POST'`, `'PUT'`, `'DELETE'`, etc.
   final String method;
 
-  /// The content length of body from this [ZapRequest]
+  /// The length in bytes of the request body, if known.
+  ///
+  /// This is often used for setting the `Content-Length` header explicitly.
   final int? contentLength;
 
-  /// The BodyBytesStream of body from this [ZapRequest]
-  final Stream<List<int>> bodyBytes;
+  /// The body of the request represented as a byte stream.
+  ///
+  /// Useful for sending raw data, files, or streaming content.
+  final BodyBytes bodyBytes;
 
-  /// When true, the client will follow redirects to resolves this [ZapRequest]
+  /// Whether this request should follow HTTP redirects automatically.
+  ///
+  /// If `true`, the client will attempt to follow redirects like 301, 302.
   final bool followRedirects;
 
-  /// The maximum number of redirects if [followRedirects] is true.
+  /// The maximum number of redirects the client should follow, if [followRedirects] is `true`.
+  ///
+  /// Must be greater than zero if redirects are enabled.
   final int maxRedirects;
 
-  /// When true, the client will keep the connection open after the request is sent
+  /// Whether the client should keep the TCP connection alive for reuse.
+  ///
+  /// This is useful for performance when making multiple requests to the same host.
   final bool persistentConnection;
 
-  /// The files to send with this [ZapRequest]
+  /// Optional form data (e.g., files) to be included in the request body.
+  ///
+  /// Used for `multipart/form-data` uploads.
   final FormData? files;
 
+  /// Internal constructor for initializing a [ZapRequest].
+  ///
+  /// Use the factory constructor for external instantiation.
   const ZapRequest._({
     required this.method,
     required this.bodyBytes,
@@ -61,20 +87,24 @@ class ZapRequest<T> {
     this.responseInterceptor,
   });
 
-  /// Create a [ZapRequest]
-  /// 
-  /// Args:
-  ///   url: The url to send the request to
-  ///   method: The http method to use
-  ///   headers: The headers of the request
-  ///   bodyBytes: The body of the request
-  ///   followRedirects: When true, the client will follow redirects to resolves this [ZapRequest]
-  ///   maxRedirects: The maximum number of redirects if [followRedirects] is true.
-  ///   contentLength: The content length of body from this [ZapRequest]
-  ///   files: The files to send with this [ZapRequest]
-  ///   persistentConnection: When true, the client will keep the connection open after the request is sent
-  ///   decoder: The decoder to decode the response body
-  ///   responseInterceptor: The response interceptor to intercept the response
+  /// Creates a new instance of [ZapRequest].
+  ///
+  /// This factory constructor simplifies request creation with default behavior and
+  /// allows configuration of redirection, persistent connections, file uploads, etc.
+  ///
+  /// ---
+  /// Parameters:
+  /// - [url]: The destination URI of the request.
+  /// - [method]: The HTTP method to use (e.g., `'GET'`, `'POST'`).
+  /// - [headers]: HTTP headers to send with the request.
+  /// - [bodyBytes]: The request body as a byte stream (optional).
+  /// - [followRedirects]: Whether to automatically follow redirects (default: `true`).
+  /// - [maxRedirects]: The maximum redirects to follow (default: `4`).
+  /// - [contentLength]: Explicit content length for the request body (optional).
+  /// - [files]: Optional files to upload with the request (optional).
+  /// - [persistentConnection]: Whether to reuse TCP connection (default: `true`).
+  /// - [decoder]: A custom response decoder to parse the response into [T].
+  /// - [responseInterceptor]: Optional interceptor to modify/inspect the response.
   factory ZapRequest({
     required Uri url,
     required String method,
@@ -86,10 +116,10 @@ class ZapRequest<T> {
     FormData? files,
     bool persistentConnection = true,
     ResponseDecoder<T>? decoder,
-    ResponseInterceptor<T>? responseInterceptor,
+    ZapResponseInterceptor<T>? responseInterceptor,
   }) {
     if (followRedirects) {
-      assert(maxRedirects > 0);
+      assert(maxRedirects > 0, "maxRedirects must be > 0 when followRedirects is true.");
     }
     return ZapRequest._(
       url: url,
@@ -102,12 +132,29 @@ class ZapRequest<T> {
       files: files,
       persistentConnection: persistentConnection,
       decoder: decoder,
-      responseInterceptor: responseInterceptor);
+      responseInterceptor: responseInterceptor,
+    );
   }
 
-  /// Returns a new [ZapRequest] object with overridden values.
+  /// Creates a copy of this [ZapRequest] with modified fields.
   ///
-  /// If [appendHeader] is `true`, the original headers will be merged with [headers].
+  /// You can override any field. If [appendHeader] is `true`, the new [headers]
+  /// will be merged with the existing headers.
+  ///
+  /// ---
+  /// Parameters:
+  /// - [url]: Override for the request URL.
+  /// - [method]: Override for the HTTP method.
+  /// - [headers]: New headers to replace or merge.
+  /// - [bodyBytes]: New byte stream for the request body.
+  /// - [followRedirects]: Override for redirect behavior.
+  /// - [maxRedirects]: Override for max redirects.
+  /// - [contentLength]: Override for body content length.
+  /// - [files]: Override for file data.
+  /// - [persistentConnection]: Override for connection behavior.
+  /// - [decoder]: Override for response decoder.
+  /// - [responseInterceptor]: Override for response interceptor.
+  /// - [appendHeader]: If `true`, new headers are merged into the original headers.
   ZapRequest<T> copyWith({
     Uri? url,
     String? method,
@@ -120,9 +167,9 @@ class ZapRequest<T> {
     bool? persistentConnection,
     ResponseDecoder<T>? decoder,
     bool appendHeader = true,
-    ResponseInterceptor<T>? responseInterceptor,
+    ZapResponseInterceptor<T>? responseInterceptor,
   }) {
-    // If appendHeader is set to true, we will merge origin headers with that
+    // Merge headers if required
     if (appendHeader && headers != null) {
       headers.addAll(this.headers);
     }
@@ -138,7 +185,8 @@ class ZapRequest<T> {
       files: files ?? this.files,
       persistentConnection: persistentConnection ?? this.persistentConnection,
       decoder: decoder ?? this.decoder,
-      responseInterceptor: responseInterceptor ?? this.responseInterceptor);
+      responseInterceptor: responseInterceptor ?? this.responseInterceptor,
+    );
   }
 }
 

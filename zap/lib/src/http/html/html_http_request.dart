@@ -10,6 +10,7 @@ import '../response/helpers.dart';
 import '../response/response.dart';
 import '../interface/http_request_interface.dart';
 import '../utils/body_decoder.dart';
+import '../utils/http_status.dart';
 
 /// A `dart:web` implementation of [HttpRequestInterface].
 class HttpRequestImplementation implements HttpRequestInterface {
@@ -58,14 +59,14 @@ class HttpRequestImplementation implements HttpRequestInterface {
       final stringBody = await bodyBytesToString(bodyBytes, xhr.responseHeaders);
       final contentType = xhr.responseHeaders['content-type'] ?? 'application/json';
 
-      final body = bodyDecoded<T>(request, stringBody, contentType);
+      final body = bodyDecoded<T>(request, stringBody, contentType, HttpStatus.fromCode(xhr.status));
 
       final response = ZapResponse<T>(
         bodyBytes: bodyBytes,
-        statusCode: xhr.status,
+        status: HttpStatus.fromCode(xhr.status),
+        message: xhr.statusText,
         request: request,
         headers: xhr.responseHeaders,
-        statusText: xhr.statusText,
         body: body,
         bodyString: stringBody,
       );
