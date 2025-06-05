@@ -28,12 +28,12 @@ typedef StateCallback = void Function(ZapRealtimeState state);
 /// The `SessionCallback` function receives a single argument,
 /// a `SessionResponse` object, which contains information about
 /// the session event.
-typedef SessionCallback = SessionResponse Function();
+typedef SessionCallback = SessionResponse? Function();
 
 /// Signature for a callback function that handles session events.
 ///
 /// The `AsyncSessionCallback` function returns a `SessionResponse` or `null` object when completed
-typedef AsyncSessionCallback = Future<SessionResponse> Function();
+typedef AsyncSessionCallback = Future<SessionResponse?> Function();
 
 /// Signature for a callback function that builds headers.
 ///
@@ -90,3 +90,13 @@ typedef ResponseDecoder<T> = T Function(dynamic data);
 
 /// A function used to track upload progress by returning the current percentage (0.0 - 100.0).
 typedef Progress = Function(double percent);
+
+/// A function used to find the proxy server to use for a given request URL.
+/// 
+/// The `ProxyFinder` function receives a `Uri` object and returns a string
+/// 
+/// Example:
+/// ```dart
+/// ProxyFinder proxyFinder = (url) => 'http://proxy.example.com:8080';
+/// ```
+typedef ProxyFinder = String Function(Uri url);

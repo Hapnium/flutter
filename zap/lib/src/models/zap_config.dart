@@ -62,7 +62,7 @@ class ZapConfig {
   /// A function to determine the proxy server to use for a given request URL.
   ///
   /// If specified, will be used to route HTTP requests through a proxy.
-  String Function(Uri url)? findProxy;
+  ProxyFinder? findProxy;
 
   /// Controls whether credentials (e.g., cookies, authorization headers)
   /// are included in cross-origin HTTP requests.
@@ -109,7 +109,7 @@ class ZapConfig {
     ResponseDecoder? defaultDecoder,
     Duration? timeout,
     List<ZapTrustedCertificate>? trustedCertificates,
-    String Function(Uri url)? findProxy,
+    ProxyFinder? findProxy,
     bool? withCredentials,
   }) {
     return ZapConfig(

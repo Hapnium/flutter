@@ -2,6 +2,8 @@ import 'package:tracing/tracing.dart' show console;
 import 'package:zap/src/definitions.dart';
 import 'package:zap/src/models/api_response.dart';
 import '../exceptions/exceptions.dart';
+import '../http/modifier/zap_modifier.dart';
+import '../http/request/request.dart';
 import '../http/response/response.dart';
 import '../models/zap_pulse_config.dart';
 import '../models/session_response.dart';
@@ -107,14 +109,14 @@ class ZapPulse implements ZapPulseInterface {
 
   /// Disposes the current singleton instance, allowing a new one to be created.
   static void dispose() {
-    _instance?._client?.dispose();
+    _instance?._zap.dispose();
     _instance = null;
   }
 
   /// Cancels all active requests using Zap's cancellation mechanism.
   static void cancelAllRequests([String reason = 'All requests cancelled']) {
     if (_instance != null) {
-      _instance!._zapClient.cancelAllRequests(reason);
+      _instance!._zap.cancelAllRequests(reason);
     }
   }
 
@@ -122,7 +124,7 @@ class ZapPulse implements ZapPulseInterface {
   Zap? _client;
 
   /// Gets the underlying Zap HTTP client, initializing it if necessary
-  Zap get _zapClient => _client ??= Zap(config: config.zapConfig);
+  Zap get _zap => _client ??= Zap(config: config.zapConfig);
 
   /// Gets the current session, always fetching the latest from the session factory.
   /// 
@@ -133,18 +135,6 @@ class ZapPulse implements ZapPulseInterface {
       return config.sessionFactory!();
     }
     return config.session;
-  }
-
-  /// Validates authentication requirements for the request.
-  /// 
-  /// Throws [ZapException] if authentication is required but no session is available.
-  void _checkAuth(bool useAuth) {
-    if (useAuth && _currentSession == null) {
-      throw ZapException(
-        "Session is required to continue with authenticated requests. "
-        "Please provide a valid session in the config or through sessionFactory callback."
-      );
-    }
   }
 
   /// Builds authentication headers based on the configuration.
@@ -180,25 +170,39 @@ class ZapPulse implements ZapPulseInterface {
   /// 
   /// This method fetches the current session and builds the appropriate auth headers
   /// based on the configuration. It also includes any additional headers from config.
-  Map<String, String> _buildHeaders(bool useAuth, [Map<String, String>? additionalHeaders]) {
+  ZapRequestModifier get _authenticator => (ZapRequest request) {
+    final session = _currentSession;
+
+    if (session != null) {
+      final headers = _buildAuthHeaders(session);
+      request.headers.addAll(headers);
+    }
+
+    return request;
+  };
+
+  /// Validates authentication requirements for the request.
+  /// 
+  /// Throws [ZapException] if authentication is required but no session is available.
+  void _checkAuth(bool useAuth) {
+    if (useAuth && _currentSession == null) {
+      throw ZapException(
+        "Session is required to continue with authenticated requests. "
+        "Please provide a valid session in the config or through sessionFactory callback."
+      );
+    }
+  }
+
+  /// Adds authentication headers to the request if authentication is enabled.
+  /// 
+  /// This method fetches the current session and builds the appropriate auth headers
+  /// based on the configuration. It also includes any additional headers from config.
+  Map<String, String> _buildHeaders([Map<String, String>? additionalHeaders]) {
     final headers = <String, String>{};
     
     // Add base headers from config
     if (config.headers != null) {
       headers.addAll(config.headers!);
-    }
-    
-    // Add authentication headers if required
-    if (useAuth) {
-      final session = _currentSession;
-      if (session != null) {
-        final authHeaders = _buildAuthHeaders(session);
-        headers.addAll(authHeaders);
-        
-        if (config.showRequestLogs && authHeaders.isNotEmpty) {
-          console.log('ZapPulse: Added auth headers: ${authHeaders.keys.join(', ')}');
-        }
-      }
     }
     
     // Add any additional headers passed to the method
@@ -280,13 +284,15 @@ class ZapPulse implements ZapPulseInterface {
   }
 
   /// Retries a request after session refresh.
-  Future<ZapResponse<ApiResponse<T>>> _retryRequest<T>(bool useAuth, _RequestExecutor<T> requestExecutor, ZapCancelToken? cancelToken) async {
+  Future<ZapResponse<ApiResponse<T>>> _retryRequest<T>(_RequestExecutor<T> execute, ZapCancelToken? cancelToken) async {
     final newSession = await _handleSessionRefresh();
 
     if (newSession != null) {
       // Retry the request with new session
-      final headers = _buildHeaders(useAuth);
-      final response = await requestExecutor(headers, cancelToken);
+      final headers = _buildHeaders();
+      _zap.client.removeRequestModifier(_authenticator);
+      
+      final response = await execute(headers, cancelToken);
       _logResponse(response);
       return response;
     }
@@ -309,17 +315,22 @@ class ZapPulse implements ZapPulseInterface {
   /// 4. Handles 401 errors with session refresh
   /// 5. Logs request/response if enabled
   /// 6. Parses response data using provided parser
-  Future<ZapResponse<ApiResponse<T>>> _execute<T>(_RequestExecutor<T> requestExecutor, String method, String endpoint, bool useAuth, ZapCancelToken? cancelToken) async {
+  Future<ZapResponse<ApiResponse<T>>> _execute<T>(_RequestExecutor<T> execute, String method, String endpoint, bool useAuth, ZapCancelToken? cancelToken) async {
     _checkAuth(useAuth);
     _logRequest(method, endpoint, null);
 
     try {
-      final headers = _buildHeaders(useAuth);
-      final response = await requestExecutor(headers, cancelToken);
+      final headers = _buildHeaders();
+
+      if(useAuth) {
+        _zap.client.addAuthenticator(_authenticator);
+      }
+
+      final response = await execute(headers, cancelToken);
       
       // Handle 401 Unauthorized - attempt session refresh
       if (response.statusCode == 401 && useAuth) {
-        return await _retryRequest(useAuth, requestExecutor, cancelToken);
+        return await _retryRequest(execute, cancelToken);
       }
 
       _logResponse(response);
@@ -340,26 +351,26 @@ class ZapPulse implements ZapPulseInterface {
 
   @override
   Future<ZapResponse<ApiResponse<T>>> delete<T>({required String endpoint, RequestParam? query, dynamic body, bool useAuth = true, DataParser<T>? parser, ZapCancelToken? token}) async {
-    return _execute<T>((headers, cancelToken) => _zapClient.delete<ApiResponse<T>>(endpoint, headers: headers, query: query, decoder: _createDecoder<T>(parser), cancelToken: cancelToken), 'DELETE', endpoint, useAuth, token);
+    return _execute<T>((headers, cancelToken) => _zap.delete<ApiResponse<T>>(endpoint, headers: headers, query: query, decoder: _createDecoder<T>(parser), cancelToken: cancelToken), 'DELETE', endpoint, useAuth, token);
   }
 
   @override
   Future<ZapResponse<ApiResponse<T>>> get<T>({required String endpoint, RequestParam? query, bool useAuth = true, DataParser<T>? parser, ZapCancelToken? token}) async {
-    return _execute<T>((headers, cancelToken) => _zapClient.get<ApiResponse<T>>(endpoint, headers: headers, query: query, decoder: _createDecoder<T>(parser), cancelToken: cancelToken), 'GET', endpoint, useAuth, token);
+    return _execute<T>((headers, cancelToken) => _zap.get<ApiResponse<T>>(endpoint, headers: headers, query: query, decoder: _createDecoder<T>(parser), cancelToken: cancelToken), 'GET', endpoint, useAuth, token);
   }
 
   @override
   Future<ZapResponse<ApiResponse<T>>> patch<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, DataParser<T>? parser, ZapCancelToken? token}) async {
-    return _execute<T>((headers, cancelToken) => _zapClient.patch<ApiResponse<T>>(endpoint, body, headers: headers, query: query, decoder: _createDecoder<T>(parser), uploadProgress: onProgress, cancelToken: cancelToken), 'PATCH', endpoint, useAuth, token);
+    return _execute<T>((headers, cancelToken) => _zap.patch<ApiResponse<T>>(endpoint, body, headers: headers, query: query, decoder: _createDecoder<T>(parser), uploadProgress: onProgress, cancelToken: cancelToken), 'PATCH', endpoint, useAuth, token);
   }
 
   @override
   Future<ZapResponse<ApiResponse<T>>> post<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, DataParser<T>? parser, ZapCancelToken? token}) async {
-    return _execute<T>((headers, cancelToken) => _zapClient.post<ApiResponse<T>>(endpoint, body, headers: headers, query: query, decoder: _createDecoder<T>(parser), uploadProgress: onProgress, cancelToken: cancelToken), 'POST', endpoint, useAuth, token);
+    return _execute<T>((headers, cancelToken) => _zap.post<ApiResponse<T>>(endpoint, body, headers: headers, query: query, decoder: _createDecoder<T>(parser), uploadProgress: onProgress, cancelToken: cancelToken), 'POST', endpoint, useAuth, token);
   }
 
   @override
   Future<ZapResponse<ApiResponse<T>>> put<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, DataParser<T>? parser, ZapCancelToken? token}) async {
-    return _execute<T>((headers, cancelToken) => _zapClient.put<ApiResponse<T>>(endpoint, body, headers: headers, query: query, decoder: _createDecoder<T>(parser), uploadProgress: onProgress, cancelToken: cancelToken), 'PUT', endpoint, useAuth, token);
+    return _execute<T>((headers, cancelToken) => _zap.put<ApiResponse<T>>(endpoint, body, headers: headers, query: query, decoder: _createDecoder<T>(parser), uploadProgress: onProgress, cancelToken: cancelToken), 'PUT', endpoint, useAuth, token);
   }
 }

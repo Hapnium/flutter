@@ -155,7 +155,7 @@ class ZapClient {
     this.baseUrl,
     List<ZapTrustedCertificate>? trustedCertificates,
     bool withCredentials = false,
-    String Function(Uri url)? findProxy,
+    ProxyFinder? findProxy,
     HttpRequestInterface? customClient,
   })  : _client = customClient ?? createHttp(
       allowAutoSignedCert: allowAutoSignedCert,

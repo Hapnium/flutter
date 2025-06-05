@@ -21,3 +21,10 @@
 - Customizable authentication header management
 - Stream-based API for real-time data and connection state monitoring
 - Full documentation and usage examples
+
+## 0.0.2
+
+- Fixed session refresh issue in `ZapPulse`
+- Added support for custom authentication header builder
+- Added support for custom session factory
+- Added support for custom session callback
