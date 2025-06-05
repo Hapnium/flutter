@@ -28,3 +28,7 @@
 - Added support for custom authentication header builder
 - Added support for custom session factory
 - Added support for custom session callback
+
+## 0.0.3
+
+- Fixed Uri parameter encoding issue

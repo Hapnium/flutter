@@ -222,15 +222,26 @@ class ZapClient {
   /// - [query]: An optional map of query parameters.
   ///
   /// ### Returns:
-  /// A fully resolved [Uri] ready for use in HTTP requests.
   Uri createUri(String? url, Map<String, dynamic>? query) {
     if (baseUrl != null) {
       url = baseUrl! + url!;
     }
+    
     final uri = Uri.parse(url!);
     if (query != null) {
-      return uri.replace(queryParameters: query);
+      // Convert all query parameter values to strings
+      final stringQuery = query.map((key, value) {
+        if (value is List) {
+          // Convert list to comma-separated string or bracket notation
+          return MapEntry(key, value.map((e) => e.toString()).join(','));
+          // Alternative bracket notation: return MapEntry(key, '[${value.map((e) => e.toString()).join(',')}]');
+        } else {
+          return MapEntry(key, value.toString());
+        }
+      });
+      return uri.replace(queryParameters: stringQuery);
     }
+
     return uri;
   }
 
