@@ -52,3 +52,9 @@
 - Added `ZapResponseParser.parseAsList` to support list responses
 - Added `ZapResponseParser.parseAsPaginated` to support paginated responses
 - Added `ZapResponseParser.parseAsSingle` to support single responses
+
+## 0.0.7
+
+- Added `ZapResponseParser.parseAsSingle` to support single responses
+- Handled exceptions in `Zap` and `ZapPulse`
+- Configured `ZapResponse`, `ZapRequest` and `HttpStatus` to support json decoding and more info

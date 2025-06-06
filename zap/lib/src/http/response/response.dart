@@ -1,5 +1,6 @@
 import 'package:zap/src/definitions.dart';
 
+import '../../enums/zap_provider.dart';
 import '../request/request.dart';
 import '../utils/http_status.dart';
 
@@ -52,6 +53,11 @@ class ZapResponse<T> {
   /// Suitable for logging or fallback access when deserialization fails.
   final String? bodyString;
 
+  /// Which client was used to make the request that brought this response.
+  ///
+  /// Can be `io`, `http`, `web` or `graphql`
+  final ZapProvider provider;
+
   /// The parsed/deserialized response body of type [T].
   ///
   /// This is usually the result of applying a response parser on the raw response body.
@@ -68,6 +74,7 @@ class ZapResponse<T> {
     this.headers = const {},
     this.body,
     String? message,
+    this.provider = ZapProvider.io,
   }) : message = message ?? status.description;
 
   /// Creates a copy of this response with optional overrides.
@@ -81,6 +88,7 @@ class ZapResponse<T> {
     String? bodyString,
     Map<String, String>? headers,
     T? body,
+    ZapProvider? provider,
   }) {
     return ZapResponse<T>(
       request: request ?? this.request,
@@ -89,6 +97,7 @@ class ZapResponse<T> {
       bodyString: bodyString ?? this.bodyString,
       headers: headers ?? this.headers,
       body: body ?? this.body,
+      provider: provider ?? this.provider,
     );
   }
 
@@ -133,5 +142,17 @@ class ZapResponse<T> {
   /// This indicates a server-side error.
   bool is5xxServerError() {
     return status.code >= 500 && status.code < 600;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'request': request?.toJson(),
+      'headers': headers,
+      'status': status.toJson(),
+      'bodyBytes': bodyBytes,
+      'bodyString': bodyString,
+      'body': body,
+      'provider': provider,
+    };
   }
 }

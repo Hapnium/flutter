@@ -3,7 +3,6 @@ import 'exceptions/exceptions.dart';
 import 'http/request/request.dart';
 import 'http/response/graphql_response.dart';
 import 'http/response/response.dart';
-import 'http/utils/http_status.dart';
 import 'models/zap_cancel_token.dart';
 import 'models/zap_config.dart';
 import 'zap_socket.dart';
@@ -44,42 +43,34 @@ class Zap extends ZapInterface {
   ///
   /// - [config] contains all configuration options for the client including
   ///   timeouts, authentication, SSL settings, and base URL configuration.
-  Zap({this.config});
-
-  /// The configuration of the [ZapClient] and [Zap]
-  ZapConfig? config;
-
-  /// Internal reference to the HTTP client instance.
-  ///
-  /// Lazily initialized or injected.
-  ZapClient? _client;
-
-  /// Internal list of active WebSocket connections.
-  ///
-  /// Managed internally by the [ZapInterface] implementation.
-  List<ZapSocket>? _sockets;
+  Zap({super.zapConfig, super.zapClient, super.zapSockets});
 
   /// Set of active cancel tokens for tracking ongoing requests
   final Set<ZapCancelToken> _activeTokens = <ZapCancelToken>{};
 
   @override
-  List<ZapSocket> get sockets => _sockets ??= <ZapSocket>[];
-
-  ZapConfig get _config => config ?? ZapConfig();
+  List<ZapSocket> get sockets => zapSockets ??= <ZapSocket>[];
 
   @override
-  ZapClient get client => _client ??= ZapClient(
-    userAgent: _config.userAgent,
-    sendUserAgent: _config.sendUserAgent,
-    timeout: _config.timeout,
-    followRedirects: _config.followRedirects,
-    maxRedirects: _config.maxRedirects,
-    maxAuthRetries: _config.maxAuthRetries,
-    allowAutoSignedCert: _config.allowAutoSignedCert,
-    baseUrl: _config.baseUrl,
-    trustedCertificates: _config.trustedCertificates,
-    withCredentials: _config.withCredentials,
-    findProxy: _config.findProxy
+  Set<ZapCancelToken> get activeTokens => _activeTokens;
+
+  @override
+  ZapConfig get config => zapConfig ?? ZapConfig();
+
+  @override
+  ZapClient get client => zapClient ??= ZapClient(
+    userAgent: config.userAgent,
+    sendUserAgent: config.sendUserAgent,
+    timeout: config.timeout,
+    followRedirects: config.followRedirects,
+    maxRedirects: config.maxRedirects,
+    maxAuthRetries: config.maxAuthRetries,
+    allowAutoSignedCert: config.allowAutoSignedCert,
+    baseUrl: config.baseUrl,
+    trustedCertificates: config.trustedCertificates,
+    withCredentials: config.withCredentials,
+    findProxy: config.findProxy,
+    errorSafety: config.errorSafety,
   );
 
   /// Registers a cancel token as active and sets up cleanup when cancelled.
@@ -96,10 +87,7 @@ class Zap extends ZapInterface {
     }
   }
 
-  /// Cancels all active requests.
-  /// 
-  /// This method cancels all ongoing requests with the specified reason.
-  /// Useful for scenarios like client shutdown or global request cancellation.
+  @override
   void cancelAllRequests([String reason = 'All requests cancelled']) {
     for (final token in _activeTokens) {
       token.cancel(reason);
@@ -111,19 +99,21 @@ class Zap extends ZapInterface {
   /// 
   /// This method wraps the actual request execution and handles cancellation
   /// at various stages of the request lifecycle.
-  Future<ZapResponse<T>> _executeWithCancellation<T>(Future<ZapResponse<T>> Function() requestExecutor, ZapCancelToken? cancelToken) async {
+  Future<ZapResponse<T>> _execute<T>(Future<ZapResponse<T>> Function() handler, ZapCancelToken? token) async {
+    _checkIfDisposed();
+    
     // Register cancel token for tracking
-    _registerCancelToken(cancelToken);
+    _registerCancelToken(token);
     
     // Check if cancelled before starting
-    cancelToken?.throwIfCancelled();
+    token?.throwIfCancelled();
 
     try {
       // Execute the request
-      final response = await requestExecutor();
+      final response = await handler();
       
       // Check if cancelled after completion
-      cancelToken?.throwIfCancelled();
+      token?.throwIfCancelled();
       
       return response;
     } on ZapException {
@@ -131,21 +121,20 @@ class Zap extends ZapInterface {
       rethrow;
     } catch (_) {
       // Check if cancelled during error handling
-      cancelToken?.throwIfCancelled();
+      token?.throwIfCancelled();
       rethrow;
     }
   }
 
   @override
   Future<ZapResponse<T>> get<T>(String url, {
-    Map<String, String>? headers,
+    Headers? headers,
     String? contentType,
-    Map<String, dynamic>? query,
+    RequestParam? query,
     ResponseDecoder<T>? decoder,
     ZapCancelToken? cancelToken,
   }) {
-    _checkIfDisposed();
-    return _executeWithCancellation<T>(
+    return _execute<T>(
       () => client.get<T>(
         url,
         headers: headers,
@@ -158,16 +147,15 @@ class Zap extends ZapInterface {
   }
 
   @override
-  Future<ZapResponse<T>> post<T>(String? url, dynamic body, {
+  Future<ZapResponse<T>> post<T>(String? url, RequestBody body, {
     String? contentType,
-    Map<String, String>? headers,
-    Map<String, dynamic>? query,
+    Headers? headers,
+    RequestParam? query,
     ResponseDecoder<T>? decoder,
     Progress? uploadProgress,
     ZapCancelToken? cancelToken,
   }) {
-    _checkIfDisposed();
-    return _executeWithCancellation<T>(
+    return _execute<T>(
       () => client.post<T>(
         url,
         body: body,
@@ -182,16 +170,15 @@ class Zap extends ZapInterface {
   }
 
   @override
-  Future<ZapResponse<T>> put<T>(String url, dynamic body, {
+  Future<ZapResponse<T>> put<T>(String url, RequestBody body, {
     String? contentType,
-    Map<String, String>? headers,
-    Map<String, dynamic>? query,
+    Headers? headers,
+    RequestParam? query,
     ResponseDecoder<T>? decoder,
     Progress? uploadProgress,
     ZapCancelToken? cancelToken,
   }) {
-    _checkIfDisposed();
-    return _executeWithCancellation<T>(
+    return _execute<T>(
       () => client.put<T>(
         url,
         body: body,
@@ -206,16 +193,15 @@ class Zap extends ZapInterface {
   }
 
   @override
-  Future<ZapResponse<T>> patch<T>(String url, dynamic body, {
+  Future<ZapResponse<T>> patch<T>(String url, RequestBody body, {
     String? contentType,
-    Map<String, String>? headers,
-    Map<String, dynamic>? query,
+    Headers? headers,
+    RequestParam? query,
     ResponseDecoder<T>? decoder,
     Progress? uploadProgress,
     ZapCancelToken? cancelToken,
   }) {
-    _checkIfDisposed();
-    return _executeWithCancellation<T>(
+    return _execute<T>(
       () => client.patch<T>(
         url,
         body: body,
@@ -231,16 +217,15 @@ class Zap extends ZapInterface {
 
   @override
   Future<ZapResponse<T>> request<T>(String url, String method, {
-    dynamic body,
+    RequestBody body,
     String? contentType,
-    Map<String, String>? headers,
-    Map<String, dynamic>? query,
+    Headers? headers,
+    RequestParam? query,
     ResponseDecoder<T>? decoder,
     Progress? uploadProgress,
     ZapCancelToken? cancelToken,
   }) {
-    _checkIfDisposed();
-    return _executeWithCancellation<T>(
+    return _execute<T>(
       () => client.request<T>(
         url,
         method,
@@ -257,14 +242,13 @@ class Zap extends ZapInterface {
 
   @override
   Future<ZapResponse<T>> delete<T>(String url, {
-    Map<String, String>? headers,
+    Headers? headers,
     String? contentType,
-    Map<String, dynamic>? query,
+    RequestParam? query,
     ResponseDecoder<T>? decoder,
     ZapCancelToken? cancelToken,
   }) {
-    _checkIfDisposed();
-    return _executeWithCancellation<T>(
+    return _execute<T>(
       () => client.delete(
         url,
         headers: headers,
@@ -278,10 +262,7 @@ class Zap extends ZapInterface {
 
   @override
   Future<ZapResponse<T>> send<T>(ZapRequest<T> request, {ZapCancelToken? cancelToken}) {
-    return _executeWithCancellation<T>(
-      () => client.send(request),
-      cancelToken,
-    );
+    return _execute<T>(() => client.send(request), cancelToken);
   }
 
   @override
@@ -295,18 +276,17 @@ class Zap extends ZapInterface {
 
   String? _concatUrl(String? url) {
     if (url == null) {
-      return _config.baseUrl;
+      return config.baseUrl;
     }
 
-    return _config.baseUrl == null ? url : _config.baseUrl! + url;
+    return config.baseUrl == null ? url : config.baseUrl! + url;
   }
 
   @override
-  Future<GraphQLResponse<T>> query<T>(
-    String query, {
+  Future<GraphQLResponse<T>> query<T>(String query, {
     String? url,
-    Map<String, dynamic>? variables,
-    Map<String, String>? headers,
+    RequestParam? variables,
+    Headers? headers,
     ZapCancelToken? cancelToken,
   }) async {
     try {
@@ -317,36 +297,17 @@ class Zap extends ZapInterface {
         cancelToken: cancelToken,
       );
 
-      final listError = res.body['errors'];
-      if ((listError is List) && listError.isNotEmpty) {
-        return GraphQLResponse<T>(
-          status: res.status,
-          graphQLErrors: listError.map((e) => GraphQLError(
-            code: (e['extensions'] != null ? e['extensions']['code'] ?? '' : '').toString(),
-            message: (e['message'] ?? '').toString(),
-          )).toList()
-        );
-      }
-      return GraphQLResponse<T>.fromResponse(res);
+      return GraphQLResponse.fromDynamic(res);
     } on Exception catch (err) {
-      return GraphQLResponse<T>(
-        status: HttpStatus.CONNECTION_NOT_REACHABLE,
-        graphQLErrors: [
-          GraphQLError(
-            code: null,
-            message: err.toString(),
-          )
-        ]
-      );
+      return GraphQLResponse.fromException(err);
     }
   }
 
   @override
-  Future<GraphQLResponse<T>> mutation<T>(
-    String mutation, {
+  Future<GraphQLResponse<T>> mutation<T>(String mutation, {
     String? url,
-    Map<String, dynamic>? variables,
-    Map<String, String>? headers,
+    RequestParam? variables,
+    Headers? headers,
     ZapCancelToken? cancelToken,
   }) async {
     try {
@@ -357,27 +318,9 @@ class Zap extends ZapInterface {
         cancelToken: cancelToken,
       );
 
-      final listError = res.body['errors'];
-      if ((listError is List) && listError.isNotEmpty) {
-        return GraphQLResponse<T>(
-          status: res.status,
-          graphQLErrors: listError.map((e) => GraphQLError(
-            code: e['extensions']['code']?.toString(),
-            message: e['message']?.toString(),
-          )).toList()
-        );
-      }
-      return GraphQLResponse<T>.fromResponse(res);
+      return GraphQLResponse.fromDynamic(res);
     } on Exception catch (err) {
-      return GraphQLResponse<T>(
-        status: HttpStatus.CONNECTION_NOT_REACHABLE,
-        graphQLErrors: [
-          GraphQLError(
-            code: null,
-            message: err.toString(),
-          )
-        ]
-      );
+      return GraphQLResponse.fromException(err);
     }
   }
 
@@ -397,17 +340,23 @@ class Zap extends ZapInterface {
     // Cancel all active requests before disposal
     cancelAllRequests('Zap client disposed');
     
-    if (_sockets != null) {
-      for (var socket in sockets) {
+    if (zapSockets != null) {
+      for (var socket in zapSockets!) {
         socket.close();
       }
-      _sockets?.clear();
-      sockets = null;
+      zapSockets!.clear();
+      zapSockets = null;
     }
-    if (_client != null) {
-      client.close();
-      _client = null;
+
+    if (zapClient != null) {
+      zapClient!.close();
+      zapClient = null;
     }
+
+    zapConfig = null;
     _isDisposed = true;
+
+    client.close();
+    sockets.clear();
   }
 }

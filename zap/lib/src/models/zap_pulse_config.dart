@@ -1,5 +1,4 @@
 import '../definitions.dart';
-import 'session_response.dart';
 import 'zap_config.dart';
 
 /// The [ZapPulseConfig] class holds configuration options for the ZapPulse platform,
@@ -19,9 +18,6 @@ class ZapPulseConfig {
 
   /// - **zapConfig**: The configuration of the [ZapClient].
   final ZapConfig? zapConfig;
-
-  /// - **session**: The current session, represented by a [SessionResponse]. Default is `null`.
-  final SessionResponse? session;
 
   /// - **sessionFactory**: A callback function to handle session updates. Default is `null`.
   final SessionCallback? sessionFactory;
@@ -73,7 +69,6 @@ class ZapPulseConfig {
     this.onSessionRefreshed,
     this.showErrorLogs = false,
     this.zapConfig,
-    this.session,
     this.sessionFactory,
     this.onRemoveRoute,
     this.headers,
@@ -94,7 +89,6 @@ class ZapPulseConfig {
     bool? showRequestLogs,
     ZapConfig? zapConfig,
     AsyncSessionCallback? onSessionRefreshed,
-    SessionResponse? session,
     SessionCallback? sessionFactory,
     Callback? onRemoveRoute,
     bool? removeAllPathsWhenRequestFails,
@@ -112,7 +106,6 @@ class ZapPulseConfig {
       showResponseLogs: showResponseLogs ?? this.showResponseLogs,
       zapConfig: zapConfig ?? this.zapConfig,
       onSessionRefreshed: onSessionRefreshed ?? this.onSessionRefreshed,
-      session: session ?? this.session,
       sessionFactory: sessionFactory ?? this.sessionFactory,
       onRemoveRoute: onRemoveRoute ?? this.onRemoveRoute,
       headers: headers ?? this.headers,

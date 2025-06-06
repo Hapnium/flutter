@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io' as io;
 
+import 'package:zap/src/enums/zap_provider.dart';
+
 import '../certificates/certificates.dart';
 import '../../exceptions/exceptions.dart';
 import '../interface/http_request_interface.dart';
@@ -80,10 +82,11 @@ class HttpRequestImplementation extends HttpRequestInterface {
         bodyBytes: bodyBytes,
         body: body,
         bodyString: stringBody,
+        provider: ZapProvider.io,
       );
     } on TimeoutException catch (_) {
       ioRequest?.abort();
-      rethrow;
+      throw ZapException('Request timed out', request.url, true);
     } on io.HttpException catch (error) {
       throw ZapException(error.message, error.uri);
     }

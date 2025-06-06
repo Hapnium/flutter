@@ -46,6 +46,7 @@ class MockHttpRequest extends HttpRequestInterface {
       bodyBytes: bodyBytes,
       body: body,
       bodyString: stringBody,
+      provider: response.provider,
     );
   }
 

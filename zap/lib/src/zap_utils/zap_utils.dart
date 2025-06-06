@@ -7,7 +7,7 @@ import 'package:zap/zap.dart';
 /// 
 /// This class uses Zap HTTP client for all network requests, providing consistent
 /// error handling, logging, and configuration across the application.
-class ZapUtils {
+final class ZapUtils {
   /// Singleton instance of the [ZapUtils] class
   static final ZapUtils _instance = ZapUtils._internal();
 
@@ -16,13 +16,10 @@ class ZapUtils {
 
   /// Returns the singleton instance of the [ZapUtils] class
   static ZapUtils get instance => _instance;
-
-  /// Lazy-initialized Zap client for making HTTP requests
-  Zap? _zapClient;
   
   /// Gets the Zap HTTP client, initializing it if necessary
-  Zap get _client => _zapClient ??= Zap(
-    config: ZapConfig(
+  ZapInterface get _client => Zap(
+    zapConfig: ZapConfig(
       timeout: const Duration(seconds: 30),
       followRedirects: true,
       maxRedirects: 3,
@@ -329,7 +326,6 @@ class ZapUtils {
   /// Call this method when the ZapUtils instance is no longer needed
   /// to properly clean up network resources.
   void dispose() {
-    _zapClient?.dispose();
-    _zapClient = null;
+    _client.dispose();
   }
 }

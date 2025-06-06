@@ -70,6 +70,12 @@ class ZapConfig {
   /// Mainly relevant in browser environments.
   bool withCredentials;
 
+  /// Whether the client should safely handle errors during request execution.
+  ///
+  /// If `true`, errors are caught and handled internally. If `false`,
+  /// they are allowed to propagate.
+  bool errorSafety;
+
   /// Creates a new instance of the Zap configuration.
   ///
   /// - [userAgent] defines the `User-Agent` header sent with requests.
@@ -80,6 +86,7 @@ class ZapConfig {
   /// - [maxAuthRetries] controls how many times authentication should be retried.
   /// - [allowAutoSignedCert] allows bypassing SSL certificate validation for self-signed certs.
   /// - [withCredentials] controls whether cross-origin requests include credentials (cookies, etc.).
+  /// - [errorSafety] controls whether the client should safely handle errors during request execution.
   ZapConfig({
     this.userAgent = 'hapx-client',
     this.timeout = const Duration(seconds: 5),
@@ -93,7 +100,8 @@ class ZapConfig {
     this.defaultContentType = 'application/json; charset=utf-8',
     this.defaultDecoder,
     this.trustedCertificates,
-    this.findProxy
+    this.findProxy,
+    this.errorSafety = true,
   });
 
   /// Copies the current instance of ZapConfig with new updates
@@ -111,6 +119,7 @@ class ZapConfig {
     List<ZapTrustedCertificate>? trustedCertificates,
     ProxyFinder? findProxy,
     bool? withCredentials,
+    bool? errorSafety,
   }) {
     return ZapConfig(
       userAgent: userAgent ?? this.userAgent,
@@ -126,6 +135,7 @@ class ZapConfig {
       trustedCertificates: trustedCertificates ?? this.trustedCertificates,
       findProxy: findProxy ?? this.findProxy,
       withCredentials: withCredentials ?? this.withCredentials,
+      errorSafety: errorSafety ?? this.errorSafety,
     );
   }
 }

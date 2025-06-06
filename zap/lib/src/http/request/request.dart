@@ -188,6 +188,22 @@ class ZapRequest<T> {
       responseInterceptor: responseInterceptor ?? this.responseInterceptor,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'url': url.toString(),
+      'method': method,
+      'bodyBytes': bodyBytes,
+      'headers': headers,
+      'followRedirects': followRedirects,
+      'maxRedirects': maxRedirects,
+      'contentLength': contentLength,
+      'files': files,
+      'persistentConnection': persistentConnection,
+      'decoder': decoder,
+      'responseInterceptor': responseInterceptor,
+    };
+  }
 }
 
 /// Extension on List<int> to convert it to a Stream<List<int>>.

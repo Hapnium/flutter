@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:js_interop';
 
 import 'package:web/web.dart' show XHRGetters, XMLHttpRequest;
+import 'package:zap/src/enums/zap_provider.dart';
 
 import '../certificates/certificates.dart';
 import '../../exceptions/exceptions.dart';
@@ -69,6 +70,7 @@ class HttpRequestImplementation implements HttpRequestInterface {
         headers: xhr.responseHeaders,
         body: body,
         bodyString: stringBody,
+        provider: ZapProvider.web,
       );
 
       completer.complete(response);

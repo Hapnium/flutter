@@ -1,6 +1,7 @@
 import 'package:tracing/tracing.dart' show console;
 import 'package:zap/src/definitions.dart';
 import 'package:zap/src/models/api_response.dart';
+import 'package:zap/src/zap_interface.dart';
 import '../exceptions/exceptions.dart';
 import '../http/modifier/zap_modifier.dart';
 import '../http/request/request.dart';
@@ -67,7 +68,7 @@ typedef _RequestExecutor<T> = Future<ZapResponse<ApiResponse<T>>> Function(Heade
 ///   },
 /// );
 /// ```
-class ZapPulse implements ZapPulseInterface {
+final class ZapPulse implements ZapPulseInterface {
   /// Configuration object containing all settings for the ZapPulse client.
   /// 
   /// This includes authentication settings, logging preferences, session callbacks,
@@ -122,11 +123,8 @@ class ZapPulse implements ZapPulseInterface {
     }
   }
 
-  /// Lazy-initialized Zap client instance
-  Zap? _client;
-
-  /// Gets the underlying Zap HTTP client, initializing it if necessary
-  Zap get _zap => _client ??= Zap(config: config.zapConfig);
+  /// Gets the underlying Zap HTTP client
+  ZapInterface get _zap => Zap(zapConfig: config.zapConfig);
 
   /// Gets the current session, always fetching the latest from the session factory.
   /// 
@@ -136,7 +134,7 @@ class ZapPulse implements ZapPulseInterface {
     if (config.sessionFactory != null) {
       return config.sessionFactory!();
     }
-    return config.session;
+    return null;
   }
 
   /// Builds authentication headers based on the configuration.
@@ -308,7 +306,7 @@ class ZapPulse implements ZapPulseInterface {
     return ZapResponse<ApiResponse<T>>(
       status: HttpStatus.UNAUTHORIZED,
       headers: {},
-      body: ApiResponse<T>.error('Unable to complete request due to authentication failure'),
+      body: ApiResponse<T>.unauthorized('Unable to complete request due to authentication failure'),
     );
   }
 
@@ -341,15 +339,27 @@ class ZapPulse implements ZapPulseInterface {
 
       _logResponse(response);
       return response;
-    } catch (e) {
+    } on ZapException catch (e) {
       if (config.showErrorLogs) {
-        console.log('ZapPulse Error: $e');
+        console.log('[ZAP PULSE] ZapException: $e');
+      }
+      
+      // Return error response
+      return ZapResponse<ApiResponse<T>>(
+        status: e.isTimeout ? HttpStatus.REQUEST_TIMEOUT : HttpStatus.INTERNAL_SERVER_ERROR,
+        message: e.isTimeout ? 'Request timed out' : e.message,
+        body: ApiResponse<T>.error(e.message),
+      );
+    } on Exception catch (e) {
+      if (config.showErrorLogs) {
+        console.log('[ZAP PULSE] Exception: $e');
       }
       
       // Return error response
       return ZapResponse<ApiResponse<T>>(
         status: HttpStatus.INTERNAL_SERVER_ERROR,
-        body: ApiResponse<T>.error(e is ZapException ? e.message : e.toString()),
+        message: e.toString(),
+        body: ApiResponse<T>.error(e.toString()),
       );
     }
   }

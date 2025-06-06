@@ -7,8 +7,9 @@
 class ZapException implements Exception {
   final String message;
   final Uri? uri;
+  final bool isTimeout;
 
-  ZapException(this.message, [this.uri]);
+  ZapException(this.message, [this.uri, this.isTimeout = false]);
 
   @override
   String toString() => message;

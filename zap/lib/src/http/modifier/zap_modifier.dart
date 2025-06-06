@@ -9,9 +9,6 @@ typedef ZapRequestModifier<T> = FutureOr<ZapRequest<T>> Function(ZapRequest<T?> 
 /// A response modifier is a function that will be called after the response is received
 typedef ZapResponseModifier<T> = FutureOr Function(ZapRequest<T?> request, ZapResponse<T?> response);
 
-/// A request executor is a function that will be called to execute the request
-typedef ZapRequestExecutor<T> = Future<ZapRequest<T>> Function();
-
 /// A class to modify the request and response
 /// 
 /// Args:

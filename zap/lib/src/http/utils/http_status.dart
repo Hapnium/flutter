@@ -891,4 +891,12 @@ class HttpStatus {
 
   @override
   int get hashCode => code.hashCode;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'code': code,
+      'name': name,
+      'description': description,
+    };
+  }
 }

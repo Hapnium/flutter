@@ -13,7 +13,6 @@ void main() {
 
     zapPulse = ZapPulse(
       config: ZapPulseConfig(
-        session: testSession,
         showRequestLogs: true,
         showResponseLogs: true,
         showErrorLogs: true,
@@ -163,7 +162,6 @@ void main() {
       
       zapPulse = ZapPulse(
         config: ZapPulseConfig(
-          session: testSession,
           authHeaderName: 'X-API-Key',
           tokenPrefix: 'Token',
         ),
@@ -187,7 +185,6 @@ void main() {
       
       zapPulse = ZapPulse(
         config: ZapPulseConfig(
-          session: testSession,
           customAuthHeaderBuilder: (session) => {
             'X-User-Token': 'user_token_${session.accessToken}',
           },
@@ -266,7 +263,9 @@ void main() {
       
       zapPulse = ZapPulse(
         config: ZapPulseConfig(
-          session: null, // No session provided
+          showRequestLogs: true,
+          showResponseLogs: true,
+          showErrorLogs: true,
         ),
       );
 

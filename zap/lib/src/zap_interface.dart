@@ -3,6 +3,7 @@ import 'http/request/request.dart';
 import 'http/response/graphql_response.dart';
 import 'http/response/response.dart';
 import 'models/zap_cancel_token.dart';
+import 'models/zap_config.dart';
 import 'zap_socket.dart';
 import 'zap_lifecycle.dart';
 import 'definitions.dart';
@@ -15,6 +16,26 @@ import 'definitions.dart';
 /// It mixes in [ZapLifecycle] to include lifecycle methods such as `onInit`
 /// and `onDispose` if implemented.
 abstract class ZapInterface with ZapLifecycle {
+  /// The configuration of the [ZapClient] and [ZapImplementation]
+  ZapConfig? zapConfig;
+
+  /// Internal reference to the HTTP client instance.
+  ///
+  /// Lazily initialized or injected.
+  ZapClient? zapClient;
+
+  /// Internal list of active WebSocket connections.
+  ///
+  /// Managed internally by the [ZapInterface] implementation.
+  List<ZapSocket>? zapSockets;
+
+  /// A constructor for the [ZapInterface] class.
+  ///
+  /// - [zapConfig]: The configuration of the [ZapClient] and [ZapImplementation]
+  /// - [zapClient]: The HTTP client instance
+  /// - [zapSockets]: The list of active WebSocket connections
+  ZapInterface({this.zapConfig, this.zapClient, this.zapSockets});
+
   /// A list of active Socket connections managed by the interface.
   ///
   /// This can be used for tracking or mass-disposal of sockets.
@@ -38,6 +59,21 @@ abstract class ZapInterface with ZapLifecycle {
   /// );
   /// ```
   ZapClient get client;
+
+  /// Set of active cancel tokens for tracking ongoing requests
+  /// 
+  /// This can be used for canceling all ongoing requests. [ZapCancelToken] 
+  /// is used to cancel individual requests.
+  Set<ZapCancelToken> get activeTokens;
+
+  /// The configuration of the [ZapClient] and [ZapImplementation]
+  ZapConfig get config;
+
+  /// Cancels all active requests.
+  /// 
+  /// This method cancels all ongoing requests with the specified reason.
+  /// Useful for scenarios like client shutdown or global request cancellation.
+  void cancelAllRequests([String reason = 'All requests cancelled']);
 
   /// Performs a GET request with optional cancellation support.
   /// 
