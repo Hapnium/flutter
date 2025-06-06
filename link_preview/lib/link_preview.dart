@@ -2,7 +2,11 @@ library link_preview;
 
 export 'src/link_preview.dart';
 
+/// CACHE
+export 'src/cache/cache_manager.dart';
+
 /// EXTENSIONS
+export 'src/extensions/cache_extension.dart';
 export 'src/extensions/url_extension.dart';
 export 'src/extensions/ui_extension.dart';
 export 'src/extensions/linkifier_extension.dart';

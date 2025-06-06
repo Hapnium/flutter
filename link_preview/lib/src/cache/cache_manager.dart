@@ -1,52 +1,70 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show mustCallSuper, nonVirtual;
+import 'package:tracing/tracing.dart';
 
 import '../models/link_preview_data.dart';
 
-/// A basic in-memory cache for LinkPreviewData.
-class CacheManager {
-  static final CacheManager _instance = CacheManager._internal();
-
-  final Map<String, LinkPreviewData> _cache = {};
-
-  CacheManager._internal();
-
-  static CacheManager get instance => _instance;
-
+/// A customizable cache manager for [LinkPreviewData].
+///
+/// Subclasses can override how the data is stored (e.g., local memory, database, network),
+/// but the core logic around validation and cleanup is handled here.
+abstract class CacheManager {
   /// Stores a [LinkPreviewData] object with the given [key].
-  void set(String key, LinkPreviewData value) {
-    _cache[key] = value;
-  }
+  ///
+  /// Override this to change the persistence layer.
+  Future<void> store(String key, LinkPreviewData value);
 
-  /// Retrieves a [LinkPreviewData] object for the given [key], or null if not cached.
-  LinkPreviewData? get(String key) => _cache[key];
+  /// Retrieves a [LinkPreviewData] object for the given [key], or `null` if not found.
+  ///
+  /// Override this to provide custom retrieval logic.
+  Future<LinkPreviewData?> retrieve(String key);
 
-  /// Deletes a cached item by [key].
-  void delete(String key) => _cache.remove(key);
+  /// Deletes a cached entry by its [key].
+  ///
+  /// Override this to provide custom deletion logic.
+  Future<void> remove(String key);
 
-  /// Clears the entire cache.
-  void clear() => _cache.clear();
+  /// Clears all cached data.
+  ///
+  /// Override this to clear custom storage layers.
+  Future<void> clear() async {}
 
-  /// Returns [LinkPreviewData] from cache if available.
-  Future<LinkPreviewData?> getCache(String url) async {
-    LinkPreviewData? info_;
+  /// Performs validation and retrieves the [LinkPreviewData] for the given [url].
+  ///
+  /// If the data is expired or invalid, it is removed from the cache.
+  @nonVirtual
+  Future<LinkPreviewData?> get(String url) async {
+    LinkPreviewData? info;
 
     try {
-      final infoJson = await CacheManager.instance.get(url);
-      if (infoJson != null) {
-        info_ = infoJson;
-        var isEmpty_ = info_.title == null || info_.title == 'null';
-        if (isEmpty_ || !info_.timeout.isAfter(DateTime.now())) {
-          CacheManager.instance.delete(url);
-        }
-        if (isEmpty_) info_ = null;
+      info = await retrieve(url);
+
+      final isInvalid = info == null || info.title == null || info.title == 'null';
+      final isExpired = info != null && !info.timeout.isAfter(DateTime.now());
+
+      if (isInvalid || isExpired) {
+        await remove(url);
+        return null;
       }
     } catch (e) {
-      debugPrint('Error while retrieving cache data => $e');
+      console.log('Error retrieving from cache: $e');
     }
 
-    return info_;
+    return info;
   }
 
-  /// Deletes [LinkPreviewData] from cache if present.
-  void deleteCache(String url) => CacheManager.instance.delete(url);
+  /// Stores the [LinkPreviewData] for a given [url].
+  ///
+  /// Wraps [store] to support public-facing caching.
+  @mustCallSuper
+  Future<void> set(String url, LinkPreviewData data) => store(url, data);
+
+  /// Deletes the cached [LinkPreviewData] for a given [url].
+  @mustCallSuper
+  Future<void> delete(String url) async {
+    try {
+      await remove(url);
+    } catch (e) {
+      console.log('Error deleting from cache: $e');
+    }
+  }
 }

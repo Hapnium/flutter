@@ -5,12 +5,7 @@ import 'package:html/dom.dart' show Document;
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 
-import '../cache/cache_manager.dart';
 import '../extensions/get_extension.dart';
-import '../extensions/url_extension.dart';
-import '../link_preview.dart';
-import '../models/link_preview_data.dart';
-import '../models/link_preview_image.dart';
 import 'parsers/html_parser.dart';
 import 'parsers/json_id_parser.dart';
 import 'parsers/og_parser.dart';
@@ -18,6 +13,10 @@ import 'parsers/other_parser.dart';
 import 'parsers/twitter_parser.dart';
 import 'parsers/youtube_parser.dart';
 import 'http_utils.dart';
+
+import 'package:link_preview/link_preview.dart';
+
+CacheManager _manager = LinkPreview.cacheManager();
 
 /// Twitter generates meta tags client-side so it's impossible to read their
 /// values from a server request. We use this hack to fetch server-side
@@ -39,9 +38,9 @@ Future<LinkPreviewData?> runV2(String url, {
 }) async {
   LinkPreviewData? info;
   if ((cache?.inSeconds ?? 0) > 0) {
-    info = await CacheManager.instance.getCache(url);
+    info = await _manager.get(url);
   } else {
-    CacheManager.instance.deleteCache(url);
+    _manager.delete(url);
   }
   if (info != null) return info;
 
@@ -79,7 +78,7 @@ Future<LinkPreviewData?> runV2(String url, {
       return info;
     } else if (cache != null) {
       data_.timeout = DateTime.now().add(cache);
-      CacheManager.instance.set(url, data_);
+      _manager.set(url, data_);
     }
 
     return data_;

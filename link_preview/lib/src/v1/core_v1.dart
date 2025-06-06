@@ -5,10 +5,9 @@ import 'package:flutter/material.dart' hide Element;
 import 'package:html/dom.dart' show Document, Element;
 import 'package:html/parser.dart' as parser show parse;
 import 'package:http/http.dart' as http show get;
+import 'package:link_preview/link_preview.dart';
 
-import '../cache/cache_manager.dart';
-import '../models/link_preview_data.dart';
-import '../models/link_preview_image.dart';
+CacheManager _manager = LinkPreview.cacheManager();
 
 String _calculateUrl(String baseUrl, String? proxy) {
   if (proxy != null) {
@@ -156,9 +155,9 @@ Future<LinkPreviewData?> runV1(String text, {
 
   LinkPreviewData? info;
   if ((cache?.inSeconds ?? 0) > 0) {
-    info = await CacheManager.instance.getCache(text);
+    info = await _manager.get(text);
   } else {
-    CacheManager.instance.deleteCache(text);
+    _manager.delete(text);
   }
   if (info != null) return info;
 
@@ -239,7 +238,7 @@ Future<LinkPreviewData?> runV1(String text, {
       ..image = previewDataImage
       ..url = previewDataUrl
       ..title = previewDataTitle;
-    CacheManager.instance.set(url, data_);
+    _manager.set(url, data_);
 
     return data_;
   } catch (e) {
