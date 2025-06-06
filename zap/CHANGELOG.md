@@ -42,3 +42,13 @@
 - Modified `ZapPulse` to support custom response body parsing
 - Modified `HttpStatus` to support custom status codes
 - Added `ZapParserConfig` to support custom response body parsing
+
+## 0.0.6
+
+- Added `ZapPage` to support paginated responses
+- Added `ZapResponseParser` to support custom response body parsing
+- Added `ZapResponseParser.forList` to support list responses
+- Added `ZapResponseParser.forPaginated` to support paginated responses
+- Added `ZapResponseParser.parseAsList` to support list responses
+- Added `ZapResponseParser.parseAsPaginated` to support paginated responses
+- Added `ZapResponseParser.parseAsSingle` to support single responses

@@ -1,4 +1,7 @@
+// ignore_for_file: unintended_html_in_doc_comment
+
 import '../http/utils/http_status.dart';
+import 'zap_page.dart';
 
 /// Signature for a data parser function that converts raw response data to a specific type.
 ///
@@ -214,6 +217,252 @@ class ZapResponseParser<T> {
     }
 
     return defaultParser;
+  }
+
+  // === HELPER PARSER METHODS ===
+
+  /// Creates a parser that converts response data to a List<R> using the provided item parser.
+  ///
+  /// This helper automatically handles the list conversion and maps each item through
+  /// the provided parser function.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Parse a list of users
+  /// final parser = ZapResponseParser.parseAsList<User>((data) => User.fromJson(data));
+  /// 
+  /// // Use with multi-parser
+  /// final multiParser = ZapResponseParser.multi({
+  ///   200: ZapResponseParser.parseAsList<Post>((data) => Post.fromJson(data)),
+  ///   400: (data) => ErrorResponse.fromJson(data),
+  /// });
+  /// ```
+  static DataParser<List<R>> parseAsList<R>(DataParser<R> itemParser) {
+    return (dynamic data) {
+      if (data == null) return <R>[];
+      
+      final List<dynamic> list = data is List ? data : [data];
+      return list.map((item) => itemParser(item)).toList();
+    };
+  }
+
+  /// Creates a parser that safely extracts a nested field from the response data.
+  ///
+  /// Useful when the actual data is nested within the response structure.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Extract data from { "result": { "users": [...] } }
+  /// final parser = ZapResponseParser.parseNested<List<User>>(
+  ///   ['result', 'users'],
+  ///   ZapResponseParser.parseAsList<User>((data) => User.fromJson(data))
+  /// );
+  /// ```
+  static DataParser<R> parseNested<R>(List<String> path, DataParser<R> parser) {
+    return (dynamic data) {
+      dynamic current = data;
+      
+      for (final key in path) {
+        if (current is Map<String, dynamic> && current.containsKey(key)) {
+          current = current[key];
+        } else {
+          throw FormatException('Path $path not found in response data');
+        }
+      }
+      
+      return parser(current);
+    };
+  }
+
+  /// Creates a parser that handles paginated responses with metadata.
+  ///
+  /// Extracts both the data list and pagination information.
+  ///
+  /// Example:
+  /// ```dart
+  /// final parser = ZapResponseParser.parsePaginated<User>(
+  ///   dataKey: 'items',
+  ///   itemParser: (data) => User.fromJson(data),
+  /// );
+  /// ```
+  static DataParser<ZapPage<R>> parsePaginated<R>({
+    required String dataKey,
+    required DataParser<R> itemParser,
+    String totalKey = 'total',
+    String pageKey = 'page',
+    String limitKey = 'limit',
+  }) {
+    return (dynamic data) {
+      if (data is! Map<String, dynamic>) {
+        throw FormatException('Expected Map for paginated response');
+      }
+
+      final items = parseAsList(itemParser)(data[dataKey]);
+      
+      return ZapPage<R>(
+        data: items,
+        total: data[totalKey] as int? ?? 0,
+        page: data[pageKey] as int? ?? 1,
+        limit: data[limitKey] as int? ?? items.length,
+      );
+    };
+  }
+
+  /// Creates a parser that handles optional/nullable data.
+  ///
+  /// Returns null if the data is null or missing, otherwise applies the parser.
+  ///
+  /// Example:
+  /// ```dart
+  /// final parser = ZapResponseParser.parseOptional<User>((data) => User.fromJson(data));
+  /// ```
+  static DataParser<R?> parseOptional<R>(DataParser<R> parser) {
+    return (dynamic data) {
+      if (data == null) return null;
+      return parser(data);
+    };
+  }
+
+  /// Creates a parser that applies different parsers based on a discriminator field.
+  ///
+  /// Useful for polymorphic responses where the type is determined by a field value.
+  ///
+  /// Example:
+  /// ```dart
+  /// final parser = ZapResponseParser.parsePolymorphic<Animal>(
+  ///   discriminatorKey: 'type',
+  ///   parsers: {
+  ///     'dog': (data) => Dog.fromJson(data),
+  ///     'cat': (data) => Cat.fromJson(data),
+  ///   },
+  ///   fallbackParser: (data) => GenericAnimal.fromJson(data),
+  /// );
+  /// ```
+  static DataParser<R> parsePolymorphic<R>({
+    required String discriminatorKey,
+    required Map<String, DataParser<R>> parsers,
+    DataParser<R>? fallbackParser,
+  }) {
+    return (dynamic data) {
+      if (data is! Map<String, dynamic>) {
+        throw FormatException('Expected Map for polymorphic parsing');
+      }
+
+      final discriminator = data[discriminatorKey] as String?;
+      if (discriminator != null && parsers.containsKey(discriminator)) {
+        return parsers[discriminator]!(data);
+      }
+
+      if (fallbackParser != null) {
+        return fallbackParser(data);
+      }
+
+      throw FormatException('No parser found for discriminator: $discriminator');
+    };
+  }
+
+  /// Creates a parser that transforms the data before applying another parser.
+  ///
+  /// Useful for data preprocessing or format conversion.
+  ///
+  /// Example:
+  /// ```dart
+  /// final parser = ZapResponseParser.parseWithTransform<User>(
+  ///   transform: (data) => data['user_data'], // Extract nested data
+  ///   parser: (data) => User.fromJson(data),
+  /// );
+  /// ```
+  static DataParser<R> parseWithTransform<R>({
+    required dynamic Function(dynamic) transform,
+    required DataParser<R> parser,
+  }) {
+    return (dynamic data) {
+      final transformed = transform(data);
+      return parser(transformed);
+    };
+  }
+
+  /// Creates a parser that validates data before parsing.
+  ///
+  /// Throws an exception if validation fails.
+  ///
+  /// Example:
+  /// ```dart
+  /// final parser = ZapResponseParser.parseWithValidation<User>(
+  ///   validator: (data) => data is Map && data.containsKey('id'),
+  ///   parser: (data) => User.fromJson(data),
+  ///   errorMessage: 'Invalid user data structure',
+  /// );
+  /// ```
+  static DataParser<R> parseWithValidation<R>({
+    required bool Function(dynamic) validator,
+    required DataParser<R> parser,
+    String errorMessage = 'Data validation failed',
+  }) {
+    return (dynamic data) {
+      if (!validator(data)) {
+        throw FormatException(errorMessage);
+      }
+      return parser(data);
+    };
+  }
+
+  /// Creates a parser that handles both single items and arrays uniformly.
+  ///
+  /// Always returns a list, converting single items to single-element lists.
+  ///
+  /// Example:
+  /// ```dart
+  /// final parser = ZapResponseParser.parseAsListOrSingle<User>((data) => User.fromJson(data));
+  /// ```
+  static DataParser<List<R>> parseAsListOrSingle<R>(DataParser<R> itemParser) {
+    return (dynamic data) {
+      if (data == null) return <R>[];
+      
+      if (data is List) {
+        return data.map((item) => itemParser(item)).toList();
+      } else {
+        return [itemParser(data)];
+      }
+    };
+  }
+
+  // === CONVENIENCE CONSTRUCTORS USING HELPERS ===
+
+  /// Creates a parser specifically for list responses.
+  ///
+  /// Example:
+  /// ```dart
+  /// final parser = ZapResponseParser.forList<User>((data) => User.fromJson(data));
+  /// ```
+  static ZapResponseParser<List<R>> forList<R>(DataParser<R> itemParser) {
+    return ZapResponseParser.single(parseAsList(itemParser));
+  }
+
+  /// Creates a parser for paginated responses.
+  ///
+  /// Example:
+  /// ```dart
+  /// final parser = ZapResponseParser.forPaginated<User>(
+  ///   itemParser: (data) => User.fromJson(data),
+  /// );
+  /// ```
+  static ZapResponseParser<ZapPage<R>> forPaginated<R>({
+    required DataParser<R> itemParser,
+    String dataKey = 'data',
+    String totalKey = 'total',
+    String pageKey = 'page',
+    String limitKey = 'limit',
+  }) {
+    return ZapResponseParser.single(
+      parsePaginated(
+        dataKey: dataKey,
+        itemParser: itemParser,
+        totalKey: totalKey,
+        pageKey: pageKey,
+        limitKey: limitKey,
+      ),
+    );
   }
 
   /// Checks if a specific status code has a dedicated parser.

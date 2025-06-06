@@ -802,7 +802,7 @@ class HttpStatus {
 
   /// Checks if [code] falls inclusively between [begin] and [end].
   bool between(int begin, int end) {
-    return !connectionError && code >= begin && code <= end;
+    return code >= begin && code <= end;
   }
 
   /// True if [code] is a 2xx success status.
