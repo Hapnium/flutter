@@ -6,32 +6,32 @@ import 'package:hapnium/hapnium.dart';
 ///
 /// This abstract class extends [BaseRepository] and provides a simplified way to
 /// manage data conversion using type adapters. It allows you to register
-/// decoder and encoder functions for converting between the domain model [Data]
-/// and the storage format [DataType].
+/// decoder and encoder functions for converting between the domain model [Result]
+/// and the storage format [Insert].
 ///
 /// Type parameters:
 ///
-/// * [Data]: The type of the domain model data.
-/// * [DataType]: The type of the data as stored in the database.
-abstract class Repository<Data, DataType> extends BaseRepository<Data, DataType> {
+/// * [Result]: The type of the domain model data.
+/// * [Insert]: The type of the data as stored in the database.
+abstract class Repository<Result, Insert> extends BaseRepository<Result, Insert> {
   /// Creates a new [Repository] instance.
   ///
   /// The [boxName] parameter is the name of the Hive box to use.
   Repository(super.boxName);
 
-  /// The adapter function for decoding data from [DataType] to [Data].
-  RepositoryAdapter<Data, DataType>? _adapter;
+  /// The adapter function for decoding data from [Insert] to [Result].
+  RepositoryAdapter<Result, Insert>? _adapter;
 
   /// The default value to return if the data is null.
-  late Data _defaultValue;
+  late Result _defaultValue;
 
-  /// The adapter function for encoding data from [Data] to [DataType].
-  RepositoryAdapter<DataType, Data>? _encoder;
+  /// The adapter function for encoding data from [Result] to [Insert].
+  RepositoryAdapter<Insert, Result>? _encoder;
 
   /// Whether the default value has been registered.
   bool _isDefaultRegistered = false;
 
-  /// Registers a type adapter for decoding data from [DataType] to [Data].
+  /// Registers a type adapter for decoding data from [Insert] to [Result].
   ///
   /// This method sets the decoder function that will be used to convert data
   /// retrieved from the database into the domain model.
@@ -43,7 +43,7 @@ abstract class Repository<Data, DataType> extends BaseRepository<Data, DataType>
   /// **Returns:**
   ///
   /// The [Repository] instance for method chaining.
-  Repository<Data, DataType> registerDecoder(RepositoryAdapter<Data, DataType> decoder) {
+  Repository<Result, Insert> registerDecoder(RepositoryAdapter<Result, Insert> decoder) {
     _adapter = decoder;
 
     return this;
@@ -61,14 +61,15 @@ abstract class Repository<Data, DataType> extends BaseRepository<Data, DataType>
   /// **Returns:**
   ///
   /// The [Repository] instance for method chaining.
-  Repository<Data, DataType> registerDefault(Data value) {
+  Repository<Result, Insert> registerDefault(Result value) {
     _defaultValue = value;
     _isDefaultRegistered = true;
+    super.registerDefault(value);
 
     return this;
   }
 
-  /// Registers a type adapter for encoding data from [Data] to [DataType].
+  /// Registers a type adapter for encoding data from [Result] to [Insert].
   ///
   /// This method sets the encoder function that will be used to convert data
   /// from the domain model into the storage format.
@@ -80,7 +81,7 @@ abstract class Repository<Data, DataType> extends BaseRepository<Data, DataType>
   /// **Returns:**
   ///
   /// The [Repository] instance for method chaining.
-  Repository<Data, DataType> registerEncoder(RepositoryAdapter<DataType, Data> encoder) {
+  Repository<Result, Insert> registerEncoder(RepositoryAdapter<Insert, Result> encoder) {
     _encoder = encoder;
 
     return this;
@@ -100,10 +101,10 @@ abstract class Repository<Data, DataType> extends BaseRepository<Data, DataType>
   /// **Returns:**
   ///
   /// The [Repository] instance for method chaining.
-  Repository<Data, DataType> registerAll({
-    required RepositoryAdapter<Data, DataType> decoder,
-    required RepositoryAdapter<DataType, Data> encoder,
-    required Data defaultValue,
+  Repository<Result, Insert> registerAll({
+    required RepositoryAdapter<Result, Insert> decoder,
+    required RepositoryAdapter<Insert, Result> encoder,
+    required Result defaultValue,
   }) {
     registerDecoder(decoder);
     registerEncoder(encoder);
@@ -111,7 +112,7 @@ abstract class Repository<Data, DataType> extends BaseRepository<Data, DataType>
     return this;
   }
 
-  /// Converts the storage format [DataType] to the domain model [Data].
+  /// Converts the storage format [Insert] to the domain model [Result].
   ///
   /// This method is called by the [BaseRepository] class to convert data retrieved
   /// from the database into the domain model. It uses the registered decoder
@@ -123,14 +124,14 @@ abstract class Repository<Data, DataType> extends BaseRepository<Data, DataType>
   ///
   /// **Returns:**
   ///
-  /// An instance of the domain model [Data].
+  /// An instance of the domain model [Result].
   ///
   /// **Throws:**
   ///
   /// * [SecureDatabaseException] if a default value or decoder is not registered.
   @override
   @nonVirtual
-  Data fromStore(DataType? data) {
+  Result fromStore(Insert? data) {
     if (_isDefaultRegistered.isFalse) {
       throw SecureDatabaseException("[SD-EXCEPTION] Default value must be provided");
     }
@@ -146,7 +147,7 @@ abstract class Repository<Data, DataType> extends BaseRepository<Data, DataType>
     throw SecureDatabaseException("[SD-EXCEPTION] You must call `registerAdapter`");
   }
 
-  /// Converts the domain model [Data] to the storage format [DataType].
+  /// Converts the domain model [Result] to the storage format [Insert].
   ///
   /// This method is called by the [BaseRepository] class to convert data from the
   /// domain model into the storage format. It uses the registered encoder
@@ -158,14 +159,14 @@ abstract class Repository<Data, DataType> extends BaseRepository<Data, DataType>
   ///
   /// **Returns:**
   ///
-  /// The data in the storage format [DataType].
+  /// The data in the storage format [Insert].
   ///
   /// **Throws:**
   ///
   /// * [SecureDatabaseException] if an encoder is not registered.
   @override
   @nonVirtual
-  DataType toStore(Data item) {
+  Insert toStore(Result item) {
     if (_encoder.isNotNull) {
       return _encoder!(item);
     }

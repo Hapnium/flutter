@@ -9,7 +9,7 @@ import '../exceptions/secure_database_exception.dart';
 import 'repository_service.dart';
 
 /// An abstract repository class providing CRUD (Create, Read, Update, Delete) operations
-/// for data of type [T].
+/// for data of type [Result].
 ///
 /// This class serves as a base for implementing repositories that interact with
 /// a local storage using Hive. It handles the underlying storage logic,
@@ -18,15 +18,15 @@ import 'repository_service.dart';
 ///
 /// Type parameters:
 ///
-/// * [T]: The type of the data you want to work with (e.g., `User`, `Address`,
+/// * [Result]: The type of the data you want to work with (e.g., `User`, `Address`,
 ///   `List<Item>`). This is the type your application will use.
-/// * [E]: The type of the data as it's stored in the Hive box (e.g.,
+/// * [Insert]: The type of the data as it's stored in the Hive box (e.g.,
 ///   `Map<String, dynamic>`, `List<Map<String, dynamic>>`, `String`).  This
-///   is often a serialized form of [T].
+///   is often a serialized form of [Result].
 ///
 /// Subclasses *must* implement the [toStore] and [fromStore] methods to handle
-/// the conversion between [T] and [E].
-abstract class BaseRepository<T, E> implements RepositoryService<T> {
+/// the conversion between [Result] and [Insert].
+abstract class BaseRepository<Result, Insert> implements RepositoryService<Result> {
   /// The Hive box used for storing the data.
   late Box<dynamic> _box;
 
@@ -54,6 +54,9 @@ abstract class BaseRepository<T, E> implements RepositoryService<T> {
   /// The key used for storing data in the Hive box.
   late String _key;
 
+  /// The default value to return if the data is null.
+  Result? _defaultValue;
+
   /// Tag for log messages from this class.
   String _from = "[SD-REPOSITORY]";
 
@@ -67,6 +70,12 @@ abstract class BaseRepository<T, E> implements RepositoryService<T> {
   BaseRepository(String boxName) {
     _name = "$boxName-database";
   }
+
+  /// The stream subscription for listening to Hive box events.
+  StreamSubscription<BoxEvent>? _subscription;
+
+  /// The stream controller for broadcasting data changes.
+  StreamController<Result> _controller = StreamController<Result>.broadcast();
 
   /// Opens the Hive box and initializes the repository.
   ///
@@ -113,16 +122,49 @@ abstract class BaseRepository<T, E> implements RepositoryService<T> {
     if(_showLogs) {
       console.log("$_name local storage box is now open and initialized with key set as $_key", from: _from);
     }
+
+    _startListening();
+  }
+
+  /// Starts listening to changes in the Hive box and emits them to the stream.
+  /// 
+  /// This method is called by the [open] method and is used to set up a stream
+  /// that emits the current data and any subsequent changes to the data in the
+  /// Hive box.
+  void _startListening() {
+    _controller.add(get()); // Emit the current data
+
+    _subscription = _box.watch(key: _key).listen((event) {
+      if (event.deleted) {
+        if(_defaultValue != null) {
+          _controller.add(_defaultValue!);
+        } else {
+          _controller.add(fromStore(null));
+        }
+      } else {
+        _controller.add(fromStore(event.value)); // Emit the new value
+      }
+    });
+  }
+
+  /// Throws a [SecureDatabaseException] if the repository is not initialized.
+  /// 
+  /// This method is used to ensure that the repository is initialized before
+  /// performing any operations on it.
+  void _throwIfNotInitialized() {
+    if (!_isInitialized) {
+      throw SecureDatabaseException("$_exPrefix - Repository is not initialized. Call open() first.");
+    }
   }
 
   @override
-  Future<T> save(T item) async {
-    if(!_isInitialized) {
-      throw SecureDatabaseException("$_exPrefix - Repository is not initialized. Call open() first.");
-    } else if(put().isNotNull) {
+  Future<Result> save(Result item) async {
+    _throwIfNotInitialized();
+
+    if(put().isNotNull) {
       return await put()!(_box, _key, item);
     } else {
-      E data = toStore(item);
+      Insert data = toStore(item);
 
       if (data.instanceOf<JsonMap>()) {
         await _box.putAll(data as JsonMap);
@@ -158,7 +200,7 @@ abstract class BaseRepository<T, E> implements RepositoryService<T> {
 
   @override
   @nonVirtual
-  T get() {
+  Result get() {
     if(!_isInitialized) {
       throw SecureDatabaseException("$_exPrefix - Repository is not initialized. Call open() first.");
     } else if(read().isNotNull) {
@@ -166,7 +208,7 @@ abstract class BaseRepository<T, E> implements RepositoryService<T> {
     } else {
       dynamic data;
 
-      if (E.instanceOf<JsonMap>()) {
+      if (Insert.instanceOf<JsonMap>()) {
         JsonMap map = {};
 
         for (final key in _box.keys) {
@@ -181,7 +223,7 @@ abstract class BaseRepository<T, E> implements RepositoryService<T> {
           }
         }
         data = map;
-      } else if (E.instanceOf<JsonMapCollection>()) {
+      } else if (Insert.instanceOf<JsonMapCollection>()) {
         JsonMapCollection list = [];
 
         for (int i = 0;; i++) {
@@ -202,12 +244,6 @@ abstract class BaseRepository<T, E> implements RepositoryService<T> {
     }
   }
 
-  /// The stream subscription for listening to Hive box events.
-  StreamSubscription<BoxEvent>? _subscription;
-
-  /// The stream controller for broadcasting data changes.
-  StreamController<T> _controller = StreamController<T>.broadcast();
-
   /// Returns a stream of data changes from the Hive box.
   ///
   /// This method provides a stream that emits the current data and any
@@ -215,29 +251,16 @@ abstract class BaseRepository<T, E> implements RepositoryService<T> {
   ///
   /// **Returns:**
   ///
-  /// A `Stream<T>` that emits the current data and any changes.
+  /// A `Stream<Result>` that emits the current data and any changes.
   ///
   /// **Throws:**
   ///
   /// * [SecureDatabaseException] if the repository is not initialized.
   @nonVirtual
-  Stream<T> get stream async* {
-    if (!_isInitialized) {
-      throw SecureDatabaseException(
-          "$_exPrefix - Repository is not initialized. Call open() first.");
-    } else {
-      _controller.add(get()); // Emit the current data
-
-      _subscription = _box.watch(key: _key).listen((event) {
-        if (event.deleted) {
-          _controller.add(fromStore(null)); // Emit null if deleted
-        } else {
-          _controller.add(fromStore(event.value)); // Emit the new value
-        }
-      });
-
-      yield* _controller.stream; // Yield the stream from the controller
-    }
+  Stream<Result> get stream {
+    _throwIfNotInitialized();
+    
+    return _controller.stream;
   }
 
   /// Disposes of the repository and cancels the stream subscription.
@@ -246,8 +269,7 @@ abstract class BaseRepository<T, E> implements RepositoryService<T> {
   /// release resources and prevent memory leaks.
   @mustCallSuper
   void dispose() {
-    _subscription?.cancel();
-    _controller.close();
+    close();
   }
 
   /// Returns an iterable of the keys in the Hive box.
@@ -362,27 +384,45 @@ abstract class BaseRepository<T, E> implements RepositoryService<T> {
     }
   }
 
-  /// Converts the item [T] to the storage format [E].
+  /// Registers a default value to be returned if the data is null.
+  /// 
+  /// This method sets the default value that will be returned when data is
+  /// retrieved from the database and found to be null.
+  /// 
+  /// **Parameters:**
+  /// 
+  /// * `value`: The default value to register.
+  /// 
+  /// **Returns:**
+  /// 
+  /// The [BaseRepository] instance for method chaining.
+  BaseRepository<Result, Insert> registerDefault(Result value) {
+    _defaultValue = value;
+
+    return this;
+  }
+
+  /// Converts the item [Result] to the storage format [Insert].
   ///
   /// This method *must* be implemented by subclasses to define how the data
   /// is stored in the database.  The conversion process depends on the types
-  /// of [T] and [E].
+  /// of [Result] and [Insert].
   ///
   /// **Common Cases:**
   ///
-  /// * **`JsonMap` (T is your data model, E is `Map<String, dynamic>`):**
+  /// * **`JsonMap` (Result is your data model, Insert is `Map<String, dynamic>`):**
   ///   Convert your data model object into a `Map<String, dynamic>` that can
   ///   be stored in the database.  This typically involves serializing the
   ///   data model's properties into a map.
-  /// * **`JsonMapCollection` (T is your data model, E is `List<Map<String, dynamic>>`):**
+  /// * **`JsonMapCollection` (Result is your data model, Insert is `List<Map<String, dynamic>>`):**
   ///   If you are storing a collection of your data models, convert each data
   ///   model object into a `Map<String, dynamic>` and return a `List` of
   ///   these maps.
-  /// * **Other Types (T and E are the same or different):**
+  /// * **Other Types (Result and Insert are the same or different):**
   ///   For other data types, implement the appropriate conversion logic.  If
-  ///   [T] and [E] are the same, you might not need to do any conversion.  If
+  ///   [Result] and [Insert] are the same, you might not need to do any conversion.  If
   ///   they are different, you'll need to transform the data from the format
-  ///   of [T] to the format of [E].
+  ///   of [Result] to the format of [Insert].
   ///
   /// Example (`JsonMap` case):
   ///
@@ -404,25 +444,25 @@ abstract class BaseRepository<T, E> implements RepositoryService<T> {
   ///   return users.map((user) => user.toJson()).toList();
   /// }
   /// ```
-  E toStore(T item);
+  Insert toStore(Result item);
 
-  /// Converts the storage format [E] to the item format [T].
+  /// Converts the storage format [Insert] to the item format [Result].
   ///
   /// This method *must* be implemented by subclasses to define how the data
   /// is retrieved from the database and converted back into your data model.
-  /// The conversion process depends on the types of [T] and [E].  It should be
+  /// The conversion process depends on the types of [Result] and [Insert].  It should be
   /// the inverse of the [toStore] method.
   ///
   /// **Common Cases:**
   ///
-  /// * **`JsonMap` (T is your data model, E is `Map<String, dynamic>`):**
+  /// * **`JsonMap` (Result is your data model, Insert is `Map<String, dynamic>`):**
   ///   Convert the `Map<String, dynamic>` retrieved from the database back
   ///   into an instance of your data model.  This typically involves
   ///   deserializing the map's properties into the data model's fields.
-  /// * **`JsonMapCollection` (T is your data model, E is `List<Map<String, dynamic>>`):**
+  /// * **`JsonMapCollection` (Result is your data model, Insert is `List<Map<String, dynamic>>`):**
   ///   If you stored a collection of data models, convert each `Map<String, dynamic>`
   ///   in the list back into an instance of your data model.
-  /// * **Other Types (T and E are the same or different):**
+  /// * **Other Types (Result and Insert are the same or different):**
   ///   For other data types, implement the appropriate conversion logic to
   ///   reconstruct your data model from the stored data.
   ///
@@ -452,7 +492,7 @@ abstract class BaseRepository<T, E> implements RepositoryService<T> {
   ///   return data.map((json) => User.fromJson(json)).toList();
   /// }
   /// ```
-  T fromStore(E? data);
+  Result fromStore(Insert? data);
 
   /// User-provided put function.
   ///
@@ -465,13 +505,13 @@ abstract class BaseRepository<T, E> implements RepositoryService<T> {
   ///
   /// * `Box<dynamic> box`: The Hive box to store the data in.
   /// * `String key`: The key to use for storing the data.
-  /// * `T value`: The value to store.
+  /// * `Result value`: The value to store.
   ///
   /// **Returns:**
   ///
-  /// A `Future<T>` that completes when the data is stored, or `null` if the
+  /// A `Future<Result>` that completes when the data is stored, or `null` if the
   /// default put logic should be used.
-  Future<T> Function(Box<dynamic>, String, T)? put() {
+  Future<Result> Function(Box<dynamic>, String, Result)? put() {
     return null;
   }
 
@@ -491,7 +531,7 @@ abstract class BaseRepository<T, E> implements RepositoryService<T> {
   ///
   /// The value read from the box, or `null` if the default read logic should
   /// be used.
-  T Function(Box<dynamic>, String)? read() {
+  Result Function(Box<dynamic>, String)? read() {
     return null;
   }
 
@@ -508,25 +548,40 @@ abstract class BaseRepository<T, E> implements RepositoryService<T> {
   Future<void> runDelete() async {}
 
   @override
-  @nonVirtual
-  Future<Optional<T>> delete() async {
-    if(!_isInitialized) {
-      throw SecureDatabaseException("$_exPrefix - Repository is not initialized. Call open() first.");
-    } else {
-      await _box.delete(_key);
+  @mustCallSuper
+  Future<bool> close() async {
+    try {
+      _subscription?.cancel();
+      _controller.close();
+      await _box.close();
+      _isInitialized = false;
 
-      runDelete();
-      return Optional<T>.empty();
+      return true;
+    } catch (e) {
+      console.error("$_exPrefix - Error closing repository: $e", from: _from);
+
+      return false;
     }
   }
 
   @override
-  Future<List<T>> fetchAll() async {
+  @nonVirtual
+  Future<Optional<Result>> delete() async {
+    _throwIfNotInitialized();
+    
+    await _box.delete(_key);
+
+    runDelete();
+    return Optional<Result>.empty();
+  }
+
+  @override
+  Future<List<Result>> fetchAll() async {
     throw SecureDatabaseException("$_exPrefix - Method not implemented");
   }
 
   @override
-  Future<void> deleteAll(List<T> items) async {
+  Future<void> deleteAll(List<Result> items) async {
     throw SecureDatabaseException("$_exPrefix - Method not implemented");
   }
 }

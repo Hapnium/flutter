@@ -54,4 +54,14 @@ abstract class RepositoryService<T> {
   ///
   /// Throws a [SecureDatabaseException] if an error occurs during the operation.
   Future<Optional<T>> delete();
+
+  /// Closes the repository.
+  ///
+  /// This method closes the repository and releases any resources held by the
+  /// repository.  It should be called when the repository is no longer needed.
+  ///
+  /// **Returns:**
+  ///
+  /// A `Future<bool>` that completes when the repository is closed.
+  Future<bool> close();
 }

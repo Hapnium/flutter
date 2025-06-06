@@ -117,4 +117,21 @@ abstract class AbstractSecureDatabaseConfigurer {
       await clear();
     }); // Await the clear operation
   }
+
+  /// Closes all repositories.
+  /// 
+  /// This method iterates through all registered repositories and calls their
+  /// `close()` method to close their contents.
+  /// 
+  /// This method is marked with `@mustCallSuper` to ensure that subclasses call
+  /// it when overriding it, allowing for the repository closing logic to be
+  /// executed.
+  @mustCallSuper
+  Future<void> closeAll() {
+    return Future.sync(() async {
+      for (var repository in repositories()) {
+        await repository.close(); // Await the close operation
+      }
+    }); // Await the close operation
+  }
 }
