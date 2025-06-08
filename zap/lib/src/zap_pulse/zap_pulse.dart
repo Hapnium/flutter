@@ -103,9 +103,7 @@ final class ZapPulse implements ZapPulseInterface {
   /// Throws [ZapException] if no instance has been created yet.
   static ZapPulse get instance {
     if (_instance == null) {
-      throw ZapException(
-        "No ZapPulse instance found. Create an instance first using ZapPulse(config: config)."
-      );
+      throw ZapException("No ZapPulse instance found. Create an instance first using ZapPulse(config: config).");
     }
     return _instance!;
   }
@@ -220,15 +218,19 @@ final class ZapPulse implements ZapPulseInterface {
   Future<SessionResponse?> _handleSessionRefresh() async {
     if (config.onSessionRefreshed != null) {
       try {
-        final newSession = await config.onSessionRefreshed!();
-        if (config.showResponseLogs) {
-          console.log('ZapPulse: Session refreshed successfully');
+        final session = await config.onSessionRefreshed!();
+        if(session != null) {
+          if (config.showResponseLogs) {
+            console.log('ZapPulse: Session refreshed successfully');
+          }
+
+          return session;
         }
-        return newSession;
       } catch (e) {
         if (config.showErrorLogs) {
           console.log('ZapPulse: Session refresh failed: $e');
         }
+
         return null;
       }
     }

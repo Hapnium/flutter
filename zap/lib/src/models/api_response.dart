@@ -1,3 +1,5 @@
+import 'zap_response_parser.dart';
+
 /// A generic class to handle API responses. This class encapsulates the
 /// structure of a standard API response, including a status, code, message,
 /// and optional data of type [T].
@@ -36,19 +38,48 @@ class ApiResponse<T> {
   /// A factory method to create an [ApiResponse] object from a JSON map.
   /// The [json] parameter is expected to contain the keys `status`, `code`,
   /// `message`, and optionally `data`.
-  factory ApiResponse.fromJson(Map<String, dynamic> json) {
+  /// 
+  /// The [parser] parameter is an optional [DataParser] function that can be used to parse the `data` field.
+  factory ApiResponse.fromJson(Map<String, dynamic> json, [DataParser<T>? parser]) {
     ApiResponse<T> response = ApiResponse(
       status: json['status'] ?? "",
       code: json['code'] ?? 400,
       message: json['message'] ?? "Couldn't validate request",
-      data: json['data'],
+      data: parser != null && json['data'] != null ? parser(json['data']) : json['data'],
     );
 
     return response;
   }
 
+  /// Creates a copy of this [ApiResponse] with the specified properties replaced.
+  /// 
+  /// This method returns a new [ApiResponse] instance with the same properties
+  /// as this instance, except for the properties that are specified in the
+  /// [copyWith] method.
+  ApiResponse<T> copyWith({
+    String? status,
+    int? code,
+    String? message,
+    T? data,
+  }) {
+    return ApiResponse(
+      status: status ?? this.status,
+      code: code ?? this.code,
+      message: message ?? this.message,
+      data: data ?? this.data,
+    );
+  }
+
+  /// Creates an [ApiResponse] object with a status of "error" and the specified message.
+  /// 
+  /// This factory method is a convenience method for creating an [ApiResponse]
+  /// with a status of "error" and the specified message.
   factory ApiResponse.error(String message) =>  ApiResponse(status: "", code: 400, message: message);
 
+  /// Creates an [ApiResponse] object with a status of "unauthorized" and the specified message.
+  /// 
+  /// This factory method is a convenience method for creating an [ApiResponse]
+  /// with a status of "unauthorized" and the specified message.
   factory ApiResponse.unauthorized(String message) =>  ApiResponse(status: "", code: 401, message: message);
 
   /// Converts the [ApiResponse] object into a JSON map, including the `status`,

@@ -58,3 +58,8 @@
 - Added `ZapResponseParser.parseAsSingle` to support single responses
 - Handled exceptions in `Zap` and `ZapPulse`
 - Configured `ZapResponse`, `ZapRequest` and `HttpStatus` to support json decoding and more info
+
+## 0.0.8
+
+- Modified `ApiResponse` to support custom response body parsing
+- Added `ApiResponse.copyWith` to support custom response body parsing
