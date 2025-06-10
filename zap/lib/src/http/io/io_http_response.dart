@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io' as io;
 
+import '../../definitions.dart';
 import '../interface/http_client_response.dart';
 import '../interface/http_headers.dart';
 import '../interface/redirect_info.dart';
@@ -13,25 +14,25 @@ class IOHttpResponse implements HttpClientResponse {
   final io.HttpClientResponse _response;
 
   @override
-  Future<bool> any(bool Function(List<int> element) test) {
+  Future<bool> any(bool Function(BodyBytes element) test) {
     return _response.any(test);
   }
 
   @override
-  Stream<List<int>> asBroadcastStream({
-    void Function(StreamSubscription<List<int>> subscription)? onListen,
-    void Function(StreamSubscription<List<int>> subscription)? onCancel,
+  BodyByteStream asBroadcastStream({
+    void Function(StreamSubscription<BodyBytes> subscription)? onListen,
+    void Function(StreamSubscription<BodyBytes> subscription)? onCancel,
   }) {
     return _response.asBroadcastStream(onListen: onListen, onCancel: onCancel);
   }
 
   @override
-  Stream<E> asyncExpand<E>(Stream<E>? Function(List<int> event) convert) {
+  Stream<E> asyncExpand<E>(Stream<E>? Function(BodyBytes event) convert) {
     return _response.asyncExpand(convert);
   }
 
   @override
-  Stream<E> asyncMap<E>(FutureOr<E> Function(List<int> event) convert) {
+  Stream<E> asyncMap<E>(FutureOr<E> Function(BodyBytes event) convert) {
     return _response.asyncMap(convert);
   }
 
@@ -49,7 +50,7 @@ class IOHttpResponse implements HttpClientResponse {
   int get contentLength => _response.contentLength;
 
   @override
-  Stream<List<int>> distinct([bool Function(List<int> previous, List<int> next)? equals]) {
+  BodyByteStream distinct([bool Function(BodyBytes previous, BodyBytes next)? equals]) {
     return _response.distinct(equals);
   }
 
@@ -59,40 +60,40 @@ class IOHttpResponse implements HttpClientResponse {
   }
 
   @override
-  Future<List<int>> elementAt(int index) {
+  Future<BodyBytes> elementAt(int index) {
     return _response.elementAt(index);
   }
 
   @override
-  Future<bool> every(bool Function(List<int> element) test) {
+  Future<bool> every(bool Function(BodyBytes element) test) {
     return _response.every(test);
   }
 
   @override
-  Stream<S> expand<S>(Iterable<S> Function(List<int> element) convert) {
+  Stream<S> expand<S>(Iterable<S> Function(BodyBytes element) convert) {
     return _response.expand(convert);
   }
 
   @override
-  Future<List<int>> get first => _response.first;
+  Future<BodyBytes> get first => _response.first;
 
   @override
-  Future<List<int>> firstWhere(bool Function(List<int> element) test, {List<int> Function()? orElse}) {
+  Future<BodyBytes> firstWhere(bool Function(BodyBytes element) test, {BodyBytes Function()? orElse}) {
     return _response.firstWhere(test, orElse: orElse);
   }
 
   @override
-  Future<S> fold<S>(S initialValue, S Function(S previous, List<int> element) combine) {
+  Future<S> fold<S>(S initialValue, S Function(S previous, BodyBytes element) combine) {
     return _response.fold(initialValue, combine);
   }
 
   @override
-  Future<void> forEach(void Function(List<int> element) action) {
+  Future<void> forEach(void Function(BodyBytes element) action) {
     return _response.forEach(action);
   }
 
   @override
-  Stream<List<int>> handleError(Function onError, {bool Function(dynamic error)? test}) {
+  BodyByteStream handleError(Function onError, {bool Function(dynamic error)? test}) {
     return _response.handleError(onError, test: test);
   }
 
@@ -114,11 +115,11 @@ class IOHttpResponse implements HttpClientResponse {
   }
 
   @override
-  Future<List<int>> get last => _response.last;
+  Future<BodyBytes> get last => _response.last;
 
   @override
-  Future<List<int>> lastWhere(bool Function(List<int> element) test,
-      {List<int> Function()? orElse}) {
+  Future<BodyBytes> lastWhere(bool Function(BodyBytes element) test,
+      {BodyBytes Function()? orElse}) {
     return _response.lastWhere(test, orElse: orElse);
   }
 
@@ -126,14 +127,14 @@ class IOHttpResponse implements HttpClientResponse {
   Future<int> get length => _response.length;
 
   @override
-  StreamSubscription<List<int>> listen(void Function(List<int> event)? onData,
+  StreamSubscription<BodyBytes> listen(void Function(BodyBytes event)? onData,
       {Function? onError, void Function()? onDone, bool? cancelOnError}) {
     return _response.listen(onData,
         onError: onError, onDone: onDone, cancelOnError: cancelOnError);
   }
 
   @override
-  Stream<S> map<S>(S Function(List<int> event) convert) {
+  Stream<S> map<S>(S Function(BodyBytes event) convert) {
     return _response.map(convert);
   }
 
@@ -141,7 +142,7 @@ class IOHttpResponse implements HttpClientResponse {
   bool get persistentConnection => _response.persistentConnection;
 
   @override
-  Future pipe(StreamConsumer<List<int>> streamConsumer) {
+  Future pipe(StreamConsumer<BodyBytes> streamConsumer) {
     return _response.pipe(streamConsumer);
   }
 
@@ -160,25 +161,25 @@ class IOHttpResponse implements HttpClientResponse {
       .toList();
 
   @override
-  Future<List<int>> reduce(List<int> Function(List<int> previous, List<int> element) combine) {
+  Future<BodyBytes> reduce(BodyBytes Function(BodyBytes previous, BodyBytes element) combine) {
     return _response.reduce(combine);
   }
 
   @override
-  Future<List<int>> get single => _response.single;
+  Future<BodyBytes> get single => _response.single;
 
   @override
-  Future<List<int>> singleWhere(bool Function(List<int> element) test, {List<int> Function()? orElse}) {
+  Future<BodyBytes> singleWhere(bool Function(BodyBytes element) test, {BodyBytes Function()? orElse}) {
     return _response.singleWhere(test, orElse: orElse);
   }
 
   @override
-  Stream<List<int>> skip(int count) {
+  BodyByteStream skip(int count) {
     return _response.skip(count);
   }
 
   @override
-  Stream<List<int>> skipWhile(bool Function(List<int> element) test) {
+  BodyByteStream skipWhile(bool Function(BodyBytes element) test) {
     return _response.skipWhile(test);
   }
 
@@ -186,38 +187,38 @@ class IOHttpResponse implements HttpClientResponse {
   int get statusCode => _response.statusCode;
 
   @override
-  Stream<List<int>> take(int count) {
+  BodyByteStream take(int count) {
     return _response.take(count);
   }
 
   @override
-  Stream<List<int>> takeWhile(bool Function(List<int> element) test) {
+  BodyByteStream takeWhile(bool Function(BodyBytes element) test) {
     return _response.takeWhile(test);
   }
 
   @override
-  Stream<List<int>> timeout(Duration timeLimit,
-      {void Function(EventSink<List<int>> sink)? onTimeout}) {
+  BodyByteStream timeout(Duration timeLimit,
+      {void Function(EventSink<BodyBytes> sink)? onTimeout}) {
     return _response.timeout(timeLimit, onTimeout: onTimeout);
   }
 
   @override
-  Future<List<List<int>>> toList() {
+  Future<List<BodyBytes>> toList() {
     return _response.toList();
   }
 
   @override
-  Future<Set<List<int>>> toSet() {
+  Future<Set<BodyBytes>> toSet() {
     return _response.toSet();
   }
 
   @override
-  Stream<S> transform<S>(StreamTransformer<List<int>, S> streamTransformer) {
+  Stream<S> transform<S>(StreamTransformer<BodyBytes, S> streamTransformer) {
     return _response.transform(streamTransformer);
   }
 
   @override
-  Stream<List<int>> where(bool Function(List<int> event) test) {
+  BodyByteStream where(bool Function(BodyBytes event) test) {
     return _response.where(test);
   }
 }

@@ -1,15 +1,15 @@
 import 'dart:convert';
 
-import 'package:zap/src/http/request/request.dart';
-
+import '../../definitions.dart';
+import '../../http/request/request.dart';
 import 'header_value.dart';
 
-/// Convert a [Stream<List<int>>] to a [String]
+/// Convert a [BodyByteStream] to a [String]
 /// 
 /// Args:
 ///   bodyBytes: The body bytes to convert
 ///   headers: The headers of the response
-Future<String> bodyBytesToString(Stream<List<int>> bodyBytes, Map<String, String> headers) {
+Future<String> bodyBytesToString(BodyByteStream bodyBytes, Headers headers) {
   return bodyBytes.bytesToString(_encodingForHeaders(headers));
 }
 
@@ -17,7 +17,7 @@ Future<String> bodyBytesToString(Stream<List<int>> bodyBytes, Map<String, String
 ///
 /// Defaults to [utf8] if the headers don't specify a charset or if that
 /// charset is unknown.
-Encoding _encodingForHeaders(Map<String, String> headers) =>
+Encoding _encodingForHeaders(Headers headers) =>
     _encodingForCharset(_contentTypeForHeaders(headers).parameters!['charset']);
 
 /// Returns the [Encoding] that corresponds to [charset].
@@ -32,7 +32,7 @@ Encoding _encodingForCharset(String? charset, [Encoding fallback = utf8]) {
 /// Returns the MediaType object for the given headers's content-type.
 ///
 /// Defaults to `application/octet-stream`.
-HeaderValue _contentTypeForHeaders(Map<String, String> headers) {
+HeaderValue _contentTypeForHeaders(Headers headers) {
   var contentType = headers['content-type'];
   if (contentType != null) return HeaderValue.parse(contentType);
   return HeaderValue('application/octet-stream');

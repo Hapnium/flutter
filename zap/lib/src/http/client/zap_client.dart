@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:zap/src/definitions.dart';
-
+import '../../definitions.dart';
 import '../certificates/certificates.dart';
 import '../../exceptions/exceptions.dart';
 import '../interface/http_client_response.dart';
@@ -257,8 +256,8 @@ class ZapClient {
     ZapResponseInterceptor<T>? responseInterceptor,
     Progress? uploadProgress,
   ) async {
-    List<int>? bodyBytes;
-    Stream<List<int>>? bodyStream;
+    BodyBytes? bodyBytes;
+    BodyByteStream? bodyStream;
     final Headers headers = {};
 
     if (sendUserAgent) {
@@ -315,17 +314,17 @@ class ZapClient {
     );
   }
 
-  void _setContentLength(Map<String, String> headers, int contentLength) {
+  void _setContentLength(Headers headers, int contentLength) {
     if (sendContentLength) {
       headers['content-length'] = '$contentLength';
     }
   }
 
-  Stream<List<int>> _trackProgress(List<int> bodyBytes, Progress? uploadProgress) {
+  BodyByteStream _trackProgress(BodyBytes bodyBytes, Progress? uploadProgress) {
     var total = 0;
     var length = bodyBytes.length;
 
-    var byteStream = Stream.fromIterable(bodyBytes.map((i) => [i])).transform<List<int>>(
+    var byteStream = Stream.fromIterable(bodyBytes.map((i) => [i])).transform<BodyBytes>(
       StreamTransformer.fromHandlers(handleData: (data, sink) {
         total += data.length;
         if (uploadProgress != null) {
@@ -469,7 +468,7 @@ class ZapClient {
   Future<ZapResponse<T>> patch<T>(String url, {
     RequestBody body,
     String? contentType,
-    Map<String, String>? headers,
+    Headers? headers,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
     ZapResponseInterceptor<T>? responseInterceptor,
@@ -514,7 +513,7 @@ class ZapClient {
   Future<ZapResponse<T>> post<T>(String? url, {
     RequestBody body,
     String? contentType,
-    Map<String, String>? headers,
+    Headers? headers,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
     ZapResponseInterceptor<T>? responseInterceptor,
@@ -562,7 +561,7 @@ class ZapClient {
   Future<ZapResponse<T>> request<T>(String url, String method, {
     RequestBody body,
     String? contentType,
-    Map<String, String>? headers,
+    Headers? headers,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
     ZapResponseInterceptor<T>? responseInterceptor,
@@ -606,7 +605,7 @@ class ZapClient {
   Future<ZapResponse<T>> put<T>(String url, {
     RequestBody body,
     String? contentType,
-    Map<String, String>? headers,
+    Headers? headers,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
     ZapResponseInterceptor<T>? responseInterceptor,
@@ -646,20 +645,20 @@ class ZapClient {
   /// Returns:
   ///   A [ZapResponse] of type [T] with the requested resource.
   Future<ZapResponse<T>> get<T>(String url, {
-    Map<String, String>? headers,
+    Headers? headers,
     String? contentType,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
     ZapResponseInterceptor<T>? responseInterceptor,
   }) async {
-    final Headers headers = {};
-    _setSimpleHeaders(headers, contentType);
+    final Headers defHeaders = {};
+    _setSimpleHeaders(defHeaders, contentType);
     final uri = createUri(url, query);
 
     final request = ZapRequest<T>(
       method: 'get',
       url: uri,
-      headers: headers,
+      headers: defHeaders,
       decoder: decoder ?? (defaultDecoder as ResponseDecoder<T>?),
       responseInterceptor: _responseInterceptor(responseInterceptor),
       contentLength: 0,
@@ -690,20 +689,20 @@ class ZapClient {
   /// Returns:
   ///   A [ZapResponse] of type [T] representing the server's reply.
   Future<ZapResponse<T>> delete<T>(String url, {
-    Map<String, String>? headers,
+    Headers? headers,
     String? contentType,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
     ZapResponseInterceptor<T>? responseInterceptor,
   }) async {
-    final Headers headers = {};
-    _setSimpleHeaders(headers, contentType);
+    final Headers defHeaders = {};
+    _setSimpleHeaders(defHeaders, contentType);
     final uri = createUri(url, query);
 
     final request = ZapRequest<T>(
       method: 'delete',
       url: uri,
-      headers: headers,
+      headers: defHeaders,
       decoder: decoder ?? (defaultDecoder as ResponseDecoder<T>?),
       responseInterceptor: _responseInterceptor(responseInterceptor),
     );

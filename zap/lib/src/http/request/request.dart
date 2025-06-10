@@ -4,8 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:zap/src/definitions.dart';
-
+import "../../definitions.dart";
 import '../client/zap_client.dart' show ZapResponseInterceptor;
 import '../multipart/form_data.dart';
 
@@ -48,7 +47,7 @@ class ZapRequest<T> {
   /// The body of the request represented as a byte stream.
   ///
   /// Useful for sending raw data, files, or streaming content.
-  final BodyBytes bodyBytes;
+  final BodyByteStream bodyBytes;
 
   /// Whether this request should follow HTTP redirects automatically.
   ///
@@ -109,7 +108,7 @@ class ZapRequest<T> {
     required Uri url,
     required String method,
     required Map<String, String> headers,
-    Stream<List<int>>? bodyBytes,
+    BodyByteStream? bodyBytes,
     bool followRedirects = true,
     int maxRedirects = 4,
     int? contentLength,
@@ -159,7 +158,7 @@ class ZapRequest<T> {
     Uri? url,
     String? method,
     Map<String, String>? headers,
-    Stream<List<int>>? bodyBytes,
+    BodyByteStream? bodyBytes,
     bool? followRedirects,
     int? maxRedirects,
     int? contentLength,
@@ -206,13 +205,13 @@ class ZapRequest<T> {
   }
 }
 
-/// Extension on List<int> to convert it to a Stream<List<int>>.
-extension StreamExt on List<int> {
-  Stream<List<int>> toStream() => Stream.value(this).asBroadcastStream();
+/// Extension on BodyBytes to convert it to a BodyByteStream.
+extension StreamExt on BodyBytes {
+  BodyByteStream toStream() => Stream.value(this).asBroadcastStream();
 }
 
-/// Extension on Stream<List<int>> for byte and string utilities.
-extension BodyBytesStream on Stream<List<int>> {
+/// Extension on BodyByteStream for byte and string utilities.
+extension BodyByteStreamStream on BodyByteStream {
   /// Collects all emitted chunks into a single byte array.
   Future<Uint8List> toBytes() {
     var completer = Completer<Uint8List>();

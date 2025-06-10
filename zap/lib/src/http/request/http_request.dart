@@ -1,3 +1,4 @@
+import '../../definitions.dart';
 import '../certificates/certificates.dart';
 import '../stub/stub_http_request.dart'
     if (dart.library.js_interop) '../html/html_http_request.dart'
@@ -16,7 +17,7 @@ HttpRequestImplementation createHttp({
   bool allowAutoSignedCert = true,
   List<ZapTrustedCertificate>? trustedCertificates,
   bool withCredentials = false,
-  String Function(Uri url)? findProxy,
+  ProxyFinder? findProxy,
 }) {
   return HttpRequestImplementation(
     allowAutoSignedCert: allowAutoSignedCert,

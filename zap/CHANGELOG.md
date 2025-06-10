@@ -68,3 +68,8 @@
 
 - Added logging to request headers in `ZapPulse`
 - Fixed auth headers in `ZapPulse`
+
+## 0.1.0
+
+- Fixed default headers in `Zap` and `ZapPulse`
+

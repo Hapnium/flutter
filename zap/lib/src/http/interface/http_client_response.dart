@@ -1,12 +1,11 @@
-import 'package:zap/src/definitions.dart';
-
+import '../../definitions.dart';
 import 'http_headers.dart';
 import 'redirect_info.dart';
 
 /// This interface is used to represent a response from a server.
 /// 
-/// It extends [BodyBytes] to provide a stream of bytes which is the response body.
-abstract interface class HttpClientResponse implements BodyBytes {
+/// It extends [BodyByteStream] to provide a stream of bytes which is the response body.
+abstract interface class HttpClientResponse implements BodyByteStream {
   /// Returns the status code.
   ///
   /// The status code must be set before the body is written

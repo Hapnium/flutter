@@ -1,5 +1,4 @@
-import 'package:zap/src/http/utils/http_status.dart';
-
+import 'http/utils/http_status.dart';
 import 'enums/zap_realtime_state.dart';
 import 'models/session_response.dart';
 import 'models/zap_realtime_response.dart';
@@ -54,7 +53,12 @@ typedef Headers = Map<String, String>;
 /// Represents a stream of bytes as the body of a request or response.
 /// 
 /// This is used to represent the body of a request or response.
-typedef BodyBytes = Stream<List<int>>;
+typedef BodyByteStream = Stream<BodyBytes>;
+
+/// Represents a list of bytes as the body of a request or response.
+/// 
+/// This is used to represent the body of a request or response.
+typedef BodyBytes = List<int>;
 
 /// Represents a generic message structure.
 ///

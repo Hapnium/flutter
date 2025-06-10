@@ -2,6 +2,8 @@
 
 import 'dart:convert';
 
+import '../../definitions.dart';
+
 bool isTokenChar(int byte) {
   return byte > 31 && byte < 128 && !SEPARATOR_MAP[byte];
 }
@@ -52,7 +54,7 @@ String validateField(String field) {
   return field.toLowerCase();
 }
 
-// Stream<List<int>> toBodyBytesStream(Stream<List<int>> stream) {
+// BodyByteStream toBodyByteStreamStream(BodyByteStream stream) {
 //   return (stream);
 // }
 
@@ -71,7 +73,7 @@ String browserEncode(String value) {
   return value.replaceAll(newlineRegExp, '%0D%0A').replaceAll('"', '%22');
 }
 
-const List<int> boundaryCharacters = <int>[
+const BodyBytes boundaryCharacters = <int>[
   43,
   95,
   45,

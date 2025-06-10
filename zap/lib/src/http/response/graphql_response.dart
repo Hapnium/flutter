@@ -1,6 +1,5 @@
 
-import 'package:zap/src/enums/zap_provider.dart';
-
+import '../../enums/zap_provider.dart';
 import '../../exceptions/exceptions.dart';
 import '../utils/http_status.dart';
 import 'response.dart';

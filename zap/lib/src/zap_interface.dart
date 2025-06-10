@@ -87,9 +87,9 @@ abstract class ZapInterface with ZapLifecycle {
   /// Returns a [ZapResponse] with the requested data.
   /// Throws [ZapException] if the request is cancelled.
   Future<ZapResponse<T>> get<T>(String url, {
-    Map<String, String>? headers,
+    Headers? headers,
     String? contentType,
-    Map<String, dynamic>? query,
+    RequestParam? query,
     ResponseDecoder<T>? decoder,
     ZapCancelToken? cancelToken,
   });
@@ -107,10 +107,10 @@ abstract class ZapInterface with ZapLifecycle {
   /// 
   /// Returns a [ZapResponse] with the requested data.
   /// Throws [ZapException] if the request is cancelled.
-  Future<ZapResponse<T>> post<T>(String? url, dynamic body, {
+  Future<ZapResponse<T>> post<T>(String? url, RequestBody body, {
     String? contentType,
-    Map<String, String>? headers,
-    Map<String, dynamic>? query,
+    Headers? headers,
+    RequestParam? query,
     ResponseDecoder<T>? decoder,
     Progress? uploadProgress,
     ZapCancelToken? cancelToken,
@@ -129,10 +129,10 @@ abstract class ZapInterface with ZapLifecycle {
   /// 
   /// Returns a [ZapResponse] with the requested data.
   /// Throws [ZapException] if the request is cancelled.
-  Future<ZapResponse<T>> put<T>(String url, dynamic body, {
+  Future<ZapResponse<T>> put<T>(String url, RequestBody body, {
     String? contentType,
-    Map<String, String>? headers,
-    Map<String, dynamic>? query,
+    Headers? headers,
+    RequestParam? query,
     ResponseDecoder<T>? decoder,
     Progress? uploadProgress,
     ZapCancelToken? cancelToken,
@@ -151,10 +151,10 @@ abstract class ZapInterface with ZapLifecycle {
   /// 
   /// Returns a [ZapResponse] with the requested data.
   /// Throws [ZapException] if the request is cancelled.
-  Future<ZapResponse<T>> patch<T>(String url, dynamic body, {
+  Future<ZapResponse<T>> patch<T>(String url, RequestBody body, {
     String? contentType,
-    Map<String, String>? headers,
-    Map<String, dynamic>? query,
+    Headers? headers,
+    RequestParam? query,
     ResponseDecoder<T>? decoder,
     Progress? uploadProgress,
     ZapCancelToken? cancelToken,
@@ -172,9 +172,9 @@ abstract class ZapInterface with ZapLifecycle {
   /// Returns a [ZapResponse] with the requested data.
   /// Throws [ZapException] if the request is cancelled.
   Future<ZapResponse<T>> delete<T>(String url, {
-    Map<String, String>? headers,
+    Headers? headers,
     String? contentType,
-    Map<String, dynamic>? query,
+    RequestParam? query,
     ResponseDecoder<T>? decoder,
     ZapCancelToken? cancelToken,
   });
@@ -194,10 +194,10 @@ abstract class ZapInterface with ZapLifecycle {
   /// Returns a [ZapResponse] with the requested data.
   /// Throws [ZapException] if the request is cancelled.
   Future<ZapResponse<T>> request<T>(String url, String method, {
-    dynamic body,
+    RequestBody body,
     String? contentType,
-    Map<String, String>? headers,
-    Map<String, dynamic>? query,
+    Headers? headers,
+    RequestParam? query,
     ResponseDecoder<T>? decoder,
     Progress? uploadProgress,
     ZapCancelToken? cancelToken,
@@ -233,8 +233,8 @@ abstract class ZapInterface with ZapLifecycle {
   Future<GraphQLResponse<T>> query<T>(
     String query, {
     String? url,
-    Map<String, dynamic>? variables,
-    Map<String, String>? headers,
+    RequestParam? variables,
+    Headers? headers,
     ZapCancelToken? cancelToken,
   });
 
@@ -251,8 +251,8 @@ abstract class ZapInterface with ZapLifecycle {
   Future<GraphQLResponse<T>> mutation<T>(
     String mutation, {
     String? url,
-    Map<String, dynamic>? variables,
-    Map<String, String>? headers,
+    RequestParam? variables,
+    Headers? headers,
     ZapCancelToken? cancelToken,
   });
 

@@ -2,8 +2,9 @@ import 'dart:async';
 import 'dart:js_interop';
 
 import 'package:web/web.dart' show XHRGetters, XMLHttpRequest;
-import 'package:zap/src/enums/zap_provider.dart';
 
+import '../../definitions.dart';
+import '../../enums/zap_provider.dart';
 import '../certificates/certificates.dart';
 import '../../exceptions/exceptions.dart';
 import '../request/request.dart';
@@ -21,7 +22,7 @@ class HttpRequestImplementation implements HttpRequestInterface {
     bool allowAutoSignedCert = true,
     List<ZapTrustedCertificate>? trustedCertificates,
     this.withCredentials = false,
-    String Function(Uri url)? findProxy,
+    ProxyFinder? findProxy,
   });
 
   final _xhrs = <XMLHttpRequest>{};
@@ -107,7 +108,7 @@ class HttpRequestImplementation implements HttpRequestInterface {
 }
 
 extension on XMLHttpRequest {
-  Map<String, String> get responseHeaders {
+  Headers get responseHeaders {
     var headers = <String, String>{};
     var headersString = getAllResponseHeaders();
     var headersList = headersString.split('\r\n');

@@ -1,3 +1,5 @@
+import '../../definitions.dart';
+
 /// Represents a trusted SSL/TLS certificate in binary form (DER-encoded).
 ///
 /// This class is typically used to pin or trust specific certificates manually,
@@ -19,9 +21,9 @@
 class ZapTrustedCertificate {
   /// The binary representation (DER format) of the trusted certificate.
   ///
-  /// This is typically a byte list (`List<int>`) read from a `.cer`, `.crt`,
+  /// This is typically a byte list (`BodyBytes`) read from a `.cer`, `.crt`,
   /// or `.der` file. It should **not** be Base64-encoded PEM unless decoded.
-  final List<int> bytes;
+  final BodyBytes bytes;
 
   /// Creates a [ZapTrustedCertificate] from raw certificate [bytes].
   ///

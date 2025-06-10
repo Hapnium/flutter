@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:tracing/tracing.dart' show console;
-import 'package:zap/src/definitions.dart';
+
+import '../definitions.dart';
 import '../enums/zap_realtime_state.dart';
 import '../exceptions/exceptions.dart';
 import '../models/session_response.dart';

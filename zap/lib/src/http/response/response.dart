@@ -1,5 +1,4 @@
-import 'package:zap/src/definitions.dart';
-
+import '../../definitions.dart';
 import '../../enums/zap_provider.dart';
 import '../request/request.dart';
 import '../utils/http_status.dart';
@@ -46,7 +45,7 @@ class ZapResponse<T> {
   /// The raw response body as a stream of bytes.
   ///
   /// Useful for downloading binary data such as files or images.
-  final BodyBytes? bodyBytes;
+  final BodyByteStream? bodyBytes;
 
   /// The raw response body decoded as a UTF-8 string.
   ///
@@ -84,7 +83,7 @@ class ZapResponse<T> {
   ZapResponse<T> copyWith({
     ZapRequest? request,
     HttpStatus? status,
-    Stream<List<int>>? bodyBytes,
+    BodyByteStream? bodyBytes,
     String? bodyString,
     Map<String, String>? headers,
     T? body,

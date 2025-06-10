@@ -1,9 +1,10 @@
 import 'dart:io';
 
+import '../../definitions.dart';
 import '../../exceptions/exceptions.dart';
 
 /// Convert a file to bytes
-List<int> fileToBytes(dynamic data) {
+BodyBytes fileToBytes(dynamic data) {
   if (data is File) {
     return data.readAsBytesSync();
   } else if (data is String) {
@@ -12,12 +13,12 @@ List<int> fileToBytes(dynamic data) {
     } else {
       throw ZapException('File $data not exists');
     }
-  } else if (data is List<int>) {
+  } else if (data is BodyBytes) {
     return data;
   } else {
-    throw const FormatException('File is not "File" or "String" or "List<int>"');
+    throw const FormatException('File is not "File" or "String" or "BodyBytes"');
   }
 }
 
 /// Write bytes to a file
-void writeOnFile(List<int> bytes) {}
+void writeOnFile(BodyBytes bytes) {}

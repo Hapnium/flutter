@@ -1,15 +1,17 @@
 // import 'dart:html' as html;
 
+import '../../definitions.dart';
+
 /// Converts a file to bytes
-List<int> fileToBytes(dynamic data) {
-  if (data is List<int>) {
+BodyBytes fileToBytes(dynamic data) {
+  if (data is BodyBytes) {
     return data;
   } else {
-    throw FormatException('File is not "File" or "String" or "List<int>"');
+    throw FormatException('File is not "File" or "String" or "BodyBytes"');
   }
 }
 
-// void writeOnFile(List<int> bytes) {
+// void writeOnFile(BodyBytes bytes) {
 //   var blob = html.Blob(["data"], 'text/plain', 'native');
 //   var anchorElement = html.AnchorElement(
 //     href: html.Url.createObjectUrlFromBlob(blob).toString(),

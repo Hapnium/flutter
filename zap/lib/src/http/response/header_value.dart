@@ -1,5 +1,7 @@
 import 'dart:collection';
 
+import '../../definitions.dart';
+
 /// The header value
 /// 
 /// This is used to parse and handle the header value
@@ -13,7 +15,7 @@ class HeaderValue {
   /// Args:
   ///   value: The header value
   ///   parameters: The parameters of the header value
-  HeaderValue([this._value = '', Map<String, String>? parameters]) {
+  HeaderValue([this._value = '', Headers? parameters]) {
     if (parameters != null) {
       _parameters = HashMap<String, String>.from(parameters);
     }

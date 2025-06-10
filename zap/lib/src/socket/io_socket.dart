@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:tracing/tracing.dart' show console;
 
+import '../definitions.dart';
 import 'socket_close.dart';
 import 'socket_interface.dart';
 import 'socket_notifier.dart';
@@ -118,7 +119,7 @@ class BaseWebSocket extends SocketInterface {
   Future<WebSocket> _connectForSelfSignedCert(String url) async {
     try {
       var r = Random();
-      var key = base64.encode(List<int>.generate(8, (_) => r.nextInt(255)));
+      var key = base64.encode(BodyBytes.generate(8, (_) => r.nextInt(255)));
       var client = HttpClient(context: SecurityContext());
       client.badCertificateCallback = (cert, host, port) {
         console.log('BaseWebSocket: Allow self-signed certificate => $host:$port. ');

@@ -1,5 +1,4 @@
-import 'package:zap/src/definitions.dart';
-
+import '../definitions.dart';
 import '../http/certificates/certificates.dart';
 
 /// This class handles the configuration of Zap. It is used to modify and define the behaviour of a

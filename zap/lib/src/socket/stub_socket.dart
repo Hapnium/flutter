@@ -1,5 +1,4 @@
-import 'package:zap/src/socket/socket_notifier.dart';
-
+import 'socket_notifier.dart';
 import 'socket_interface.dart';
 
 /// A concrete WebSocket implementation.

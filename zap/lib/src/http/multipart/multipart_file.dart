@@ -1,3 +1,4 @@
+import '../../definitions.dart';
 import '../stub/stub_file_decoder.dart'
     if (dart.library.js_interop) '../html/html_file_decoder.dart'
     if (dart.library.io) '../io/io_file_decoder.dart';
@@ -11,8 +12,7 @@ import '../request/request.dart';
 ///   filename: The filename of the file
 ///   contentType: The content type of the file
 class MultipartFile {
-  MultipartFile(
-    dynamic data, {
+  MultipartFile(dynamic data, {
     required this.filename,
     this.contentType = 'application/octet-stream',
   }) : _bytes = fileToBytes(data) {
@@ -21,17 +21,17 @@ class MultipartFile {
   }
 
   /// The file content as a list of bytes
-  final List<int> _bytes;
+  final BodyBytes _bytes;
 
   /// The content type of the file
   final String contentType;
 
   /// This stream will emit the file content of File.
-  Stream<List<int>>? _stream;
+  BodyByteStream? _stream;
 
   int? _length;
 
-  Stream<List<int>>? get stream => _stream;
+  BodyByteStream? get stream => _stream;
 
   /// The length of the file content
   int? get length => _length;

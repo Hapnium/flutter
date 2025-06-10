@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import '../../definitions.dart';
 import '../request/request.dart';
 import '../utils/utils.dart';
 import 'multipart_file.dart';
@@ -39,7 +40,7 @@ class FormData {
 
   static String _getBoundary() {
     final newRandom = Random();
-    var list = List<int>.generate(_maxBoundaryLength - GET_BOUNDARY.length,
+    var list = BodyBytes.generate(_maxBoundaryLength - GET_BOUNDARY.length,
         (_) => boundaryCharacters[newRandom.nextInt(boundaryCharacters.length)],
         growable: false
     );
@@ -104,12 +105,12 @@ class FormData {
   }
 
   /// Returns the request body as a list of bytes
-  Future<List<int>> toBytes() {
-    return BodyBytesStream(_encode()).toBytes();
+  Future<BodyBytes> toBytes() {
+    return BodyByteStreamStream(_encode()).toBytes();
   }
 
   /// Returns the request body as a stream of bytes
-  Stream<List<int>> _encode() async* {
+  BodyByteStream _encode() async* {
     const line = [13, 10];
     final separator = utf8.encode('--$boundary\r\n');
     final close = utf8.encode('--$boundary--\r\n');

@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io' as io;
 
-import 'package:zap/src/enums/zap_provider.dart';
-
+import '../../definitions.dart';
+import '../../enums/zap_provider.dart';
 import '../certificates/certificates.dart';
 import '../../exceptions/exceptions.dart';
 import '../interface/http_request_interface.dart';
@@ -22,7 +22,7 @@ class HttpRequestImplementation extends HttpRequestInterface {
     bool allowAutoSignedCert = true,
     List<ZapTrustedCertificate>? trustedCertificates,
     bool withCredentials = false,
-    String Function(Uri url)? findProxy,
+    ProxyFinder? findProxy,
   }) {
     _httpClient = io.HttpClient();
     if (trustedCertificates != null) {

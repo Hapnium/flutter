@@ -1,3 +1,4 @@
+import '../../definitions.dart';
 import '../certificates/certificates.dart';
 import '../interface/http_request_interface.dart';
 import '../request/request.dart';
@@ -8,7 +9,7 @@ class HttpRequestImplementation extends HttpRequestInterface {
     bool allowAutoSignedCert = true,
     List<ZapTrustedCertificate>? trustedCertificates,
     bool withCredentials = false,
-    String Function(Uri url)? findProxy,
+    ProxyFinder? findProxy,
   });
 
   @override

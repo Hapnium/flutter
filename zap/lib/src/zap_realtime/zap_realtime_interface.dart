@@ -1,8 +1,9 @@
 import 'dart:async';
-import 'package:zap/src/definitions.dart';
-import 'package:zap/src/enums/zap_realtime_state.dart';
-import 'package:zap/src/models/zap_realtime_error_response.dart';
-import 'package:zap/src/models/zap_realtime_response.dart';
+
+import '../definitions.dart';
+import '../enums/zap_realtime_state.dart';
+import '../models/zap_realtime_error_response.dart';
+import '../models/zap_realtime_response.dart';
 
 /// Abstract interface defining the contract for ZapRealtime WebSocket operations.
 /// 

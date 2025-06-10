@@ -1,6 +1,12 @@
 import 'package:flutter/foundation.dart' show Uint8List;
 import 'package:tracing/tracing.dart' show console;
-import 'package:zap/zap.dart';
+
+import '../definitions.dart';
+import '../models/location/location_information.dart';
+import '../models/zap_config.dart';
+import '../http/utils/http_status.dart';
+import '../zap.dart';
+import '../zap_interface.dart';
 
 /// Utility class providing helper methods for interacting with external APIs,
 /// including image fetching, IP address retrieval, and Google Maps distance matrix calculations.
@@ -96,10 +102,10 @@ final class ZapUtils {
   }) async {
     try {
       // Make a GET request expecting binary data
-      final response = await _client.get<List<int>>(
+      final response = await _client.get<BodyBytes>(
         url,
         decoder: (status, data) {
-          if (data is List<int>) {
+          if (data is BodyBytes) {
             return data;
           } else if (data is String) {
             // Handle case where data might be base64 encoded
@@ -142,10 +148,10 @@ final class ZapUtils {
   /// ```
   Future<Uint8List?> fetchImageDataAsync(String url, [bool log = true]) async {
     try {
-      final response = await _client.get<List<int>>(
+      final response = await _client.get<BodyBytes>(
         url,
         decoder: (status, data) {
-          if (data is List<int>) {
+          if (data is BodyBytes) {
             return data;
           } else if (data is String) {
             return data.codeUnits;

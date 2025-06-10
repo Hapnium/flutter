@@ -1,5 +1,7 @@
-void writeOnFile(List<int> bytes) {}
+import '../../definitions.dart';
 
-List<int> fileToBytes(dynamic data) {
+void writeOnFile(BodyBytes bytes) {}
+
+BodyBytes fileToBytes(dynamic data) {
   throw UnimplementedError();
 }

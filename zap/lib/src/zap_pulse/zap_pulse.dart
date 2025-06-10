@@ -1,10 +1,9 @@
 import 'package:tracing/tracing.dart' show console;
-import 'package:zap/src/definitions.dart';
-import 'package:zap/src/models/api_response.dart';
-import 'package:zap/src/zap_interface.dart';
+
+import '../definitions.dart';
+import '../models/api_response.dart';
+import '../zap_interface.dart';
 import '../exceptions/exceptions.dart';
-import '../http/modifier/zap_modifier.dart';
-import '../http/request/request.dart';
 import '../http/response/response.dart';
 import '../http/utils/http_status.dart';
 import '../models/zap_response_parser.dart';
@@ -147,39 +146,31 @@ final class ZapPulse implements ZapPulseInterface {
   /// - `Authorization: Goog abc123` (Google style)
   /// - `X-API-Key: abc123` (API key style with empty prefix)
   /// - Multiple custom headers via customAuthHeaderBuilder
-  Map<String, String> _buildAuthHeaders(SessionResponse session) {
-    // Use custom auth header builder if provided
-    if (config.customAuthHeaderBuilder != null) {
-      return config.customAuthHeaderBuilder!(session);
-    }
-    
-    // Use configurable header name and token prefix
-    final token = session.accessToken;
-    if (token.isEmpty) {
-      return {};
-    }
-    
-    final headerValue = config.tokenPrefix.isEmpty ? token : '${config.tokenPrefix} $token';
-    
-    return {config.authHeaderName: headerValue};
-  }
-
-  /// Adds authentication headers to the request if authentication is enabled.
-  /// 
-  /// This method fetches the current session and builds the appropriate auth headers
-  /// based on the configuration. It also includes any additional headers from config.
-  ZapRequestModifier get _authenticator => (ZapRequest request) {
+  Headers _buildHeadersWithAuth() {
     final session = _currentSession;
+    Headers headers = {};
 
     if (session != null) {
-      final headers = _buildAuthHeaders(session);
-      request.headers.addAll(headers);
+      // Use custom auth header builder if provided
+      if (config.customAuthHeaderBuilder != null) {
+        headers = config.customAuthHeaderBuilder!(session);
+      }
+
+      // Use configurable header name and token prefix
+      final token = session.accessToken;
+      if (token.isEmpty) {
+        headers = {};
+      }
+
+      final headerValue = config.tokenPrefix.isEmpty ? token : '${config.tokenPrefix} $token';
+
+      headers = {config.authHeaderName: headerValue};
     }
 
-    _logHeader(request.headers);
-
-    return request;
-  };
+    _logHeader(headers);
+    
+    return headers;
+  }
 
   /// Validates authentication requirements for the request.
   /// 
@@ -197,7 +188,7 @@ final class ZapPulse implements ZapPulseInterface {
   /// 
   /// This method fetches the current session and builds the appropriate auth headers
   /// based on the configuration. It also includes any additional headers from config.
-  Map<String, String> _buildHeaders([Map<String, String>? additionalHeaders]) {
+  Headers _buildHeaders([Headers? additionalHeaders]) {
     final headers = <String, String>{};
     
     // Add base headers from config
@@ -240,7 +231,7 @@ final class ZapPulse implements ZapPulseInterface {
   }
 
   /// Logs request information if request logging is enabled.
-  void _logRequest(String method, String endpoint, Map<String, dynamic>? query) {
+  void _logRequest(String method, String endpoint, RequestParam? query) {
     if (config.showRequestLogs) {
       console.log('ZapPulse Request: $method $endpoint');
       if (query != null && query.isNotEmpty) {
@@ -250,7 +241,7 @@ final class ZapPulse implements ZapPulseInterface {
   }
 
   /// Logs header information if header logging is enabled.
-  void _logHeader(Map<String, String> headers) {
+  void _logHeader(Headers headers) {
     if (config.showRequestLogs) {
       console.log('ZapPulse Headers: $headers');
     }
@@ -306,10 +297,9 @@ final class ZapPulse implements ZapPulseInterface {
     if (newSession != null) {
       // Retry the request with new session
       final headers = _buildHeaders();
-      _zap.client.removeRequestModifier(_authenticator);
-      
       final response = await execute(headers, cancelToken);
       _logResponse(response);
+
       return response;
     }
 
@@ -338,7 +328,7 @@ final class ZapPulse implements ZapPulseInterface {
       final headers = _buildHeaders();
 
       if(useAuth) {
-        _zap.client.addRequestModifier(_authenticator);
+        headers.addAll(_buildHeadersWithAuth());
       }
 
       final response = await execute(headers, cancelToken);
@@ -377,26 +367,26 @@ final class ZapPulse implements ZapPulseInterface {
 
   @override
   Future<ZapResponse<ApiResponse<T>>> delete<T>({required String endpoint, RequestParam? query, dynamic body, bool useAuth = true, ZapResponseParser<T>? parser, ZapCancelToken? token}) async {
-    return _execute<T>((headers, cancelToken) => _zap.delete<ApiResponse<T>>(endpoint, headers: headers, query: query, decoder: _createDecoder<T>(parser), cancelToken: cancelToken), 'DELETE', endpoint, useAuth, token);
+    return _execute<T>((Headers headers, ZapCancelToken? cancelToken) => _zap.delete<ApiResponse<T>>(endpoint, headers: headers, query: query, decoder: _createDecoder<T>(parser), cancelToken: cancelToken), 'DELETE', endpoint, useAuth, token);
   }
 
   @override
   Future<ZapResponse<ApiResponse<T>>> get<T>({required String endpoint, RequestParam? query, bool useAuth = true, ZapResponseParser<T>? parser, ZapCancelToken? token}) async {
-    return _execute<T>((headers, cancelToken) => _zap.get<ApiResponse<T>>(endpoint, headers: headers, query: query, decoder: _createDecoder<T>(parser), cancelToken: cancelToken), 'GET', endpoint, useAuth, token);
+    return _execute<T>((Headers headers, ZapCancelToken? cancelToken) => _zap.get<ApiResponse<T>>(endpoint, headers: headers, query: query, decoder: _createDecoder<T>(parser), cancelToken: cancelToken), 'GET', endpoint, useAuth, token);
   }
 
   @override
   Future<ZapResponse<ApiResponse<T>>> patch<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, ZapResponseParser<T>? parser, ZapCancelToken? token}) async {
-    return _execute<T>((headers, cancelToken) => _zap.patch<ApiResponse<T>>(endpoint, body, headers: headers, query: query, decoder: _createDecoder<T>(parser), uploadProgress: onProgress, cancelToken: cancelToken), 'PATCH', endpoint, useAuth, token);
+    return _execute<T>((Headers headers, ZapCancelToken? cancelToken) => _zap.patch<ApiResponse<T>>(endpoint, body, headers: headers, query: query, decoder: _createDecoder<T>(parser), uploadProgress: onProgress, cancelToken: cancelToken), 'PATCH', endpoint, useAuth, token);
   }
 
   @override
   Future<ZapResponse<ApiResponse<T>>> post<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, ZapResponseParser<T>? parser, ZapCancelToken? token}) async {
-    return _execute<T>((headers, cancelToken) => _zap.post<ApiResponse<T>>(endpoint, body, headers: headers, query: query, decoder: _createDecoder<T>(parser), uploadProgress: onProgress, cancelToken: cancelToken), 'POST', endpoint, useAuth, token);
+    return _execute<T>((Headers headers, ZapCancelToken? cancelToken) => _zap.post<ApiResponse<T>>(endpoint, body, headers: headers, query: query, decoder: _createDecoder<T>(parser), uploadProgress: onProgress, cancelToken: cancelToken), 'POST', endpoint, useAuth, token);
   }
 
   @override
   Future<ZapResponse<ApiResponse<T>>> put<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, ZapResponseParser<T>? parser, ZapCancelToken? token}) async {
-    return _execute<T>((headers, cancelToken) => _zap.put<ApiResponse<T>>(endpoint, body, headers: headers, query: query, decoder: _createDecoder<T>(parser), uploadProgress: onProgress, cancelToken: cancelToken), 'PUT', endpoint, useAuth, token);
+    return _execute<T>((Headers headers, ZapCancelToken? cancelToken) => _zap.put<ApiResponse<T>>(endpoint, body, headers: headers, query: query, decoder: _createDecoder<T>(parser), uploadProgress: onProgress, cancelToken: cancelToken), 'PUT', endpoint, useAuth, token);
   }
 }
