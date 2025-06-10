@@ -63,3 +63,8 @@
 
 - Modified `ApiResponse` to support custom response body parsing
 - Added `ApiResponse.copyWith` to support custom response body parsing
+
+## 0.0.9
+
+- Added logging to request headers in `ZapPulse`
+- Fixed auth headers in `ZapPulse`

@@ -176,6 +176,8 @@ final class ZapPulse implements ZapPulseInterface {
       request.headers.addAll(headers);
     }
 
+    _logHeader(request.headers);
+
     return request;
   };
 
@@ -244,6 +246,13 @@ final class ZapPulse implements ZapPulseInterface {
       if (query != null && query.isNotEmpty) {
         console.log('ZapPulse Query: $query');
       }
+    }
+  }
+
+  /// Logs header information if header logging is enabled.
+  void _logHeader(Map<String, String> headers) {
+    if (config.showRequestLogs) {
+      console.log('ZapPulse Headers: $headers');
     }
   }
 
@@ -329,7 +338,7 @@ final class ZapPulse implements ZapPulseInterface {
       final headers = _buildHeaders();
 
       if(useAuth) {
-        _zap.client.addAuthenticator(_authenticator);
+        _zap.client.addRequestModifier(_authenticator);
       }
 
       final response = await execute(headers, cancelToken);
