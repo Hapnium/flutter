@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:zap/zap.dart';
 
 void main() {
-  late ZapPulse zapPulse;
+  late Flux zapPulse;
   late SessionResponse testSession;
 
   setUp(() {
@@ -11,8 +11,8 @@ void main() {
       refreshToken: 'test_refresh_token_12345',
     );
 
-    zapPulse = ZapPulse(
-      config: ZapPulseConfig(
+    zapPulse = Flux(
+      config: FluxConfig(
         showRequestLogs: true,
         showResponseLogs: true,
         showErrorLogs: true,
@@ -21,10 +21,10 @@ void main() {
   });
 
   tearDown(() {
-    ZapPulse.dispose();
+    Flux.dispose();
   });
 
-  group('ZapPulse Real API Tests', () {
+  group('Flux Real API Tests', () {
     test('GET request with authentication headers', () async {
       // Act
       final response = await zapPulse.get<Map<String, dynamic>>(
@@ -60,8 +60,8 @@ void main() {
     test('POST request with body and authentication', () async {
       // Arrange
       final postData = {
-        'title': 'ZapPulse Test Post',
-        'body': 'This post was created using ZapPulse',
+        'title': 'Flux Test Post',
+        'body': 'This post was created using Flux',
         'userId': 1
       };
 
@@ -85,8 +85,8 @@ void main() {
       // Arrange
       final updateData = {
         'id': 1,
-        'title': 'Updated via ZapPulse',
-        'body': 'This post was updated using ZapPulse',
+        'title': 'Updated via Flux',
+        'body': 'This post was updated using Flux',
         'userId': 1
       };
 
@@ -107,7 +107,7 @@ void main() {
     test('PATCH request with partial update', () async {
       // Arrange
       final patchData = {
-        'title': 'Patched via ZapPulse'
+        'title': 'Patched via Flux'
       };
 
       // Act
@@ -158,10 +158,10 @@ void main() {
 
     test('Custom auth header configuration', () async {
       // Arrange
-      ZapPulse.dispose();
+      Flux.dispose();
       
-      zapPulse = ZapPulse(
-        config: ZapPulseConfig(
+      zapPulse = Flux(
+        config: FluxConfig(
           authHeaderName: 'X-API-Key',
           tokenPrefix: 'Token',
         ),
@@ -181,10 +181,10 @@ void main() {
 
     test('Custom auth header builder', () async {
       // Arrange
-      ZapPulse.dispose();
+      Flux.dispose();
       
-      zapPulse = ZapPulse(
-        config: ZapPulseConfig(
+      zapPulse = Flux(
+        config: FluxConfig(
           customAuthHeaderBuilder: (session) => {
             'X-User-Token': 'user_token_${session.accessToken}',
           },
@@ -207,10 +207,10 @@ void main() {
       // Arrange
       SessionResponse? currentSession = testSession;
       
-      ZapPulse.dispose();
+      Flux.dispose();
       
-      zapPulse = ZapPulse(
-        config: ZapPulseConfig(
+      zapPulse = Flux(
+        config: FluxConfig(
           sessionFactory: () => currentSession!,
         ),
       );
@@ -259,10 +259,10 @@ void main() {
 
     test('Error handling when session required but not provided', () async {
       // Arrange
-      ZapPulse.dispose();
+      Flux.dispose();
       
-      zapPulse = ZapPulse(
-        config: ZapPulseConfig(
+      zapPulse = Flux(
+        config: FluxConfig(
           showRequestLogs: true,
           showResponseLogs: true,
           showErrorLogs: true,
@@ -282,14 +282,14 @@ void main() {
     test('Singleton pattern enforcement', () async {
       // Act & Assert
       expect(
-        () => ZapPulse(config: ZapPulseConfig()),
+        () => Flux(config: FluxConfig()),
         throwsA(isA<Exception>()),
       );
     });
 
     test('Multiple concurrent requests', () async {
       // Arrange
-      final futures = <Future<ZapResponse<ApiResponse<Map<String, dynamic>>>>>[];
+      final futures = <Future<Response<ApiResponse<Map<String, dynamic>>>>>[];
 
       // Act
       for (int i = 1; i <= 5; i++) {

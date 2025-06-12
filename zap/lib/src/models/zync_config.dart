@@ -1,8 +1,8 @@
 import '../definitions.dart';
 import 'session_response.dart';
 
-/// Configuration class for ZapRealtime WebSocket connections with flexible authentication.
-class ZapRealtimeConfig {
+/// Configuration class for Zync WebSocket connections with flexible authentication.
+class ZyncConfig {
   /// The WebSocket endpoint URL.
   final String url;
   
@@ -80,7 +80,7 @@ class ZapRealtimeConfig {
   /// Delay between reconnection attempts.
   final Duration reconnectDelay;
 
-  ZapRealtimeConfig({
+  ZyncConfig({
     required this.url,
     this.subscription,
     this.session,
@@ -103,7 +103,7 @@ class ZapRealtimeConfig {
     this.reconnectDelay = const Duration(seconds: 3),
   });
 
-  ZapRealtimeConfig copyWith({
+  ZyncConfig copyWith({
     String? url,
     String? subscription,
     SessionResponse? session,
@@ -125,7 +125,7 @@ class ZapRealtimeConfig {
     int? maxReconnectAttempts,
     Duration? reconnectDelay,
   }) {
-    return ZapRealtimeConfig(
+    return ZyncConfig(
       url: url ?? this.url,
       subscription: subscription ?? this.subscription,
       session: session ?? this.session,

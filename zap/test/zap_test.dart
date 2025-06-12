@@ -141,7 +141,7 @@ void main() {
 
     test('Request cancellation works', () async {
       // Arrange
-      final cancelToken = ZapCancelToken();
+      final cancelToken = CancelToken();
 
       // Act
       final futureResponse = zap.get<Map<String, dynamic>>(
@@ -181,7 +181,7 @@ void main() {
 
     test('Multiple concurrent requests', () async {
       // Arrange
-      final futures = <Future<ZapResponse<Map<String, dynamic>>>>[];
+      final futures = <Future<Response<Map<String, dynamic>>>>[];
 
       // Act
       for (int i = 1; i <= 5; i++) {
@@ -204,7 +204,7 @@ void main() {
   group('Zap Request Cancellation', () {
     test('Cancel all active requests', () async {
       // Arrange
-      final futures = <Future<ZapResponse<Map<String, dynamic>>>>[];
+      final futures = <Future<Response<Map<String, dynamic>>>>[];
 
       // Act
       for (int i = 1; i <= 3; i++) {

@@ -38,7 +38,7 @@ class HttpRequestImplementation extends HttpRequestInterface {
   }
 
   @override
-  Future<ZapResponse<T>> send<T>(ZapRequest<T> request) async {
+  Future<Response<T>> send<T>(Request<T> request) async {
     var stream = request.bodyBytes.asBroadcastStream();
     io.HttpClientRequest? ioRequest;
 
@@ -74,7 +74,7 @@ class HttpRequestImplementation extends HttpRequestInterface {
         HttpStatus.fromCode(response.statusCode)
       );
 
-      return ZapResponse(
+      return Response(
         headers: headers,
         request: request,
         status: HttpStatus.fromCode(response.statusCode),

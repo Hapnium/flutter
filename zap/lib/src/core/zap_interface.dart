@@ -1,12 +1,12 @@
-import 'http/client/zap_client.dart';
-import 'http/request/request.dart';
-import 'http/response/graphql_response.dart';
-import 'http/response/response.dart';
-import 'models/zap_cancel_token.dart';
-import 'models/zap_config.dart';
+import '../http/client/zap_client.dart';
+import '../http/request/request.dart';
+import '../http/response/graphql_response.dart';
+import '../http/response/response.dart';
+import '../models/cancel_token.dart';
+import '../models/zap_config.dart';
 import 'zap_socket.dart';
 import 'zap_lifecycle.dart';
-import 'definitions.dart';
+import '../definitions.dart';
 
 /// Interface defining the contract for Zap HTTP and WebSocket operations with cancellation support.
 /// 
@@ -62,9 +62,9 @@ abstract class ZapInterface with ZapLifecycle {
 
   /// Set of active cancel tokens for tracking ongoing requests
   /// 
-  /// This can be used for canceling all ongoing requests. [ZapCancelToken] 
+  /// This can be used for canceling all ongoing requests. [CancelToken] 
   /// is used to cancel individual requests.
-  Set<ZapCancelToken> get activeTokens;
+  Set<CancelToken> get activeTokens;
 
   /// The configuration of the [ZapClient] and [ZapImplementation]
   ZapConfig get config;
@@ -84,14 +84,14 @@ abstract class ZapInterface with ZapLifecycle {
   /// - [decoder]: Optional response decoder
   /// - [cancelToken]: Optional token to cancel the request
   /// 
-  /// Returns a [ZapResponse] with the requested data.
+  /// Returns a [Response] with the requested data.
   /// Throws [ZapException] if the request is cancelled.
-  Future<ZapResponse<T>> get<T>(String url, {
+  Future<Response<T>> get<T>(String url, {
     Headers? headers,
     String? contentType,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
-    ZapCancelToken? cancelToken,
+    CancelToken? cancelToken,
   });
 
   /// Performs a POST request with optional cancellation support.
@@ -105,15 +105,15 @@ abstract class ZapInterface with ZapLifecycle {
   /// - [uploadProgress]: Optional upload progress callback
   /// - [cancelToken]: Optional token to cancel the request
   /// 
-  /// Returns a [ZapResponse] with the requested data.
+  /// Returns a [Response] with the requested data.
   /// Throws [ZapException] if the request is cancelled.
-  Future<ZapResponse<T>> post<T>(String? url, RequestBody body, {
+  Future<Response<T>> post<T>(String? url, RequestBody body, {
     String? contentType,
     Headers? headers,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
     Progress? uploadProgress,
-    ZapCancelToken? cancelToken,
+    CancelToken? cancelToken,
   });
 
   /// Performs a PUT request with optional cancellation support.
@@ -127,15 +127,15 @@ abstract class ZapInterface with ZapLifecycle {
   /// - [uploadProgress]: Optional upload progress callback
   /// - [cancelToken]: Optional token to cancel the request
   /// 
-  /// Returns a [ZapResponse] with the requested data.
+  /// Returns a [Response] with the requested data.
   /// Throws [ZapException] if the request is cancelled.
-  Future<ZapResponse<T>> put<T>(String url, RequestBody body, {
+  Future<Response<T>> put<T>(String url, RequestBody body, {
     String? contentType,
     Headers? headers,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
     Progress? uploadProgress,
-    ZapCancelToken? cancelToken,
+    CancelToken? cancelToken,
   });
 
   /// Performs a PATCH request with optional cancellation support.
@@ -149,15 +149,15 @@ abstract class ZapInterface with ZapLifecycle {
   /// - [uploadProgress]: Optional upload progress callback
   /// - [cancelToken]: Optional token to cancel the request
   /// 
-  /// Returns a [ZapResponse] with the requested data.
+  /// Returns a [Response] with the requested data.
   /// Throws [ZapException] if the request is cancelled.
-  Future<ZapResponse<T>> patch<T>(String url, RequestBody body, {
+  Future<Response<T>> patch<T>(String url, RequestBody body, {
     String? contentType,
     Headers? headers,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
     Progress? uploadProgress,
-    ZapCancelToken? cancelToken,
+    CancelToken? cancelToken,
   });
 
   /// Performs a DELETE request with optional cancellation support.
@@ -169,14 +169,14 @@ abstract class ZapInterface with ZapLifecycle {
   /// - [decoder]: Optional response decoder
   /// - [cancelToken]: Optional token to cancel the request
   /// 
-  /// Returns a [ZapResponse] with the requested data.
+  /// Returns a [Response] with the requested data.
   /// Throws [ZapException] if the request is cancelled.
-  Future<ZapResponse<T>> delete<T>(String url, {
+  Future<Response<T>> delete<T>(String url, {
     Headers? headers,
     String? contentType,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
-    ZapCancelToken? cancelToken,
+    CancelToken? cancelToken,
   });
 
   /// Performs a custom HTTP request with optional cancellation support.
@@ -191,16 +191,16 @@ abstract class ZapInterface with ZapLifecycle {
   /// - [uploadProgress]: Optional upload progress callback
   /// - [cancelToken]: Optional token to cancel the request
   /// 
-  /// Returns a [ZapResponse] with the requested data.
+  /// Returns a [Response] with the requested data.
   /// Throws [ZapException] if the request is cancelled.
-  Future<ZapResponse<T>> request<T>(String url, String method, {
+  Future<Response<T>> request<T>(String url, String method, {
     RequestBody body,
     String? contentType,
     Headers? headers,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
     Progress? uploadProgress,
-    ZapCancelToken? cancelToken,
+    CancelToken? cancelToken,
   });
 
   /// Sends a pre-built request with optional cancellation support.
@@ -208,9 +208,9 @@ abstract class ZapInterface with ZapLifecycle {
   /// - [request]: The request to send
   /// - [cancelToken]: Optional token to cancel the request
   /// 
-  /// Returns a [ZapResponse] with the requested data.
+  /// Returns a [Response] with the requested data.
   /// Throws [ZapException] if the request is cancelled.
-  Future<ZapResponse<T>> send<T>(ZapRequest<T> request, {ZapCancelToken? cancelToken});
+  Future<Response<T>> send<T>(Request<T> request, {CancelToken? cancelToken});
 
   /// Creates a WebSocket connection.
   /// 
@@ -235,7 +235,7 @@ abstract class ZapInterface with ZapLifecycle {
     String? url,
     RequestParam? variables,
     Headers? headers,
-    ZapCancelToken? cancelToken,
+    CancelToken? cancelToken,
   });
 
   /// Performs a GraphQL mutation with optional cancellation support.
@@ -253,7 +253,7 @@ abstract class ZapInterface with ZapLifecycle {
     String? url,
     RequestParam? variables,
     Headers? headers,
-    ZapCancelToken? cancelToken,
+    CancelToken? cancelToken,
   });
 
   /// Cleans up and releases any resources held by the instance.

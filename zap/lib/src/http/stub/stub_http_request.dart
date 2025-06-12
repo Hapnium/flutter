@@ -16,7 +16,7 @@ class HttpRequestImplementation extends HttpRequestInterface {
   void close() {}
 
   @override
-  Future<ZapResponse<T>> send<T>(ZapRequest<T> request) {
+  Future<Response<T>> send<T>(Request<T> request) {
     throw UnimplementedError();
   }
 }

@@ -5,8 +5,8 @@ import '../definitions.dart';
 import '../models/location/location_information.dart';
 import '../models/zap_config.dart';
 import '../http/utils/http_status.dart';
-import '../zap.dart';
-import '../zap_interface.dart';
+import '../core/zap.dart';
+import '../core/zap_interface.dart';
 
 /// Utility class providing helper methods for interacting with external APIs,
 /// including image fetching, IP address retrieval, and Google Maps distance matrix calculations.

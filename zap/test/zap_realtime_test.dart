@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:zap/zap.dart';
 
 void main() {
-  late ZapRealtime zapRealtime;
+  late Zync zapRealtime;
   late SessionResponse testSession;
 
   setUp(() {
@@ -14,24 +14,24 @@ void main() {
   });
 
   tearDown(() {
-    ZapRealtime.dispose();
+    Zync.dispose();
   });
 
-  group('ZapRealtime Real WebSocket Tests', () {
+  group('Zync Real WebSocket Tests', () {
     // Using echo.websocket.events as a public WebSocket echo server
     const wsUrl = 'wss://echo.websocket.events';
 
     test('connects to WebSocket server with authentication', () async {
       // Arrange
-      final connectCompleter = Completer<ZapRealtimeState>();
+      final connectCompleter = Completer<ZyncState>();
       
-      zapRealtime = ZapRealtime(
-        config: ZapRealtimeConfig(
+      zapRealtime = Zync(
+        config: ZyncConfig(
           url: wsUrl,
           session: testSession,
           useToken: true,
           onStateChanged: (state) {
-            if (state == ZapRealtimeState.connected) {
+            if (state == ZyncState.connected) {
               connectCompleter.complete(state);
             }
           },
@@ -43,22 +43,22 @@ void main() {
 
       // Assert
       final state = await connectCompleter.future;
-      expect(state, ZapRealtimeState.connected);
+      expect(state, ZyncState.connected);
       expect(zapRealtime.isConnected, true);
-      expect(zapRealtime.connectionState, ZapRealtimeState.connected);
+      expect(zapRealtime.connectionState, ZyncState.connected);
     });
 
     test('sends messages with endpoint and data', () async {
       // Arrange
-      final messageCompleter = Completer<ZapRealtimeResponse>();
+      final messageCompleter = Completer<ZyncResponse>();
       final testEndpoint = '/api/test';
       final testData = {
-        'message': 'Hello from ZapRealtime',
+        'message': 'Hello from Zync',
         'timestamp': DateTime.now().millisecondsSinceEpoch,
       };
       
-      zapRealtime = ZapRealtime(
-        config: ZapRealtimeConfig(
+      zapRealtime = Zync(
+        config: ZyncConfig(
           url: wsUrl,
           session: testSession,
           onReceived: (response) {
@@ -88,11 +88,11 @@ void main() {
 
     test('subscribes to topics and receives messages', () async {
       // Arrange
-      final subscriptionCompleter = Completer<ZapRealtimeResponse>();
+      final subscriptionCompleter = Completer<ZyncResponse>();
       const testTopic = '/notifications/user';
       
-      zapRealtime = ZapRealtime(
-        config: ZapRealtimeConfig(
+      zapRealtime = Zync(
+        config: ZyncConfig(
           url: wsUrl,
           session: testSession,
         ),
@@ -131,8 +131,8 @@ void main() {
       const testTopic = '/test/unsubscribe';
       bool messageReceived = false;
       
-      zapRealtime = ZapRealtime(
-        config: ZapRealtimeConfig(
+      zapRealtime = Zync(
+        config: ZyncConfig(
           url: wsUrl,
           session: testSession,
         ),
@@ -175,8 +175,8 @@ void main() {
         'timestamp': DateTime.now().millisecondsSinceEpoch,
       };
       
-      zapRealtime = ZapRealtime(
-        config: ZapRealtimeConfig(
+      zapRealtime = Zync(
+        config: ZyncConfig(
           url: wsUrl,
           session: testSession,
         ),
@@ -205,7 +205,7 @@ void main() {
 
     test('emits events to server', () async {
       // Arrange
-      final emitCompleter = Completer<ZapRealtimeResponse>();
+      final emitCompleter = Completer<ZyncResponse>();
       const eventType = 'user_action';
       final eventData = {
         'action': 'button_click',
@@ -213,8 +213,8 @@ void main() {
         'page': '/dashboard',
       };
       
-      zapRealtime = ZapRealtime(
-        config: ZapRealtimeConfig(
+      zapRealtime = Zync(
+        config: ZyncConfig(
           url: wsUrl,
           session: testSession,
           onReceived: (response) {
@@ -244,16 +244,16 @@ void main() {
 
     test('handles connection state changes', () async {
       // Arrange
-      final stateChanges = <ZapRealtimeState>[];
+      final stateChanges = <ZyncState>[];
       final allStatesCompleter = Completer<void>();
       
-      zapRealtime = ZapRealtime(
-        config: ZapRealtimeConfig(
+      zapRealtime = Zync(
+        config: ZyncConfig(
           url: wsUrl,
           session: testSession,
           onStateChanged: (state) {
             stateChanges.add(state);
-            if (state == ZapRealtimeState.connected) {
+            if (state == ZyncState.connected) {
               allStatesCompleter.complete();
             }
           },
@@ -265,16 +265,16 @@ void main() {
 
       // Assert
       await allStatesCompleter.future;
-      expect(stateChanges, contains(ZapRealtimeState.connecting));
-      expect(stateChanges, contains(ZapRealtimeState.connected));
+      expect(stateChanges, contains(ZyncState.connecting));
+      expect(stateChanges, contains(ZyncState.connected));
     });
 
     test('uses custom auth header configuration', () async {
       // Arrange
-      final messageCompleter = Completer<ZapRealtimeResponse>();
+      final messageCompleter = Completer<ZyncResponse>();
       
-      zapRealtime = ZapRealtime(
-        config: ZapRealtimeConfig(
+      zapRealtime = Zync(
+        config: ZyncConfig(
           url: wsUrl,
           session: testSession,
           authHeaderName: 'X-Auth-Token',
@@ -303,10 +303,10 @@ void main() {
 
     test('uses custom auth header builder', () async {
       // Arrange
-      final messageCompleter = Completer<ZapRealtimeResponse>();
+      final messageCompleter = Completer<ZyncResponse>();
       
-      zapRealtime = ZapRealtime(
-        config: ZapRealtimeConfig(
+      zapRealtime = Zync(
+        config: ZyncConfig(
           url: wsUrl,
           session: testSession,
           customAuthHeaderBuilder: (session) => {
@@ -340,10 +340,10 @@ void main() {
     test('handles dynamic session updates', () async {
       // Arrange
       SessionResponse? currentSession = testSession;
-      final messageCompleter = Completer<ZapRealtimeResponse>();
+      final messageCompleter = Completer<ZyncResponse>();
       
-      zapRealtime = ZapRealtime(
-        config: ZapRealtimeConfig(
+      zapRealtime = Zync(
+        config: ZyncConfig(
           url: wsUrl,
           sessionFactory: () => currentSession!,
           onReceived: (response) {
@@ -376,10 +376,10 @@ void main() {
 
     test('handles ping/pong for connection keepalive', () async {
       // Arrange
-      final pingCompleter = Completer<ZapRealtimeResponse>();
+      final pingCompleter = Completer<ZyncResponse>();
       
-      zapRealtime = ZapRealtime(
-        config: ZapRealtimeConfig(
+      zapRealtime = Zync(
+        config: ZyncConfig(
           url: wsUrl,
           session: testSession,
           pingInterval: Duration(seconds: 1), // Short interval for testing
@@ -408,8 +408,8 @@ void main() {
 
     test('enforces singleton pattern', () async {
       // Arrange
-      zapRealtime = ZapRealtime(
-        config: ZapRealtimeConfig(
+      zapRealtime = Zync(
+        config: ZyncConfig(
           url: wsUrl,
           session: testSession,
         ),
@@ -417,21 +417,21 @@ void main() {
 
       // Act & Assert
       expect(
-        () => ZapRealtime(config: ZapRealtimeConfig(url: wsUrl)),
+        () => Zync(config: ZyncConfig(url: wsUrl)),
         throwsA(isA<Exception>()),
       );
     });
 
     test('handles disconnection and cleanup', () async {
       // Arrange
-      final disconnectCompleter = Completer<ZapRealtimeState>();
+      final disconnectCompleter = Completer<ZyncState>();
       
-      zapRealtime = ZapRealtime(
-        config: ZapRealtimeConfig(
+      zapRealtime = Zync(
+        config: ZyncConfig(
           url: wsUrl,
           session: testSession,
           onStateChanged: (state) {
-            if (state == ZapRealtimeState.disconnected) {
+            if (state == ZyncState.disconnected) {
               disconnectCompleter.complete(state);
             }
           },
@@ -446,16 +446,16 @@ void main() {
 
       // Assert
       final state = await disconnectCompleter.future;
-      expect(state, ZapRealtimeState.disconnected);
+      expect(state, ZyncState.disconnected);
       expect(zapRealtime.isConnected, false);
     });
 
     test('handles error scenarios', () async {
       // Arrange
-      final errorCompleter = Completer<ZapRealtimeErrorResponse>();
+      final errorCompleter = Completer<ZyncErrorResponse>();
       
-      zapRealtime = ZapRealtime(
-        config: ZapRealtimeConfig(
+      zapRealtime = Zync(
+        config: ZyncConfig(
           url: 'wss://invalid-websocket-url-12345.com', // Invalid URL
           session: testSession,
           maxReconnectAttempts: 1, // Limit reconnection attempts

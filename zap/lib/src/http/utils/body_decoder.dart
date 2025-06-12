@@ -5,7 +5,7 @@ import 'package:tracing/tracing.dart';
 import '../request/request.dart';
 import 'http_status.dart';
 
-T? bodyDecoded<T>(ZapRequest<T> request, String stringBody, String? mimeType, HttpStatus status) {
+T? bodyDecoded<T>(Request<T> request, String stringBody, String? mimeType, HttpStatus status) {
   T? body;
   dynamic bodyToDecode;
 

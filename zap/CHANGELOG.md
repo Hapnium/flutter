@@ -3,10 +3,10 @@
 - Initial release of the Zap networking library for Flutter
 - Core HTTP client (`Zap`) with support for GET, POST, PUT, PATCH, DELETE methods
 - Request cancellation support via `CancelToken`
-- Enhanced HTTP client (`ZapPulse`) with authentication and session management
-- Singleton pattern implementation for `ZapPulse` for app-wide access
+- Enhanced HTTP client (`Flux`) with authentication and session management
+- Singleton pattern implementation for `Flux` for app-wide access
 - WebSocket client (`ZapSocket`) with event-based callbacks
-- Advanced WebSocket client (`ZapRealtime`) with subscription and event management
+- Advanced WebSocket client (`Zync`) with subscription and event management
 - Automatic reconnection and connection state management for WebSockets
 - Utility functions (`ZapUtils`) for common networking tasks:
 
@@ -24,7 +24,7 @@
 
 ## 0.0.2
 
-- Fixed session refresh issue in `ZapPulse`
+- Fixed session refresh issue in `Flux`
 - Added support for custom authentication header builder
 - Added support for custom session factory
 - Added support for custom session callback
@@ -39,25 +39,25 @@
 - Added support for custom response body decoding
 - Added support for custom response body encoding
 - Added support for custom response body parsing
-- Modified `ZapPulse` to support custom response body parsing
+- Modified `Flux` to support custom response body parsing
 - Modified `HttpStatus` to support custom status codes
 - Added `ZapParserConfig` to support custom response body parsing
 
 ## 0.0.6
 
 - Added `ZapPage` to support paginated responses
-- Added `ZapResponseParser` to support custom response body parsing
-- Added `ZapResponseParser.forList` to support list responses
-- Added `ZapResponseParser.forPaginated` to support paginated responses
-- Added `ZapResponseParser.parseAsList` to support list responses
-- Added `ZapResponseParser.parseAsPaginated` to support paginated responses
-- Added `ZapResponseParser.parseAsSingle` to support single responses
+- Added `ResponseParser` to support custom response body parsing
+- Added `ResponseParser.forList` to support list responses
+- Added `ResponseParser.forPaginated` to support paginated responses
+- Added `ResponseParser.parseAsList` to support list responses
+- Added `ResponseParser.parseAsPaginated` to support paginated responses
+- Added `ResponseParser.parseAsSingle` to support single responses
 
 ## 0.0.7
 
-- Added `ZapResponseParser.parseAsSingle` to support single responses
-- Handled exceptions in `Zap` and `ZapPulse`
-- Configured `ZapResponse`, `ZapRequest` and `HttpStatus` to support json decoding and more info
+- Added `ResponseParser.parseAsSingle` to support single responses
+- Handled exceptions in `Zap` and `Flux`
+- Configured `Response`, `Request` and `HttpStatus` to support json decoding and more info
 
 ## 0.0.8
 
@@ -66,10 +66,28 @@
 
 ## 0.0.9
 
-- Added logging to request headers in `ZapPulse`
-- Fixed auth headers in `ZapPulse`
+- Added logging to request headers in `Flux`
+- Fixed auth headers in `Flux`
 
 ## 0.1.0
 
-- Fixed default headers in `Zap` and `ZapPulse`
+- Fixed default headers in `Zap` and `Flux`
 
+## 0.1.1
+
+- Added disposeOnCompleted in `FluxConfig`
+- Added useSingleInstance in `FluxConfig`
+- Renamed `ZapPulseConfig` to `FluxConfig`
+- Renamed `ZapPulse` to `Flux`
+- Renamed `ZapPulseInterface` to `FluxInterface`
+- Renamed `ZapRealtime` to `Zync`
+- Renamed `ZapRealtimeInterface` to `ZyncInterface`
+- Renamed `ZapRealtimeConfig` to `ZyncConfig`
+- Renamed `ZapRealtimeState` to `ZyncState`
+- Renamed `ZapRealtimeErrorResponse` to `ZyncErrorResponse`
+- Renamed `ZapRealtimeResponse` to `ZyncResponse`
+- Renamed `ZapResponse` to `Response`
+- Renamed `ZapRequest` to `Request`
+- Renamed `ZapResponseParser` to `ResponseParser`
+- Renamed `ZapCancelToken` to `CancelToken`
+- Modified `Flux` to use either its own design principles on authentication and authorization or the design principles of [Zap]. It depends on the `useSingleInstance` parameter to decide on which design principles to use.

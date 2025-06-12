@@ -1,14 +1,14 @@
 import 'http/utils/http_status.dart';
-import 'enums/zap_realtime_state.dart';
+import 'enums/zync_state.dart';
 import 'models/session_response.dart';
-import 'models/zap_realtime_response.dart';
+import 'models/zync_response.dart';
 
 /// Signature for a callback function that handles responses from a socket.
 ///
 /// The `RealtimeCallback` function receives a single argument,
-/// a `ZapRealtimeResponse` object, which contains information about the
+/// a `ZyncResponse` object, which contains information about the
 /// received socket message.
-typedef RealtimeCallback = void Function(ZapRealtimeResponse);
+typedef RealtimeCallback = void Function(ZyncResponse);
 
 /// Signature for a callback function that handles errors.
 /// 
@@ -20,9 +20,9 @@ typedef ErrorCallback = void Function(String where, dynamic error);
 /// Signature for a callback function that handles connection state changes.
 /// 
 /// The `StateCallback` function receives a single argument,
-/// a `ZapRealtimeState` object, which contains information about the
+/// a `ZyncState` object, which contains information about the
 /// connection state.
-typedef StateCallback = void Function(ZapRealtimeState state);
+typedef StateCallback = void Function(ZyncState state);
 
 /// Signature for a callback function that handles session events.
 ///

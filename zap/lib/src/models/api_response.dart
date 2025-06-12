@@ -1,4 +1,4 @@
-import 'zap_response_parser.dart';
+import 'response_parser.dart';
 
 /// A generic class to handle API responses. This class encapsulates the
 /// structure of a standard API response, including a status, code, message,

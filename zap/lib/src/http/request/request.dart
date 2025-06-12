@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import "../../definitions.dart";
-import '../client/zap_client.dart' show ZapResponseInterceptor;
+import '../client/zap_client.dart' show ResponseInterceptor;
 import '../multipart/form_data.dart';
 
 /// Represents a network request sent through the Zap client.
@@ -13,7 +13,7 @@ import '../multipart/form_data.dart';
 /// This class holds all configuration and data associated with an HTTP request,
 /// such as method, headers, body, redirect behavior, files, and more. It also
 /// supports response decoding and intercepting for flexible response handling.
-class ZapRequest<T> {
+class Request<T> {
   /// The HTTP headers attached to this request.
   ///
   /// Example: `{'Content-Type': 'application/json', 'Authorization': 'Bearer ...'}`
@@ -32,7 +32,7 @@ class ZapRequest<T> {
   /// An optional interceptor to inspect or modify the response before it's returned.
   ///
   /// This is useful for adding logging, error handling, or transforming the response.
-  final ZapResponseInterceptor<T>? responseInterceptor;
+  final ResponseInterceptor<T>? responseInterceptor;
 
   /// The HTTP method of the request.
   ///
@@ -69,10 +69,10 @@ class ZapRequest<T> {
   /// Used for `multipart/form-data` uploads.
   final FormData? files;
 
-  /// Internal constructor for initializing a [ZapRequest].
+  /// Internal constructor for initializing a [Request].
   ///
   /// Use the factory constructor for external instantiation.
-  const ZapRequest._({
+  const Request._({
     required this.method,
     required this.bodyBytes,
     required this.url,
@@ -86,7 +86,7 @@ class ZapRequest<T> {
     this.responseInterceptor,
   });
 
-  /// Creates a new instance of [ZapRequest].
+  /// Creates a new instance of [Request].
   ///
   /// This factory constructor simplifies request creation with default behavior and
   /// allows configuration of redirection, persistent connections, file uploads, etc.
@@ -104,7 +104,7 @@ class ZapRequest<T> {
   /// - [persistentConnection]: Whether to reuse TCP connection (default: `true`).
   /// - [decoder]: A custom response decoder to parse the response into [T].
   /// - [responseInterceptor]: Optional interceptor to modify/inspect the response.
-  factory ZapRequest({
+  factory Request({
     required Uri url,
     required String method,
     required Map<String, String> headers,
@@ -115,12 +115,12 @@ class ZapRequest<T> {
     FormData? files,
     bool persistentConnection = true,
     ResponseDecoder<T>? decoder,
-    ZapResponseInterceptor<T>? responseInterceptor,
+    ResponseInterceptor<T>? responseInterceptor,
   }) {
     if (followRedirects) {
       assert(maxRedirects > 0, "maxRedirects must be > 0 when followRedirects is true.");
     }
-    return ZapRequest._(
+    return Request._(
       url: url,
       method: method,
       bodyBytes: bodyBytes ??= <int>[].toStream(),
@@ -135,7 +135,7 @@ class ZapRequest<T> {
     );
   }
 
-  /// Creates a copy of this [ZapRequest] with modified fields.
+  /// Creates a copy of this [Request] with modified fields.
   ///
   /// You can override any field. If [appendHeader] is `true`, the new [headers]
   /// will be merged with the existing headers.
@@ -154,7 +154,7 @@ class ZapRequest<T> {
   /// - [decoder]: Override for response decoder.
   /// - [responseInterceptor]: Override for response interceptor.
   /// - [appendHeader]: If `true`, new headers are merged into the original headers.
-  ZapRequest<T> copyWith({
+  Request<T> copyWith({
     Uri? url,
     String? method,
     Map<String, String>? headers,
@@ -166,14 +166,14 @@ class ZapRequest<T> {
     bool? persistentConnection,
     ResponseDecoder<T>? decoder,
     bool appendHeader = true,
-    ZapResponseInterceptor<T>? responseInterceptor,
+    ResponseInterceptor<T>? responseInterceptor,
   }) {
     // Merge headers if required
     if (appendHeader && headers != null) {
       headers.addAll(this.headers);
     }
 
-    return ZapRequest<T>._(
+    return Request<T>._(
       url: url ?? this.url,
       method: method ?? this.method,
       bodyBytes: bodyBytes ?? this.bodyBytes,

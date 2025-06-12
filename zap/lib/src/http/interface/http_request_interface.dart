@@ -3,10 +3,10 @@ import '../response/response.dart';
 
 /// Abstract interface of [HttpRequestImplementation].
 abstract class HttpRequestInterface {
-  /// Sends an HTTP [ZapRequest].
-  Future<ZapResponse<T>> send<T>(ZapRequest<T> request);
+  /// Sends an HTTP [Request].
+  Future<Response<T>> send<T>(Request<T> request);
 
-  /// Closes the [ZapRequest] and cleans up any resources associated with it.
+  /// Closes the [Request] and cleans up any resources associated with it.
   void close();
 
   /// Gets and sets the timeout.

@@ -1,13 +1,13 @@
 // ignore_for_file: constant_identifier_names
 
-/// The [ZapRealtimeState] enum defines the different states in which the WebSocket
+/// The [ZyncState] enum defines the different states in which the WebSocket
 /// platform can operate. This enum is useful for managing and tracking the various
 /// phases of the WebSocket lifecycle, including connection, subscription, message
 /// sending, and disconnection.
 ///
 /// It helps configure environment-specific behaviors, API endpoints, and
 /// real-time features depending on the current state of the WebSocket connection.
-enum ZapRealtimeState {
+enum ZyncState {
   /// Represents the state when the WebSocket has not attempted to establish a connection.
   /// The WebSocket is still not ready.
   dormant,

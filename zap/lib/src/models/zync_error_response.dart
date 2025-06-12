@@ -1,5 +1,5 @@
 /// Represents an error response from the WebSocket connection.
-class ZapRealtimeErrorResponse {
+class ZyncErrorResponse {
   /// Where the error occurred (e.g., "Connection Error", "Send Error").
   final String where;
   
@@ -9,7 +9,7 @@ class ZapRealtimeErrorResponse {
   /// Timestamp when the error occurred.
   final DateTime timestamp;
 
-  ZapRealtimeErrorResponse({
+  ZyncErrorResponse({
     required this.where,
     required this.error,
   }) : timestamp = DateTime.now();
@@ -21,5 +21,5 @@ class ZapRealtimeErrorResponse {
   };
 
   @override
-  String toString() => 'ZapRealtimeError[$where]: $error';
+  String toString() => 'ZyncError[$where]: $error';
 }

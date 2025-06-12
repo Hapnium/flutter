@@ -1,5 +1,5 @@
 /// Represents a message response from the WebSocket connection.
-class ZapRealtimeResponse {
+class ZyncResponse {
   /// The event type or command.
   final String? type;
   
@@ -21,7 +21,7 @@ class ZapRealtimeResponse {
   /// Timestamp when the message was received.
   final DateTime timestamp;
 
-  ZapRealtimeResponse({
+  ZyncResponse({
     this.type,
     this.headers,
     this.body,
@@ -41,5 +41,5 @@ class ZapRealtimeResponse {
   };
 
   @override
-  String toString() => 'ZapRealtimeResponse[${type ?? 'unknown'}]: $data';
+  String toString() => 'ZyncResponse[${type ?? 'unknown'}]: $data';
 }

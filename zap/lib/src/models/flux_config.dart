@@ -1,12 +1,18 @@
 import '../definitions.dart';
 import 'zap_config.dart';
 
-/// The [ZapPulseConfig] class holds configuration options for the ZapPulse platform,
+/// The [FluxConfig] class holds configuration options for the Flux platform,
 /// allowing customization of various behaviors such as token usage, logging, and error handling.
 ///
-/// This class provides flexible options that control how ZapPulse interacts with different
+/// This class provides flexible options that control how Flux interacts with different
 /// environments (like development or production) and handles sessions and failures.
-class ZapPulseConfig {
+class FluxConfig {
+  /// - **useSingleInstance**: Determines if a single instance of [Zap] should be used. Default is `true`.
+  final bool useSingleInstance;
+
+  /// - **disposeOnCompleted**: Determines if the [Flux] instance should be disposed after the request is completed. Default is `true`.
+  final bool disposeOnCompleted;
+
   /// - **showErrorLog**: Determines if error logs should be displayed during operations. Default is `false`.
   final bool showErrorLogs;
 
@@ -28,6 +34,8 @@ class ZapPulseConfig {
   final AsyncSessionCallback? onSessionRefreshed;
 
   /// - **onRemoveRoute**: A callback function to execute when removing routes. Default is `null`.
+  /// 
+  /// This is used to remove the current route when the request hits an unauthorized exception.
   final Callback? onRemoveRoute;
 
   /// - **headers**: Additional headers to send to the request processor. Default is `null`.
@@ -65,7 +73,9 @@ class ZapPulseConfig {
   /// ```
   final HeaderBuilder? customAuthHeaderBuilder;
 
-  ZapPulseConfig({
+  FluxConfig({
+    this.disposeOnCompleted = false,
+    this.useSingleInstance = true,
     this.onSessionRefreshed,
     this.showErrorLogs = false,
     this.zapConfig,
@@ -81,9 +91,11 @@ class ZapPulseConfig {
     this.customAuthHeaderBuilder,
   });
 
-  /// Creates a new [ZapPulseConfig] instance by copying existing values and
+  /// Creates a new [FluxConfig] instance by copying existing values and
   /// overriding specific fields with new values, if provided.
-  ZapPulseConfig copyWith({
+  FluxConfig copyWith({
+    bool? disposeOnCompleted,
+    bool? useSingleInstance,
     bool? showErrorLogs,
     bool? showResponseLogs,
     bool? showRequestLogs,
@@ -100,7 +112,9 @@ class ZapPulseConfig {
     String? tokenPrefix,
     HeaderBuilder? customAuthHeaderBuilder,
   }) {
-    return ZapPulseConfig(
+    return FluxConfig(
+      disposeOnCompleted: disposeOnCompleted ?? this.disposeOnCompleted,
+      useSingleInstance: useSingleInstance ?? this.useSingleInstance,
       showErrorLogs: showErrorLogs ?? this.showErrorLogs,
       showRequestLogs: showRequestLogs ?? this.showRequestLogs,
       showResponseLogs: showResponseLogs ?? this.showResponseLogs,

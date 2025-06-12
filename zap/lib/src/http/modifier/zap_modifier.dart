@@ -4,10 +4,10 @@ import '../request/request.dart';
 import '../response/response.dart';
 
 /// A request modifier is a function that will be called before the request is sent
-typedef ZapRequestModifier<T> = FutureOr<ZapRequest<T>> Function(ZapRequest<T?> request);
+typedef RequestModifier<T> = FutureOr<Request<T>> Function(Request<T?> request);
 
 /// A response modifier is a function that will be called after the response is received
-typedef ZapResponseModifier<T> = FutureOr Function(ZapRequest<T?> request, ZapResponse<T?> response);
+typedef ResponseModifier<T> = FutureOr Function(Request<T?> request, Response<T?> response);
 
 /// A class to modify the request and response
 /// 
@@ -22,25 +22,25 @@ typedef ZapResponseModifier<T> = FutureOr Function(ZapRequest<T?> request, ZapRe
 /// });
 /// ```
 class ZapModifier<S> {
-  final _requestModifiers = <ZapRequestModifier>[];
-  final _responseModifiers = <ZapResponseModifier>[];
+  final _requestModifiers = <RequestModifier>[];
+  final _responseModifiers = <ResponseModifier>[];
 
   /// The authenticator is a request modifier that will be called to authenticate the request
-  ZapRequestModifier? authenticator;
+  RequestModifier? authenticator;
 
   /// Add a request modifier to the modifier
   /// 
   /// Args:
   ///   interceptor: The request modifier to add
-  void addRequestModifier<T>(ZapRequestModifier<T> interceptor) {
-    _requestModifiers.add(interceptor as ZapRequestModifier);
+  void addRequestModifier<T>(RequestModifier<T> interceptor) {
+    _requestModifiers.add(interceptor as RequestModifier);
   }
 
   /// Remove a request modifier from the modifier
   /// 
   /// Args:
   ///   interceptor: The request modifier to remove
-  void removeRequestModifier<T>(ZapRequestModifier<T> interceptor) {
+  void removeRequestModifier<T>(RequestModifier<T> interceptor) {
     _requestModifiers.remove(interceptor);
   }
 
@@ -48,15 +48,15 @@ class ZapModifier<S> {
   /// 
   /// Args:
   ///   interceptor: The response modifier to add
-  void addResponseModifier<T>(ZapResponseModifier<T> interceptor) {
-    _responseModifiers.add(interceptor as ZapResponseModifier);
+  void addResponseModifier<T>(ResponseModifier<T> interceptor) {
+    _responseModifiers.add(interceptor as ResponseModifier);
   }
 
   /// Remove a response modifier from the modifier
   /// 
   /// Args:
   ///   interceptor: The response modifier to remove
-  void removeResponseModifier<T>(ZapResponseModifier<T> interceptor) {
+  void removeResponseModifier<T>(ResponseModifier<T> interceptor) {
     _responseModifiers.remove(interceptor);
   }
 
@@ -67,11 +67,11 @@ class ZapModifier<S> {
   /// 
   /// Returns:
   ///   The modified request
-  Future<ZapRequest<T>> modifyRequest<T>(ZapRequest<T> request) async {
+  Future<Request<T>> modifyRequest<T>(Request<T> request) async {
     var newRequest = request;
     if (_requestModifiers.isNotEmpty) {
       for (var interceptor in _requestModifiers) {
-        newRequest = await interceptor(newRequest) as ZapRequest<T>;
+        newRequest = await interceptor(newRequest) as Request<T>;
       }
     }
 
@@ -86,11 +86,11 @@ class ZapModifier<S> {
   /// 
   /// Returns:
   ///   The modified response
-  Future<ZapResponse<T>> modifyResponse<T>(ZapRequest<T> request, ZapResponse<T> response) async {
+  Future<Response<T>> modifyResponse<T>(Request<T> request, Response<T> response) async {
     var newResponse = response;
     if (_responseModifiers.isNotEmpty) {
       for (var interceptor in _responseModifiers) {
-        newResponse = await interceptor(request, newResponse) as ZapResponse<T>;
+        newResponse = await interceptor(request, newResponse) as Response<T>;
       }
     }
 

@@ -11,7 +11,7 @@ import '../utils/http_status.dart';
 ///
 /// Typical usage:
 /// ```dart
-/// final response = ZapResponse<User>(
+/// final response = Response<User>(
 ///   status: HttpStatus.ok,
 ///   body: User.fromJson(json),
 ///   headers: {...},
@@ -20,11 +20,11 @@ import '../utils/http_status.dart';
 ///   // Use response.body
 /// }
 /// ```
-class ZapResponse<T> {
+class Response<T> {
   /// The original request that triggered this response.
   ///
   /// This includes request details like the HTTP method, URL, headers, and body.
-  final ZapRequest? request;
+  final Request? request;
 
   /// The HTTP response headers returned by the server.
   ///
@@ -62,10 +62,10 @@ class ZapResponse<T> {
   /// This is usually the result of applying a response parser on the raw response body.
   final T? body;
 
-  /// Constructs a new [ZapResponse] with the given fields.
+  /// Constructs a new [Response] with the given fields.
   ///
   /// If [message] is not provided, it will default to the status description.
-  ZapResponse({
+  Response({
     this.request,
     required this.status,
     this.bodyBytes,
@@ -80,8 +80,8 @@ class ZapResponse<T> {
   ///
   /// This is useful for modifying or updating specific fields without
   /// reconstructing the entire response object.
-  ZapResponse<T> copyWith({
-    ZapRequest? request,
+  Response<T> copyWith({
+    Request? request,
     HttpStatus? status,
     BodyByteStream? bodyBytes,
     String? bodyString,
@@ -89,7 +89,7 @@ class ZapResponse<T> {
     T? body,
     ZapProvider? provider,
   }) {
-    return ZapResponse<T>(
+    return Response<T>(
       request: request ?? this.request,
       status: status ?? this.status,
       bodyBytes: bodyBytes ?? this.bodyBytes,

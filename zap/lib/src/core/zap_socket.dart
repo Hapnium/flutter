@@ -4,7 +4,7 @@
 // - If neither is available, it falls back to 'socket_stub.dart', which throws errors.
 //
 // This allows ZapSocket to work cross-platform without manually switching imports.
-import 'socket/stub_socket.dart'
+import '../socket/stub_socket.dart'
     if (dart.library.js_interop) 'socket/html_socket.dart'
     if (dart.library.io) 'socket/io_socket.dart';
 

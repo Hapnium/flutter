@@ -5,7 +5,7 @@ import '../response/response.dart';
 import '../utils/body_decoder.dart';
 
 /// A handler for [MockHttpRequest]
-typedef MockHttpRequestHandler = Future<ZapResponse> Function(ZapRequest request);
+typedef MockHttpRequestHandler = Future<Response> Function(Request request);
 
 /// A mock implementation of [HttpRequestInterface]
 /// 
@@ -14,12 +14,12 @@ class MockHttpRequest extends HttpRequestInterface {
   /// The handler for than transforms request on response
   final MockHttpRequestHandler _handler;
 
-  /// Creates a [MockHttpRequest] with a handler that receives [ZapRequest]s and sends
-  /// [ZapResponse]s.
+  /// Creates a [MockHttpRequest] with a handler that receives [Request]s and sends
+  /// [Response]s.
   MockHttpRequest(this._handler);
 
   @override
-  Future<ZapResponse<T>> send<T>(ZapRequest<T> request) async {
+  Future<Response<T>> send<T>(Request<T> request) async {
     var requestBody = await request.bodyBytes.toBytes();
     var bodyBytes = requestBody.toStream();
 
@@ -38,7 +38,7 @@ class MockHttpRequest extends HttpRequestInterface {
       response.status
     );
 
-    return ZapResponse(
+    return Response(
       headers: response.headers,
       request: request,
       status: response.status,

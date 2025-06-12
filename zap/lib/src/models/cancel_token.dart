@@ -9,7 +9,7 @@ import '../exceptions/exceptions.dart';
 /// 
 /// Example usage:
 /// ```dart
-/// final cancelToken = ZapCancelToken();
+/// final cancelToken = CancelToken();
 /// 
 /// // Start a request
 /// final future = zap.get<String>(
@@ -20,7 +20,7 @@ import '../exceptions/exceptions.dart';
 /// // Cancel the request if needed
 /// cancelToken.cancel('User navigated away');
 /// ```
-class ZapCancelToken {
+class CancelToken {
   final Completer<String> _completer = Completer<String>();
   bool _isCancelled = false;
   String? _reason;

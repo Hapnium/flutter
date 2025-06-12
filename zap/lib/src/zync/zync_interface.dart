@@ -1,38 +1,38 @@
 import 'dart:async';
 
 import '../definitions.dart';
-import '../enums/zap_realtime_state.dart';
-import '../models/zap_realtime_error_response.dart';
-import '../models/zap_realtime_response.dart';
+import '../enums/zync_state.dart';
+import '../models/zync_error_response.dart';
+import '../models/zync_response.dart';
 
-/// Abstract interface defining the contract for ZapRealtime WebSocket operations.
+/// Abstract interface defining the contract for Zync WebSocket operations.
 /// 
 /// This interface ensures consistent method signatures for real-time communication
 /// including connection management, message sending, and event handling.
-abstract class ZapRealtimeInterface {
+abstract class ZyncInterface {
   /// Whether the WebSocket connection is currently active and ready.
   bool get isConnected;
 
   /// Current connection state.
-  ZapRealtimeState get connectionState;
+  ZyncState get connectionState;
 
   /// Stream controller for connection state changes.
-  StreamController<ZapRealtimeState> get connectionStateController;
+  StreamController<ZyncState> get connectionStateController;
 
   /// Stream controller for error events.
-  StreamController<ZapRealtimeErrorResponse> get errorController;
+  StreamController<ZyncErrorResponse> get errorController;
 
   /// Stream controller for incoming data/messages.
-  StreamController<ZapRealtimeResponse> get dataController;
+  StreamController<ZyncResponse> get dataController;
 
   /// Stream for monitoring connection state changes.
-  Stream<ZapRealtimeState> get connectionStateStream;
+  Stream<ZyncState> get connectionStateStream;
 
   /// Stream for processing incoming WebSocket data.
-  Stream<ZapRealtimeResponse> get dataStream;
+  Stream<ZyncResponse> get dataStream;
 
   /// Stream for processing WebSocket errors.
-  Stream<ZapRealtimeErrorResponse> get errorStream;
+  Stream<ZyncErrorResponse> get errorStream;
 
   /// Connects to the WebSocket server.
   /// 
@@ -54,7 +54,7 @@ abstract class ZapRealtimeInterface {
   /// 
   /// - [topic]: The topic or channel to subscribe to
   /// - [onMessage]: Callback for when messages are received on this topic
-  void subscribe({required String topic, required void Function(ZapRealtimeResponse) onMessage});
+  void subscribe({required String topic, required void Function(ZyncResponse) onMessage});
 
   /// Unsubscribes from a specific topic/channel.
   /// 

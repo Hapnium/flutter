@@ -1,14 +1,14 @@
 import '../definitions.dart';
 import '../models/api_response.dart';
-import '../models/zap_cancel_token.dart';
+import '../models/cancel_token.dart';
 import '../http/response/response.dart';
-import '../models/zap_response_parser.dart';
+import '../models/response_parser.dart';
 
-/// Interface defining the contract for ZapPulse HTTP operations.
+/// Interface defining the contract for Flux HTTP operations.
 /// 
 /// This interface ensures consistent method signatures across different
-/// implementations of the ZapPulse client.
-abstract class ZapPulseInterface {
+/// implementations of the Flux client.
+abstract class FluxInterface {
   /// Performs a GET request.
   /// 
   /// - [endpoint]: The API endpoint to call
@@ -18,8 +18,8 @@ abstract class ZapPulseInterface {
   /// - [parser]: Optional function to parse the response data to type T
   /// - [token]: Optional cancellation token for request cancellation
   /// 
-  /// Returns a [ZapResponse] containing an [ApiResponse] with parsed data of type T.
-  Future<ZapResponse<ApiResponse<T>>> get<T>({required String endpoint, RequestParam? query, bool useAuth = true, ZapResponseParser<T>? parser, ZapCancelToken? token});
+  /// Returns a [Response] containing an [ApiResponse] with parsed data of type T.
+  Future<Response<ApiResponse<T>>> get<T>({required String endpoint, RequestParam? query, bool useAuth = true, ResponseParser<T>? parser, CancelToken? token});
 
   /// Performs a POST request.
   /// 
@@ -31,15 +31,15 @@ abstract class ZapPulseInterface {
   /// - [parser]: Optional function to parse the response data to type T
   /// - [token]: Optional cancellation token for request cancellation
   /// 
-  /// Returns a [ZapResponse] containing an [ApiResponse] with parsed data of type T.
-  Future<ZapResponse<ApiResponse<T>>> post<T>({
+  /// Returns a [Response] containing an [ApiResponse] with parsed data of type T.
+  Future<Response<ApiResponse<T>>> post<T>({
     required String endpoint,
     RequestBody body,
     RequestParam? query,
     Progress? onProgress,
     bool useAuth = true,
-    ZapResponseParser<T>? parser,
-    ZapCancelToken? token,
+    ResponseParser<T>? parser,
+    CancelToken? token,
   });
 
   /// Performs a PUT request.
@@ -52,15 +52,15 @@ abstract class ZapPulseInterface {
   /// - [parser]: Optional function to parse the response data to type T
   /// - [token]: Optional cancellation token for request cancellation
   /// 
-  /// Returns a [ZapResponse] containing an [ApiResponse] with parsed data of type T.
-  Future<ZapResponse<ApiResponse<T>>> put<T>({
+  /// Returns a [Response] containing an [ApiResponse] with parsed data of type T.
+  Future<Response<ApiResponse<T>>> put<T>({
     required String endpoint,
     RequestBody body,
     RequestParam? query,
     Progress? onProgress,
     bool useAuth = true,
-    ZapResponseParser<T>? parser,
-    ZapCancelToken? token,
+    ResponseParser<T>? parser,
+    CancelToken? token,
   });
 
   /// Performs a PATCH request.
@@ -73,15 +73,15 @@ abstract class ZapPulseInterface {
   /// - [parser]: Optional function to parse the response data to type T
   /// - [token]: Optional cancellation token for request cancellation
   /// 
-  /// Returns a [ZapResponse] containing an [ApiResponse] with parsed data of type T.
-  Future<ZapResponse<ApiResponse<T>>> patch<T>({
+  /// Returns a [Response] containing an [ApiResponse] with parsed data of type T.
+  Future<Response<ApiResponse<T>>> patch<T>({
     required String endpoint,
     RequestBody body,
     RequestParam? query,
     Progress? onProgress,
     bool useAuth = true,
-    ZapResponseParser<T>? parser,
-    ZapCancelToken? token,
+    ResponseParser<T>? parser,
+    CancelToken? token,
   });
 
   /// Performs a DELETE request.
@@ -93,6 +93,6 @@ abstract class ZapPulseInterface {
   /// - [parser]: Optional function to parse the response data to type T
   /// - [token]: Optional cancellation token for request cancellation
   /// 
-  /// Returns a [ZapResponse] containing an [ApiResponse] with parsed data of type T.
-  Future<ZapResponse<ApiResponse<T>>> delete<T>({required String endpoint, RequestParam? query, RequestBody body, bool useAuth = true, ZapResponseParser<T>? parser, ZapCancelToken? token  });
+  /// Returns a [Response] containing an [ApiResponse] with parsed data of type T.
+  Future<Response<ApiResponse<T>>> delete<T>({required String endpoint, RequestParam? query, RequestBody body, bool useAuth = true, ResponseParser<T>? parser, CancelToken? token  });
 }

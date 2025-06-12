@@ -29,7 +29,7 @@ class HttpRequestImplementation implements HttpRequestInterface {
   final bool withCredentials;
 
   @override
-  Future<ZapResponse<T>> send<T>(ZapRequest<T> request) async {
+  Future<Response<T>> send<T>(Request<T> request) async {
     if (_isClosed) {
       throw ZapException('HTTP request failed. Client is already closed.', request.url);
     }
@@ -49,7 +49,7 @@ class HttpRequestImplementation implements HttpRequestInterface {
 
     request.headers.forEach((key, value) => xhr.setRequestHeader(key, value));
 
-    var completer = Completer<ZapResponse<T>>();
+    var completer = Completer<Response<T>>();
 
     unawaited(xhr.onLoad.first.then((_) async {
       final bodyBytes = (xhr.response as JSArrayBuffer).toDart.asUint8List().toStream();
@@ -63,7 +63,7 @@ class HttpRequestImplementation implements HttpRequestInterface {
 
       final body = bodyDecoded<T>(request, stringBody, contentType, HttpStatus.fromCode(xhr.status));
 
-      final response = ZapResponse<T>(
+      final response = Response<T>(
         bodyBytes: bodyBytes,
         status: HttpStatus.fromCode(xhr.status),
         message: xhr.statusText,

@@ -4,16 +4,16 @@ import 'dart:convert';
 import 'package:tracing/tracing.dart' show console;
 
 import '../definitions.dart';
-import '../enums/zap_realtime_state.dart';
+import '../enums/zync_state.dart';
 import '../exceptions/exceptions.dart';
 import '../models/session_response.dart';
-import '../models/zap_realtime_config.dart';
-import '../models/zap_realtime_error_response.dart';
-import '../models/zap_realtime_response.dart';
-import '../zap_socket.dart';
-import 'zap_realtime_interface.dart';
+import '../models/zync_config.dart';
+import '../models/zync_error_response.dart';
+import '../models/zync_response.dart';
+import '../core/zap_socket.dart';
+import 'zync_interface.dart';
 
-/// ZapRealtime is a high-level WebSocket client wrapper that provides real-time
+/// Zync is a high-level WebSocket client wrapper that provides real-time
 /// communication capabilities with authentication, session management, and
 /// standardized message handling.
 /// 
@@ -35,7 +35,7 @@ import 'zap_realtime_interface.dart';
 /// Example usage:
 /// ```dart
 /// // Standard Bearer token
-/// final config = ZapRealtimeConfig(
+/// final config = ZyncConfig(
 ///   url: 'wss://api.example.com/ws',
 ///   session: currentSession,
 ///   authHeaderName: 'Authorization',
@@ -43,7 +43,7 @@ import 'zap_realtime_interface.dart';
 /// );
 /// 
 /// // Google API style
-/// final googleConfig = ZapRealtimeConfig(
+/// final googleConfig = ZyncConfig(
 ///   url: 'wss://api.google.com/ws',
 ///   session: currentSession,
 ///   authHeaderName: 'Authorization',
@@ -51,7 +51,7 @@ import 'zap_realtime_interface.dart';
 /// );
 /// 
 /// // Custom authentication headers
-/// final customConfig = ZapRealtimeConfig(
+/// final customConfig = ZyncConfig(
 ///   url: 'wss://api.custom.com/ws',
 ///   session: currentSession,
 ///   customAuthHeaderBuilder: (session) => {
@@ -61,41 +61,41 @@ import 'zap_realtime_interface.dart';
 ///   },
 /// );
 /// 
-/// final realtime = ZapRealtime(config: config);
+/// final realtime = Zync(config: config);
 /// await realtime.connect();
 /// ```
-class ZapRealtime implements ZapRealtimeInterface {
-  /// Configuration object containing all settings for the ZapRealtime client.
-  final ZapRealtimeConfig config;
+class Zync implements ZyncInterface {
+  /// Configuration object containing all settings for the Zync client.
+  final ZyncConfig config;
 
   /// Private constructor to enforce singleton pattern
-  ZapRealtime._internal({required this.config});
+  Zync._internal({required this.config});
 
   /// Static instance holder for singleton pattern
-  static ZapRealtime? _instance;
+  static Zync? _instance;
 
   /// Factory constructor that implements singleton pattern.
   /// 
   /// Throws [ZapException] if an instance already exists with different configuration.
-  factory ZapRealtime({required ZapRealtimeConfig config}) {
+  factory Zync({required ZyncConfig config}) {
     if (_instance != null) {
       throw ZapException(
-        "Multiple instances of ZapRealtime detected. Only one instance is allowed. "
-        "Use ZapRealtime.instance to access the existing instance or call ZapRealtime.dispose() "
+        "Multiple instances of Zync detected. Only one instance is allowed. "
+        "Use Zync.instance to access the existing instance or call Zync.dispose() "
         "before creating a new instance."
       );
     }
-    _instance = ZapRealtime._internal(config: config);
+    _instance = Zync._internal(config: config);
     return _instance!;
   }
 
   /// Gets the current singleton instance.
   /// 
   /// Throws [ZapException] if no instance has been created yet.
-  static ZapRealtime get instance {
+  static Zync get instance {
     if (_instance == null) {
       throw ZapException(
-        "No ZapRealtime instance found. Create an instance first using ZapRealtime(config: config)."
+        "No Zync instance found. Create an instance first using Zync(config: config)."
       );
     }
     return _instance!;
@@ -111,10 +111,10 @@ class ZapRealtime implements ZapRealtimeInterface {
   ZapSocket? _socket;
 
   /// Current connection state
-  ZapRealtimeState _connectionState = ZapRealtimeState.dormant;
+  ZyncState _connectionState = ZyncState.dormant;
 
   /// Map of active subscriptions
-  final Map<String, void Function(ZapRealtimeResponse)> _subscriptions = {};
+  final Map<String, void Function(ZyncResponse)> _subscriptions = {};
 
   /// Map of event listeners
   final Map<String, void Function(dynamic)> _eventListeners = {};
@@ -133,33 +133,33 @@ class ZapRealtime implements ZapRealtimeInterface {
   static const int _maxSendTrials = 5;
 
   // Stream controllers
-  final StreamController<ZapRealtimeState> _connectionStateController = StreamController<ZapRealtimeState>.broadcast();
-  final StreamController<ZapRealtimeResponse> _dataStreamController = StreamController<ZapRealtimeResponse>.broadcast();
-  final StreamController<ZapRealtimeErrorResponse> _errorStreamController = StreamController<ZapRealtimeErrorResponse>.broadcast();
+  final StreamController<ZyncState> _connectionStateController = StreamController<ZyncState>.broadcast();
+  final StreamController<ZyncResponse> _dataStreamController = StreamController<ZyncResponse>.broadcast();
+  final StreamController<ZyncErrorResponse> _errorStreamController = StreamController<ZyncErrorResponse>.broadcast();
 
   @override
-  bool get isConnected => _socket != null && _connectionState == ZapRealtimeState.connected;
+  bool get isConnected => _socket != null && _connectionState == ZyncState.connected;
 
   @override
-  ZapRealtimeState get connectionState => _connectionState;
+  ZyncState get connectionState => _connectionState;
 
   @override
-  StreamController<ZapRealtimeState> get connectionStateController => _connectionStateController;
+  StreamController<ZyncState> get connectionStateController => _connectionStateController;
 
   @override
-  StreamController<ZapRealtimeErrorResponse> get errorController => _errorStreamController;
+  StreamController<ZyncErrorResponse> get errorController => _errorStreamController;
 
   @override
-  StreamController<ZapRealtimeResponse> get dataController => _dataStreamController;
+  StreamController<ZyncResponse> get dataController => _dataStreamController;
 
   @override
-  Stream<ZapRealtimeState> get connectionStateStream => _connectionStateController.stream;
+  Stream<ZyncState> get connectionStateStream => _connectionStateController.stream;
 
   @override
-  Stream<ZapRealtimeResponse> get dataStream => _dataStreamController.stream;
+  Stream<ZyncResponse> get dataStream => _dataStreamController.stream;
 
   @override
-  Stream<ZapRealtimeErrorResponse> get errorStream => _errorStreamController.stream;
+  Stream<ZyncErrorResponse> get errorStream => _errorStreamController.stream;
 
   /// Gets the current session, always fetching the latest from the session factory.
   /// 
@@ -173,7 +173,7 @@ class ZapRealtime implements ZapRealtimeInterface {
   }
 
   /// Updates the connection state and notifies listeners.
-  void _updateConnectionState(ZapRealtimeState state) {
+  void _updateConnectionState(ZyncState state) {
     _connectionState = state;
     
     if (!_connectionStateController.isClosed) {
@@ -183,7 +183,7 @@ class ZapRealtime implements ZapRealtimeInterface {
     config.onStateChanged?.call(state);
     
     if (config.showConnectionLogs) {
-      console.log('ZapRealtime: Connection state changed to $state');
+      console.log('Zync: Connection state changed to $state');
     }
   }
 
@@ -238,7 +238,7 @@ class ZapRealtime implements ZapRealtimeInterface {
         headers.addAll(authHeaders);
         
         if (config.showConnectionLogs && authHeaders.isNotEmpty) {
-          console.log('ZapRealtime: Added auth headers: ${authHeaders.keys.join(', ')}');
+          console.log('Zync: Added auth headers: ${authHeaders.keys.join(', ')}');
         }
       }
     }
@@ -259,13 +259,13 @@ class ZapRealtime implements ZapRealtimeInterface {
   /// Handles incoming WebSocket messages.
   void _handleMessage(dynamic message) {
     try {
-      ZapRealtimeResponse response;
+      ZyncResponse response;
       
       if (message is String) {
         // Try to parse as JSON
         try {
           final data = jsonDecode(message);
-          response = ZapRealtimeResponse(
+          response = ZyncResponse(
             type: data['type'],
             body: message,
             data: data,
@@ -274,7 +274,7 @@ class ZapRealtime implements ZapRealtimeInterface {
           );
         } catch (_) {
           // Not JSON, treat as plain text
-          response = ZapRealtimeResponse(
+          response = ZyncResponse(
             body: message,
             data: message,
             hasBody: true,
@@ -283,7 +283,7 @@ class ZapRealtime implements ZapRealtimeInterface {
         }
       } else {
         // Handle non-string messages
-        response = ZapRealtimeResponse(
+        response = ZyncResponse(
           data: message,
           hasData: true,
         );
@@ -308,7 +308,7 @@ class ZapRealtime implements ZapRealtimeInterface {
       }
 
       if (config.showDebugLogs) {
-        console.log('ZapRealtime: Message received - ${response.type ?? 'unknown'}');
+        console.log('Zync: Message received - ${response.type ?? 'unknown'}');
       }
     } catch (e) {
       _handleError('Message Processing Error', e);
@@ -317,7 +317,7 @@ class ZapRealtime implements ZapRealtimeInterface {
 
   /// Handles WebSocket errors.
   void _handleError(String where, dynamic error) {
-    final errorResponse = ZapRealtimeErrorResponse(where: where, error: error);
+    final errorResponse = ZyncErrorResponse(where: where, error: error);
     
     if (!_errorStreamController.isClosed) {
       _errorStreamController.add(errorResponse);
@@ -326,7 +326,7 @@ class ZapRealtime implements ZapRealtimeInterface {
     config.onError?.call(where, error);
     
     if (config.showErrorLogs) {
-      console.error('ZapRealtime Error [$where]: $error');
+      console.error('Zync Error [$where]: $error');
     }
   }
 
@@ -355,14 +355,14 @@ class ZapRealtime implements ZapRealtimeInterface {
   void _attemptReconnect() {
     if (_reconnectAttempts >= config.maxReconnectAttempts) {
       _handleError('Reconnection Failed', 'Maximum reconnection attempts reached');
-      _updateConnectionState(ZapRealtimeState.disconnected);
+      _updateConnectionState(ZyncState.disconnected);
       return;
     }
 
     _reconnectAttempts++;
     
     if (config.showConnectionLogs) {
-      console.log('ZapRealtime: Attempting reconnection $_reconnectAttempts/${config.maxReconnectAttempts}');
+      console.log('Zync: Attempting reconnection $_reconnectAttempts/${config.maxReconnectAttempts}');
     }
 
     _reconnectTimer = Timer(config.reconnectDelay, () {
@@ -373,10 +373,10 @@ class ZapRealtime implements ZapRealtimeInterface {
   @override
   Future<void> connect() async {
     try {
-      _updateConnectionState(ZapRealtimeState.connecting);
+      _updateConnectionState(ZyncState.connecting);
       
       if (config.showConnectionLogs) {
-        console.log('ZapRealtime: Connecting to ${config.url}');
+        console.log('Zync: Connecting to ${config.url}');
       }
 
       // Create new socket instance
@@ -385,11 +385,11 @@ class ZapRealtime implements ZapRealtimeInterface {
       // Set up event handlers
       _socket!.onOpen(() {
         _reconnectAttempts = 0; // Reset reconnection counter
-        _updateConnectionState(ZapRealtimeState.connected);
+        _updateConnectionState(ZyncState.connected);
         _startPingTimer();
         
         if (config.showConnectionLogs) {
-          console.log('ZapRealtime: Connected to ${config.url}');
+          console.log('Zync: Connected to ${config.url}');
         }
 
         // Send connection headers with authentication
@@ -415,7 +415,7 @@ class ZapRealtime implements ZapRealtimeInterface {
 
       _socket!.onError((error) {
         _handleError('WebSocket Error', error.message);
-        _updateConnectionState(ZapRealtimeState.disconnected);
+        _updateConnectionState(ZyncState.disconnected);
         _stopPingTimer();
         
         // Attempt reconnection
@@ -423,15 +423,15 @@ class ZapRealtime implements ZapRealtimeInterface {
       });
 
       _socket!.onClose((close) {
-        _updateConnectionState(ZapRealtimeState.disconnected);
+        _updateConnectionState(ZyncState.disconnected);
         _stopPingTimer();
         
         if (config.showConnectionLogs) {
-          console.log('ZapRealtime: Connection closed - ${close.message}');
+          console.log('Zync: Connection closed - ${close.message}');
         }
 
         // Attempt reconnection if not manually disconnected
-        if (_connectionState != ZapRealtimeState.disconnected) {
+        if (_connectionState != ZyncState.disconnected) {
           _attemptReconnect();
         }
       });
@@ -441,7 +441,7 @@ class ZapRealtime implements ZapRealtimeInterface {
       
     } catch (e) {
       _handleError('Connection Error', e);
-      _updateConnectionState(ZapRealtimeState.disconnected);
+      _updateConnectionState(ZyncState.disconnected);
       _attemptReconnect();
     }
   }
@@ -458,7 +458,7 @@ class ZapRealtime implements ZapRealtimeInterface {
     
     _subscriptions.clear();
     _eventListeners.clear();
-    _updateConnectionState(ZapRealtimeState.disconnected);
+    _updateConnectionState(ZyncState.disconnected);
     
     // Close stream controllers
     _connectionStateController.close();
@@ -466,7 +466,7 @@ class ZapRealtime implements ZapRealtimeInterface {
     _errorStreamController.close();
     
     if (config.showConnectionLogs) {
-      console.log('ZapRealtime: Disconnected');
+      console.log('Zync: Disconnected');
     }
   }
 
@@ -492,7 +492,7 @@ class ZapRealtime implements ZapRealtimeInterface {
     }
 
     try {
-      _updateConnectionState(ZapRealtimeState.sending);
+      _updateConnectionState(ZyncState.sending);
       
       final message = {
         'type': 'send',
@@ -504,15 +504,15 @@ class ZapRealtime implements ZapRealtimeInterface {
 
       _socket!.send(jsonEncode(message));
       
-      _updateConnectionState(ZapRealtimeState.sent);
+      _updateConnectionState(ZyncState.sent);
       _resetSendTrial();
       
       if (config.showSendLogs) {
-        console.info('ZapRealtime: Message sent to $endpoint');
+        console.info('Zync: Message sent to $endpoint');
       }
       
     } catch (e) {
-      _updateConnectionState(ZapRealtimeState.notSent);
+      _updateConnectionState(ZyncState.notSent);
       _handleError('Send Error', e);
       _resetSendTrial();
     }
@@ -521,12 +521,12 @@ class ZapRealtime implements ZapRealtimeInterface {
   @override
   void subscribe({
     required String topic,
-    required void Function(ZapRealtimeResponse) onMessage,
+    required void Function(ZyncResponse) onMessage,
   }) {
     _subscriptions[topic] = onMessage;
     
     if (isConnected) {
-      _updateConnectionState(ZapRealtimeState.subscribing);
+      _updateConnectionState(ZyncState.subscribing);
       
       final message = {
         'type': 'subscribe',
@@ -537,10 +537,10 @@ class ZapRealtime implements ZapRealtimeInterface {
 
       _socket!.send(jsonEncode(message));
       
-      _updateConnectionState(ZapRealtimeState.subscribed);
+      _updateConnectionState(ZyncState.subscribed);
       
       if (config.showConnectionLogs) {
-        console.log('ZapRealtime: Subscribed to $topic');
+        console.log('Zync: Subscribed to $topic');
       }
     }
   }
@@ -560,7 +560,7 @@ class ZapRealtime implements ZapRealtimeInterface {
       _socket!.send(jsonEncode(message));
       
       if (config.showConnectionLogs) {
-        console.log('ZapRealtime: Unsubscribed from $topic');
+        console.log('Zync: Unsubscribed from $topic');
       }
     }
   }
@@ -588,7 +588,7 @@ class ZapRealtime implements ZapRealtimeInterface {
       _socket!.send(jsonEncode(message));
       
       if (config.showSendLogs) {
-        console.info('ZapRealtime: Event emitted - $event');
+        console.info('Zync: Event emitted - $event');
       }
     } else {
       _handleError('Emit Error', 'WebSocket not connected');
@@ -601,7 +601,7 @@ class ZapRealtime implements ZapRealtimeInterface {
     
     Timer(const Duration(seconds: 2), () {
       if (isConnected) {
-        _updateConnectionState(ZapRealtimeState.connected);
+        _updateConnectionState(ZyncState.connected);
       }
     });
   }

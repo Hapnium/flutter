@@ -1,13 +1,13 @@
-import 'http/client/zap_client.dart';
-import 'exceptions/exceptions.dart';
-import 'http/request/request.dart';
-import 'http/response/graphql_response.dart';
-import 'http/response/response.dart';
-import 'models/zap_cancel_token.dart';
-import 'models/zap_config.dart';
+import '../http/client/zap_client.dart';
+import '../exceptions/exceptions.dart';
+import '../http/request/request.dart';
+import '../http/response/graphql_response.dart';
+import '../http/response/response.dart';
+import '../models/cancel_token.dart';
+import '../models/zap_config.dart';
 import 'zap_socket.dart';
 import 'zap_interface.dart';
-import 'definitions.dart';
+import '../definitions.dart';
 
 /// Core configuration class for the Zap network client with cancellation support.
 ///
@@ -32,7 +32,7 @@ import 'definitions.dart';
 /// final response = await zap.get<String>('/users');
 /// 
 /// // Request with cancellation
-/// final cancelToken = ZapCancelToken();
+/// final cancelToken = CancelToken();
 /// final future = zap.post<User>('/users', {'name': 'John'}, cancelToken: cancelToken);
 /// 
 /// // Cancel if needed
@@ -46,13 +46,13 @@ class Zap extends ZapInterface {
   Zap({super.zapConfig, super.zapClient, super.zapSockets});
 
   /// Set of active cancel tokens for tracking ongoing requests
-  final Set<ZapCancelToken> _activeTokens = <ZapCancelToken>{};
+  final Set<CancelToken> _activeTokens = <CancelToken>{};
 
   @override
   List<ZapSocket> get sockets => zapSockets ??= <ZapSocket>[];
 
   @override
-  Set<ZapCancelToken> get activeTokens => _activeTokens;
+  Set<CancelToken> get activeTokens => _activeTokens;
 
   @override
   ZapConfig get config => zapConfig ?? ZapConfig();
@@ -74,7 +74,7 @@ class Zap extends ZapInterface {
   );
 
   /// Registers a cancel token as active and sets up cleanup when cancelled.
-  void _registerCancelToken(ZapCancelToken? token) {
+  void _registerCancelToken(CancelToken? token) {
     if (token != null && !token.isCancelled) {
       _activeTokens.add(token);
       
@@ -99,7 +99,7 @@ class Zap extends ZapInterface {
   /// 
   /// This method wraps the actual request execution and handles cancellation
   /// at various stages of the request lifecycle.
-  Future<ZapResponse<T>> _execute<T>(Future<ZapResponse<T>> Function() handler, ZapCancelToken? token) async {
+  Future<Response<T>> _execute<T>(Future<Response<T>> Function() handler, CancelToken? token) async {
     _checkIfDisposed();
     
     // Register cancel token for tracking
@@ -127,12 +127,12 @@ class Zap extends ZapInterface {
   }
 
   @override
-  Future<ZapResponse<T>> get<T>(String url, {
+  Future<Response<T>> get<T>(String url, {
     Headers? headers,
     String? contentType,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
-    ZapCancelToken? cancelToken,
+    CancelToken? cancelToken,
   }) {
     return _execute<T>(
       () => client.get<T>(
@@ -147,13 +147,13 @@ class Zap extends ZapInterface {
   }
 
   @override
-  Future<ZapResponse<T>> post<T>(String? url, RequestBody body, {
+  Future<Response<T>> post<T>(String? url, RequestBody body, {
     String? contentType,
     Headers? headers,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
     Progress? uploadProgress,
-    ZapCancelToken? cancelToken,
+    CancelToken? cancelToken,
   }) {
     return _execute<T>(
       () => client.post<T>(
@@ -170,13 +170,13 @@ class Zap extends ZapInterface {
   }
 
   @override
-  Future<ZapResponse<T>> put<T>(String url, RequestBody body, {
+  Future<Response<T>> put<T>(String url, RequestBody body, {
     String? contentType,
     Headers? headers,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
     Progress? uploadProgress,
-    ZapCancelToken? cancelToken,
+    CancelToken? cancelToken,
   }) {
     return _execute<T>(
       () => client.put<T>(
@@ -193,13 +193,13 @@ class Zap extends ZapInterface {
   }
 
   @override
-  Future<ZapResponse<T>> patch<T>(String url, RequestBody body, {
+  Future<Response<T>> patch<T>(String url, RequestBody body, {
     String? contentType,
     Headers? headers,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
     Progress? uploadProgress,
-    ZapCancelToken? cancelToken,
+    CancelToken? cancelToken,
   }) {
     return _execute<T>(
       () => client.patch<T>(
@@ -216,14 +216,14 @@ class Zap extends ZapInterface {
   }
 
   @override
-  Future<ZapResponse<T>> request<T>(String url, String method, {
+  Future<Response<T>> request<T>(String url, String method, {
     RequestBody body,
     String? contentType,
     Headers? headers,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
     Progress? uploadProgress,
-    ZapCancelToken? cancelToken,
+    CancelToken? cancelToken,
   }) {
     return _execute<T>(
       () => client.request<T>(
@@ -241,12 +241,12 @@ class Zap extends ZapInterface {
   }
 
   @override
-  Future<ZapResponse<T>> delete<T>(String url, {
+  Future<Response<T>> delete<T>(String url, {
     Headers? headers,
     String? contentType,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
-    ZapCancelToken? cancelToken,
+    CancelToken? cancelToken,
   }) {
     return _execute<T>(
       () => client.delete(
@@ -261,7 +261,7 @@ class Zap extends ZapInterface {
   }
 
   @override
-  Future<ZapResponse<T>> send<T>(ZapRequest<T> request, {ZapCancelToken? cancelToken}) {
+  Future<Response<T>> send<T>(Request<T> request, {CancelToken? cancelToken}) {
     return _execute<T>(() => client.send(request), cancelToken);
   }
 
@@ -287,7 +287,7 @@ class Zap extends ZapInterface {
     String? url,
     RequestParam? variables,
     Headers? headers,
-    ZapCancelToken? cancelToken,
+    CancelToken? cancelToken,
   }) async {
     try {
       final res = await post(
@@ -308,7 +308,7 @@ class Zap extends ZapInterface {
     String? url,
     RequestParam? variables,
     Headers? headers,
-    ZapCancelToken? cancelToken,
+    CancelToken? cancelToken,
   }) async {
     try {
       final res = await post(

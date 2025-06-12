@@ -9,7 +9,7 @@ void main() {
   group('Zap Library Test Suite', () {
     group('ZapUtils Tests', zap_utils_tests.main);
     group('Zap Tests', zap_tests.main);
-    group('ZapPulse Tests', zap_pulse_tests.main);
-    group('ZapRealtime Tests', zap_realtime_tests.main);
+    group('Flux Tests', zap_pulse_tests.main);
+    group('Zync Tests', zap_realtime_tests.main);
   });
 }

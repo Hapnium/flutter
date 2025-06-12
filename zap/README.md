@@ -7,9 +7,9 @@ Zap is a powerful, flexible networking library for Flutter applications that sim
 - [Installation](#installation)
 - [Core Components](#core-components)
 - [Zap HTTP Client](#zap-http-client)
-- [ZapPulse](#zappulse)
+- [Flux](#zappulse)
 - [ZapSocket](#zapsocket)
-- [ZapRealtime](#zaprealtime)
+- [Zync](#zaprealtime)
 - [ZapUtils](#zaputils)
 - [Advanced Usage](#advanced-usage)
 - [Error Handling](#error-handling)
@@ -48,9 +48,9 @@ flutter pub get
 Zap consists of five main components:
 
 1. **Zap** - Core HTTP client for basic REST operations
-2. **ZapPulse** - Enhanced HTTP client with authentication and session management
+2. **Flux** - Enhanced HTTP client with authentication and session management
 3. **ZapSocket** - WebSocket client for real-time communication
-4. **ZapRealtime** - Advanced WebSocket client with subscription and event management
+4. **Zync** - Advanced WebSocket client with subscription and event management
 5. **ZapUtils** - Utility functions for common networking tasks
 
 
@@ -107,7 +107,7 @@ void main() async {
 ### Request Cancellation
 
 ```dart
-final cancelToken = ZapCancelToken();
+final cancelToken = CancelToken();
 
 // Start a request that can be cancelled
 final futureResponse = zap.get<Map<String, dynamic>>(
@@ -122,9 +122,9 @@ cancelToken.cancel('User cancelled operation');
 zap.cancelAllRequests('Navigating away');
 ```
 
-## ZapPulse
+## Flux
 
-`ZapPulse` extends the core functionality with authentication, session management, and a singleton pattern for app-wide use.
+`Flux` extends the core functionality with authentication, session management, and a singleton pattern for app-wide use.
 
 ### Features
 
@@ -149,8 +149,8 @@ void main() async {
     userId: 'user_123',
   );
   
-  final zapPulse = ZapPulse(
-    config: ZapPulseConfig(
+  final zapPulse = Flux(
+    config: FluxConfig(
       session: session,
       showRequestLogs: true,
       showResponseLogs: true,
@@ -170,7 +170,7 @@ void main() async {
   }
   
   // Clean up when done
-  ZapPulse.dispose();
+  Flux.dispose();
 }
 ```
 
@@ -179,8 +179,8 @@ void main() async {
 ```dart
 SessionResponse? currentSession = getSessionFromStorage();
 
-final zapPulse = ZapPulse(
-  config: ZapPulseConfig(
+final zapPulse = Flux(
+  config: FluxConfig(
     // Dynamic session retrieval
     sessionFactory: () => currentSession,
     
@@ -198,8 +198,8 @@ final zapPulse = ZapPulse(
 ### Custom Authentication Headers
 
 ```dart
-final zapPulse = ZapPulse(
-  config: ZapPulseConfig(
+final zapPulse = Flux(
+  config: FluxConfig(
     session: session,
     
     // Option 1: Configure header name and prefix
@@ -272,9 +272,9 @@ void main() async {
 }
 ```
 
-## ZapRealtime
+## Zync
 
-`ZapRealtime` builds on `ZapSocket` to provide advanced real-time communication features.
+`Zync` builds on `ZapSocket` to provide advanced real-time communication features.
 
 ### Features
 
@@ -299,8 +299,8 @@ void main() async {
     userId: 'user_123',
   );
   
-  final zapRealtime = ZapRealtime(
-    config: ZapRealtimeConfig(
+  final zapRealtime = Zync(
+    config: ZyncConfig(
       url: 'wss://realtime.example.com/socket',
       session: session,
       
@@ -463,15 +463,15 @@ void main() async {
   );
   
   // Initialize HTTP client
-  final zapPulse = ZapPulse(
-    config: ZapPulseConfig(
+  final zapPulse = Flux(
+    config: FluxConfig(
       session: session,
     ),
   );
   
   // Initialize WebSocket client with same session
-  final zapRealtime = ZapRealtime(
-    config: ZapRealtimeConfig(
+  final zapRealtime = Zync(
+    config: ZyncConfig(
       url: 'wss://realtime.example.com/socket',
       session: session,
     ),
@@ -495,8 +495,8 @@ void main() async {
   );
   
   // Clean up when done
-  ZapPulse.dispose();
-  ZapRealtime.dispose();
+  Flux.dispose();
+  Zync.dispose();
 }
 ```
 
@@ -519,7 +519,7 @@ class User {
   }
 }
 
-// Using with ZapPulse
+// Using with Flux
 final response = await zapPulse.get<User>(
   endpoint: 'https://api.example.com/users/1',
   useAuth: true,
@@ -555,7 +555,7 @@ try {
 }
 ```
 
-### ZapPulse Error Handling
+### Flux Error Handling
 
 ```dart
 final response = await zapPulse.get<Map<String, dynamic>>(
@@ -584,12 +584,12 @@ zapSocket.onClose((closeEvent) {
 });
 ```
 
-### ZapRealtime Error Handling
+### Zync Error Handling
 
 ```dart
 // Option 1: Callback
-zapRealtime = ZapRealtime(
-  config: ZapRealtimeConfig(
+zapRealtime = Zync(
+  config: ZyncConfig(
     url: 'wss://realtime.example.com/socket',
     onError: (where, error) {
       print('Error in $where: $error');
@@ -611,17 +611,17 @@ zapRealtime.errorStream.listen((errorResponse) {
 ```dart
 // Application startup
 void initNetworking() {
-  // Initialize ZapPulse
-  ZapPulse(
-    config: ZapPulseConfig(
+  // Initialize Flux
+  Flux(
+    config: FluxConfig(
       sessionFactory: () => getSessionFromStorage(),
       onSessionRefreshed: refreshSession,
     ),
   );
   
-  // Initialize ZapRealtime
-  ZapRealtime(
-    config: ZapRealtimeConfig(
+  // Initialize Zync
+  Zync(
+    config: ZyncConfig(
       url: 'wss://realtime.example.com/socket',
       sessionFactory: () => getSessionFromStorage(),
     ),
@@ -631,16 +631,16 @@ void initNetworking() {
 // Use anywhere in the app
 void someFunction() {
   // Get the singleton instances
-  final zapPulse = ZapPulse.instance;
-  final zapRealtime = ZapRealtime.instance;
+  final zapPulse = Flux.instance;
+  final zapRealtime = Zync.instance;
   
   // Use them...
 }
 
 // Application shutdown
 void disposeNetworking() {
-  ZapPulse.dispose();
-  ZapRealtime.dispose();
+  Flux.dispose();
+  Zync.dispose();
 }
 ```
 
@@ -668,18 +668,18 @@ Future<void> login(String username, String password) async {
         userId: response.body!['user_id'],
       );
       
-      // Initialize ZapPulse with the new session
-      ZapPulse(
-        config: ZapPulseConfig(
+      // Initialize Flux with the new session
+      Flux(
+        config: FluxConfig(
           session: _currentSession,
           sessionFactory: () => _currentSession,
           onSessionRefreshed: _refreshSession,
         ),
       );
       
-      // Initialize ZapRealtime with the same session
-      ZapRealtime(
-        config: ZapRealtimeConfig(
+      // Initialize Zync with the same session
+      Zync(
+        config: ZyncConfig(
           url: 'wss://realtime.example.com/socket',
           session: _currentSession,
           sessionFactory: () => _currentSession,
@@ -720,8 +720,8 @@ Future<SessionResponse?> _refreshSession() async {
 // Logout function
 void logout() {
   _currentSession = null;
-  ZapPulse.dispose();
-  ZapRealtime.dispose();
+  Flux.dispose();
+  Zync.dispose();
 }
 ```
 
@@ -744,20 +744,20 @@ Zap({
 })
 
 // Methods
-Future<ZapResponse<T>> get<T>(String url, {...})
-Future<ZapResponse<T>> post<T>(String url, dynamic body, {...})
-Future<ZapResponse<T>> put<T>(String url, dynamic body, {...})
-Future<ZapResponse<T>> patch<T>(String url, dynamic body, {...})
-Future<ZapResponse<T>> delete<T>(String url, {...})
+Future<Response<T>> get<T>(String url, {...})
+Future<Response<T>> post<T>(String url, dynamic body, {...})
+Future<Response<T>> put<T>(String url, dynamic body, {...})
+Future<Response<T>> patch<T>(String url, dynamic body, {...})
+Future<Response<T>> delete<T>(String url, {...})
 void cancelAllRequests([String reason = 'All requests cancelled'])
 void dispose()
 ```
 
-### ZapPulse
+### Flux
 
 ```dart
-ZapPulse({required ZapPulseConfig config})
-static ZapPulse get instance
+Flux({required FluxConfig config})
+static Flux get instance
 static void dispose()
 
 // Methods
@@ -786,25 +786,25 @@ void send(dynamic data)
 void close([int? code, String? reason])
 ```
 
-### ZapRealtime
+### Zync
 
 ```dart
-ZapRealtime({required ZapRealtimeConfig config})
-static ZapRealtime get instance
+Zync({required ZyncConfig config})
+static Zync get instance
 static void dispose()
 
 // Properties
 bool get isConnected
-ZapRealtimeState get connectionState
-Stream<ZapRealtimeState> get connectionStateStream
-Stream<ZapRealtimeResponse> get dataStream
-Stream<ZapRealtimeErrorResponse> get errorStream
+ZyncState get connectionState
+Stream<ZyncState> get connectionStateStream
+Stream<ZyncResponse> get dataStream
+Stream<ZyncErrorResponse> get errorStream
 
 // Methods
 Future<void> connect()
 void disconnect()
 void send({required String endpoint, required dynamic data, ...})
-void subscribe({required String topic, required void Function(ZapRealtimeResponse) onMessage})
+void subscribe({required String topic, required void Function(ZyncResponse) onMessage})
 void unsubscribe(String topic)
 void on(String event, void Function(dynamic data) callback)
 void off(String event)
@@ -847,7 +847,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 Check out these example projects that demonstrate how to use Zap in real-world applications:
 
 - [Simple REST Client](https://github.com/example/zap-rest-example)
-- [Chat Application with ZapRealtime](https://github.com/example/zap-chat-example)
+- [Chat Application with Zync](https://github.com/example/zap-chat-example)
 - [Location-based Service with ZapUtils](https://github.com/example/zap-location-example)
 
 

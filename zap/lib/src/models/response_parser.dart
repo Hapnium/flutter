@@ -32,9 +32,9 @@ typedef DataParser<T> = T Function(dynamic data);
 /// ```
 typedef MultiParser<T> = Map<HttpStatus, DataParser<T>>;
 
-/// Configuration class for handling response data parsing in ZapPulse HTTP requests.
+/// Configuration class for handling response data parsing in Flux HTTP requests.
 ///
-/// `ZapDataParser` allows you to define how response data should be parsed based on
+/// `ResponseParser` allows you to define how response data should be parsed based on
 /// HTTP status codes. This is particularly useful when APIs return different response
 /// structures for success, error, rate limiting, and other scenarios.
 ///
@@ -56,7 +56,7 @@ typedef MultiParser<T> = Map<HttpStatus, DataParser<T>>;
 ///     "scope": "EMAIL_CHECK"
 ///   },
 ///   useAuth: false,
-///   parser: ZapDataParser.single((data) => EmailCheckResponse.fromJson(data))
+///   parser: ResponseParser.single((data) => EmailCheckResponse.fromJson(data))
 /// );
 /// ```
 ///
@@ -69,7 +69,7 @@ typedef MultiParser<T> = Map<HttpStatus, DataParser<T>>;
 ///     "scope": "EMAIL_CHECK"
 ///   },
 ///   useAuth: false,
-///   parser: ZapDataParser.multi({
+///   parser: ResponseParser.multi({
 ///     200: (data) => EmailCheckResponse.fromJson(data),
 ///     400: (data) => ValidationErrorResponse.fromJson(data),
 ///     429: (data) => RateLimitResponse.fromJson(data),
@@ -87,7 +87,7 @@ typedef MultiParser<T> = Map<HttpStatus, DataParser<T>>;
 ///     "scope": "EMAIL_CHECK"
 ///   },
 ///   useAuth: false,
-///   parser: ZapDataParser(
+///   parser: ResponseParser(
 ///     defaultParser: (data) => GenericResponse.fromJson(data),
 ///     statusParsers: {
 ///       200: (data) => EmailCheckResponse.fromJson(data),
@@ -106,19 +106,19 @@ typedef MultiParser<T> = Map<HttpStatus, DataParser<T>>;
 ///
 /// ## Error Handling
 ///
-/// If a parser throws an exception during parsing, ZapPulse will:
+/// If a parser throws an exception during parsing, Flux will:
 /// - Log the error (if error logging is enabled)
 /// - Return an error response with details about the parsing failure
 /// - Include the original status code for debugging
 ///
 /// ## Best Practices
 ///
-/// - Use `ZapResponseParser.single()` for simple APIs with consistent response structure
-/// - Use `ZapResponseParser.multi()` for APIs that return different structures based on status codes
+/// - Use `ResponseParser.single()` for simple APIs with consistent response structure
+/// - Use `ResponseParser.multi()` for APIs that return different structures based on status codes
 /// - Always provide a `defaultParser` when using `statusParsers` to handle unexpected status codes
 /// - Consider the return type `T` carefully - use `dynamic` when different parsers return different types
 /// - Test your parsers with actual API responses to ensure they handle all expected data structures
-class ZapResponseParser<T> {
+class ResponseParser<T> {
   /// The default parser to use when no status-specific parser is found.
   ///
   /// This parser will be used as a fallback when:
@@ -131,7 +131,7 @@ class ZapResponseParser<T> {
 
   /// A map of HTTP status codes to their corresponding data parsers.
   ///
-  /// When a response is received, ZapPulse will look up the response's status code
+  /// When a response is received, Flux will look up the response's status code
   /// in this map and use the corresponding parser if found.
   ///
   /// Example:
@@ -146,7 +146,7 @@ class ZapResponseParser<T> {
   /// ```
   final MultiParser<T>? statusParsers;
 
-  /// Creates a new `ZapDataParser` with optional default and status-specific parsers.
+  /// Creates a new `ResponseParser` with optional default and status-specific parsers.
   ///
   /// Parameters:
   /// - [defaultParser]: The fallback parser to use when no status-specific parser matches
@@ -154,12 +154,12 @@ class ZapResponseParser<T> {
   ///
   /// At least one of [defaultParser] or [statusParsers] should be provided,
   /// otherwise no parsing will occur.
-  const ZapResponseParser({
+  const ResponseParser({
     this.defaultParser,
     this.statusParsers,
   });
 
-  /// Creates a `ZapDataParser` with a single parser for all responses.
+  /// Creates a `ResponseParser` with a single parser for all responses.
   ///
   /// This is the backward-compatible way to use parsers and is equivalent to
   /// setting only the [defaultParser].
@@ -169,13 +169,13 @@ class ZapResponseParser<T> {
   ///
   /// Example:
   /// ```dart
-  /// ZapDataParser.single((data) => User.fromJson(data))
+  /// ResponseParser.single((data) => User.fromJson(data))
   /// ```
-  const ZapResponseParser.single(DataParser<T> parser)
+  const ResponseParser.single(DataParser<T> parser)
       : defaultParser = parser,
         statusParsers = null;
 
-  /// Creates a `ZapDataParser` with multiple status-specific parsers.
+  /// Creates a `ResponseParser` with multiple status-specific parsers.
   ///
   /// This constructor is useful when you want different parsing logic for
   /// different HTTP status codes without a default fallback.
@@ -185,12 +185,12 @@ class ZapResponseParser<T> {
   ///
   /// Example:
   /// ```dart
-  /// ZapDataParser.multi({
+  /// ResponseParser.multi({
   ///   200: (data) => SuccessResponse.fromJson(data),
   ///   400: (data) => ErrorResponse.fromJson(data),
   /// })
   /// ```
-  const ZapResponseParser.multi(MultiParser<T> parsers)
+  const ResponseParser.multi(MultiParser<T> parsers)
       : defaultParser = null,
         statusParsers = parsers;
 
@@ -229,11 +229,11 @@ class ZapResponseParser<T> {
   /// Example:
   /// ```dart
   /// // Parse a list of users
-  /// final parser = ZapResponseParser.parseAsList<User>((data) => User.fromJson(data));
+  /// final parser = ResponseParser.parseAsList<User>((data) => User.fromJson(data));
   /// 
   /// // Use with multi-parser
-  /// final multiParser = ZapResponseParser.multi({
-  ///   200: ZapResponseParser.parseAsList<Post>((data) => Post.fromJson(data)),
+  /// final multiParser = ResponseParser.multi({
+  ///   200: ResponseParser.parseAsList<Post>((data) => Post.fromJson(data)),
   ///   400: (data) => ErrorResponse.fromJson(data),
   /// });
   /// ```
@@ -253,9 +253,9 @@ class ZapResponseParser<T> {
   /// Example:
   /// ```dart
   /// // Extract data from { "result": { "users": [...] } }
-  /// final parser = ZapResponseParser.parseNested<List<User>>(
+  /// final parser = ResponseParser.parseNested<List<User>>(
   ///   ['result', 'users'],
-  ///   ZapResponseParser.parseAsList<User>((data) => User.fromJson(data))
+  ///   ResponseParser.parseAsList<User>((data) => User.fromJson(data))
   /// );
   /// ```
   static DataParser<R> parseNested<R>(List<String> path, DataParser<R> parser) {
@@ -280,7 +280,7 @@ class ZapResponseParser<T> {
   ///
   /// Example:
   /// ```dart
-  /// final parser = ZapResponseParser.parsePaginated<User>(
+  /// final parser = ResponseParser.parsePaginated<User>(
   ///   dataKey: 'items',
   ///   itemParser: (data) => User.fromJson(data),
   /// );
@@ -314,7 +314,7 @@ class ZapResponseParser<T> {
   ///
   /// Example:
   /// ```dart
-  /// final parser = ZapResponseParser.parseOptional<User>((data) => User.fromJson(data));
+  /// final parser = ResponseParser.parseOptional<User>((data) => User.fromJson(data));
   /// ```
   static DataParser<R?> parseOptional<R>(DataParser<R> parser) {
     return (dynamic data) {
@@ -329,7 +329,7 @@ class ZapResponseParser<T> {
   ///
   /// Example:
   /// ```dart
-  /// final parser = ZapResponseParser.parsePolymorphic<Animal>(
+  /// final parser = ResponseParser.parsePolymorphic<Animal>(
   ///   discriminatorKey: 'type',
   ///   parsers: {
   ///     'dog': (data) => Dog.fromJson(data),
@@ -367,7 +367,7 @@ class ZapResponseParser<T> {
   ///
   /// Example:
   /// ```dart
-  /// final parser = ZapResponseParser.parseWithTransform<User>(
+  /// final parser = ResponseParser.parseWithTransform<User>(
   ///   transform: (data) => data['user_data'], // Extract nested data
   ///   parser: (data) => User.fromJson(data),
   /// );
@@ -388,7 +388,7 @@ class ZapResponseParser<T> {
   ///
   /// Example:
   /// ```dart
-  /// final parser = ZapResponseParser.parseWithValidation<User>(
+  /// final parser = ResponseParser.parseWithValidation<User>(
   ///   validator: (data) => data is Map && data.containsKey('id'),
   ///   parser: (data) => User.fromJson(data),
   ///   errorMessage: 'Invalid user data structure',
@@ -413,7 +413,7 @@ class ZapResponseParser<T> {
   ///
   /// Example:
   /// ```dart
-  /// final parser = ZapResponseParser.parseAsListOrSingle<User>((data) => User.fromJson(data));
+  /// final parser = ResponseParser.parseAsListOrSingle<User>((data) => User.fromJson(data));
   /// ```
   static DataParser<List<R>> parseAsListOrSingle<R>(DataParser<R> itemParser) {
     return (dynamic data) {
@@ -433,28 +433,28 @@ class ZapResponseParser<T> {
   ///
   /// Example:
   /// ```dart
-  /// final parser = ZapResponseParser.forList<User>((data) => User.fromJson(data));
+  /// final parser = ResponseParser.forList<User>((data) => User.fromJson(data));
   /// ```
-  static ZapResponseParser<List<R>> forList<R>(DataParser<R> itemParser) {
-    return ZapResponseParser.single(parseAsList(itemParser));
+  static ResponseParser<List<R>> forList<R>(DataParser<R> itemParser) {
+    return ResponseParser.single(parseAsList(itemParser));
   }
 
   /// Creates a parser for paginated responses.
   ///
   /// Example:
   /// ```dart
-  /// final parser = ZapResponseParser.forPaginated<User>(
+  /// final parser = ResponseParser.forPaginated<User>(
   ///   itemParser: (data) => User.fromJson(data),
   /// );
   /// ```
-  static ZapResponseParser<ZapPage<R>> forPaginated<R>({
+  static ResponseParser<ZapPage<R>> forPaginated<R>({
     required DataParser<R> itemParser,
     String dataKey = 'data',
     String totalKey = 'total',
     String pageKey = 'page',
     String limitKey = 'limit',
   }) {
-    return ZapResponseParser.single(
+    return ResponseParser.single(
       parsePaginated(
         dataKey: dataKey,
         itemParser: itemParser,

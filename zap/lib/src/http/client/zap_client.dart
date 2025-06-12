@@ -20,7 +20,7 @@ import '../utils/http_status.dart';
 /// - [request]: The original request.
 /// - [targetType]: The expected type of the response body.
 /// - [response]: The raw HTTP response.
-typedef ZapResponseInterceptor<T> = Future<ZapResponse<T>?> Function(ZapRequest<T> request, Type targetType, HttpClientResponse response);
+typedef ResponseInterceptor<T> = Future<Response<T>?> Function(Request<T> request, Type targetType, HttpClientResponse response);
 
 /// The core HTTP client used to configure and send HTTP requests.
 ///
@@ -90,7 +90,7 @@ class ZapClient {
   /// The default function to intercept and optionally modify HTTP responses.
   ///
   /// Can be used for logging, error handling, or data transformation.
-  ZapResponseInterceptor? defaultResponseInterceptor;
+  ResponseInterceptor? defaultResponseInterceptor;
 
   /// The maximum duration to wait before a request times out.
   ///
@@ -171,9 +171,9 @@ class ZapClient {
   /// or headers before a request is dispatched.
   ///
   /// ### Parameters:
-  /// - [auth]: A [ZapRequestModifier] function that takes a request and modifies it.
-  void addAuthenticator<T>(ZapRequestModifier<T> auth) {
-    _modifier.authenticator = auth as ZapRequestModifier;
+  /// - [auth]: A [RequestModifier] function that takes a request and modifies it.
+  void addAuthenticator<T>(RequestModifier<T> auth) {
+    _modifier.authenticator = auth as RequestModifier;
   }
 
   /// Adds a request modifier function that intercepts and alters outgoing requests.
@@ -181,16 +181,16 @@ class ZapClient {
   /// This can be used to inject headers, transform URLs, log request data, etc.
   ///
   /// ### Parameters:
-  /// - [interceptor]: A [ZapRequestModifier] that transforms the request before sending.
-  void addRequestModifier<T>(ZapRequestModifier<T> interceptor) {
+  /// - [interceptor]: A [RequestModifier] that transforms the request before sending.
+  void addRequestModifier<T>(RequestModifier<T> interceptor) {
     _modifier.addRequestModifier<T>(interceptor);
   }
 
   /// Removes a previously added request modifier.
   ///
   /// ### Parameters:
-  /// - [interceptor]: The [ZapRequestModifier] to be removed.
-  void removeRequestModifier<T>(ZapRequestModifier<T> interceptor) {
+  /// - [interceptor]: The [RequestModifier] to be removed.
+  void removeRequestModifier<T>(RequestModifier<T> interceptor) {
     _modifier.removeRequestModifier(interceptor);
   }
 
@@ -199,16 +199,16 @@ class ZapClient {
   /// Useful for tasks like logging, response transformation, or centralized error handling.
   ///
   /// ### Parameters:
-  /// - [interceptor]: A [ZapResponseModifier] that operates on the response.
-  void addResponseModifier<T>(ZapResponseModifier<T> interceptor) {
+  /// - [interceptor]: A [ResponseModifier] that operates on the response.
+  void addResponseModifier<T>(ResponseModifier<T> interceptor) {
     _modifier.addResponseModifier(interceptor);
   }
 
   /// Removes a previously added response modifier.
   ///
   /// ### Parameters:
-  /// - [interceptor]: The [ZapResponseModifier] to remove from the modifier stack.
-  void removeResponseModifier<T>(ZapResponseModifier<T> interceptor) {
+  /// - [interceptor]: The [ResponseModifier] to remove from the modifier stack.
+  void removeResponseModifier<T>(ResponseModifier<T> interceptor) {
     _modifier.removeResponseModifier<T>(interceptor);
   }
 
@@ -246,14 +246,14 @@ class ZapClient {
   }
 
   /// Create a request with body
-  Future<ZapRequest<T>> _requestWithBody<T>(
+  Future<Request<T>> _requestWithBody<T>(
     String? url,
     String? contentType,
     RequestBody body,
     String method,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
-    ZapResponseInterceptor<T>? responseInterceptor,
+    ResponseInterceptor<T>? responseInterceptor,
     Progress? uploadProgress,
   ) async {
     BodyBytes? bodyBytes;
@@ -301,7 +301,7 @@ class ZapClient {
     }
 
     final uri = createUri(url, query);
-    return ZapRequest<T>(
+    return Request<T>(
       method: method,
       url: uri,
       headers: headers,
@@ -345,7 +345,7 @@ class ZapClient {
     }
   }
 
-  Future<ZapResponse<T>> _handleException<T>(Exception e, ZapRequest<T> request) {
+  Future<Response<T>> _handleException<T>(Exception e, Request<T> request) {
     if (!errorSafety) {
       if(e is ZapException) {
         throw e;
@@ -354,7 +354,7 @@ class ZapClient {
       throw ZapException(e.toString());
     }
 
-    return Future.value(ZapResponse<T>(
+    return Future.value(Response<T>(
       status: HttpStatus.CONNECTION_NOT_REACHABLE,
       message: 'Can not connect to server. Reason: $e',
       request: request,
@@ -365,7 +365,7 @@ class ZapClient {
     ));
   }
 
-  Future<ZapResponse<T>> _perform<T>(ZapRequest<T> request, {bool useAuth = false, int requestNumber = 1, Headers? headers}) async {
+  Future<Response<T>> _perform<T>(Request<T> request, {bool useAuth = false, int requestNumber = 1, Headers? headers}) async {
     headers?.forEach((key, value) {
       request.headers[key] = value;
     });
@@ -387,7 +387,7 @@ class ZapClient {
         if (!errorSafety) {
           throw ZapUnauthorizedException();
         } else {
-          return ZapResponse<T>(
+          return Response<T>(
             request: req,
             headers: response.headers,
             status: response.status,
@@ -404,25 +404,25 @@ class ZapClient {
     }
   }
 
-  ZapResponseInterceptor<T>? _responseInterceptor<T>(ZapResponseInterceptor<T>? actual) {
+  ResponseInterceptor<T>? _responseInterceptor<T>(ResponseInterceptor<T>? actual) {
     if (actual != null) return actual;
 
     if (defaultResponseInterceptor != null) {
       return (request, targetType, response) async {
         final result = await defaultResponseInterceptor!(request, targetType, response);
-        return result as ZapResponse<T>?;
+        return result as Response<T>?;
       };
     }
 
     return null;
   }
 
-  Future<ZapRequest<T>> _getRequestWithBody<T>(String? url, String method, {
+  Future<Request<T>> _getRequestWithBody<T>(String? url, String method, {
     String? contentType,
     required RequestBody body,
     required RequestParam? query,
     ResponseDecoder<T>? decoder,
-    ZapResponseInterceptor<T>? responseInterceptor,
+    ResponseInterceptor<T>? responseInterceptor,
     Progress? uploadProgress,
   }) {
     decoder ??= defaultDecoder as ResponseDecoder<T>?;
@@ -431,16 +431,16 @@ class ZapClient {
     return _requestWithBody<T>(url, contentType, body, method, query, decoder, responseInterceptor, uploadProgress);
   }
 
-  /// Sends a custom [ZapRequest] through the client pipeline.
+  /// Sends a custom [Request] through the client pipeline.
   ///
-  /// This method can be used when a prebuilt [ZapRequest] object is available,
+  /// This method can be used when a prebuilt [Request] object is available,
   /// offering more control over the request's lifecycle.
   ///
   /// Throws a [ZapException] if the request fails and [errorSafety] is disabled.
   ///
   /// Returns:
-  ///   A [ZapResponse] of type [T] representing the result of the request.
-  Future<ZapResponse<T>> send<T>(ZapRequest<T> request) async {
+  ///   A [Response] of type [T] representing the result of the request.
+  Future<Response<T>> send<T>(Request<T> request) async {
     try {
       var response = await _perform<T>(request);
       return response;
@@ -464,14 +464,14 @@ class ZapClient {
   /// - [uploadProgress]: Callback for monitoring upload progress.
   ///
   /// Returns:
-  ///   A [ZapResponse] of type [T] representing the server's reply.
-  Future<ZapResponse<T>> patch<T>(String url, {
+  ///   A [Response] of type [T] representing the server's reply.
+  Future<Response<T>> patch<T>(String url, {
     RequestBody body,
     String? contentType,
     Headers? headers,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
-    ZapResponseInterceptor<T>? responseInterceptor,
+    ResponseInterceptor<T>? responseInterceptor,
     Progress? uploadProgress,
     // List<MultipartFile> files,
   }) async {
@@ -509,14 +509,14 @@ class ZapClient {
   /// - [uploadProgress]: Callback for monitoring upload progress.
   ///
   /// Returns:
-  ///   A [ZapResponse] of type [T] representing the server's reply.
-  Future<ZapResponse<T>> post<T>(String? url, {
+  ///   A [Response] of type [T] representing the server's reply.
+  Future<Response<T>> post<T>(String? url, {
     RequestBody body,
     String? contentType,
     Headers? headers,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
-    ZapResponseInterceptor<T>? responseInterceptor,
+    ResponseInterceptor<T>? responseInterceptor,
     Progress? uploadProgress,
     // List<MultipartFile> files,
   }) async {
@@ -557,14 +557,14 @@ class ZapClient {
   /// - [uploadProgress]: Callback for monitoring upload progress.
   ///
   /// Returns:
-  ///   A [ZapResponse] of type [T] representing the server's reply.
-  Future<ZapResponse<T>> request<T>(String url, String method, {
+  ///   A [Response] of type [T] representing the server's reply.
+  Future<Response<T>> request<T>(String url, String method, {
     RequestBody body,
     String? contentType,
     Headers? headers,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
-    ZapResponseInterceptor<T>? responseInterceptor,
+    ResponseInterceptor<T>? responseInterceptor,
     Progress? uploadProgress,
   }) async {
     final request = await _getRequestWithBody<T>(
@@ -601,14 +601,14 @@ class ZapClient {
   /// - [uploadProgress]: Callback for monitoring upload progress.
   ///
   /// Returns:
-  ///   A [ZapResponse] of type [T] representing the server's reply.
-  Future<ZapResponse<T>> put<T>(String url, {
+  ///   A [Response] of type [T] representing the server's reply.
+  Future<Response<T>> put<T>(String url, {
     RequestBody body,
     String? contentType,
     Headers? headers,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
-    ZapResponseInterceptor<T>? responseInterceptor,
+    ResponseInterceptor<T>? responseInterceptor,
     Progress? uploadProgress,
   }) async {
     final request = await _getRequestWithBody<T>(
@@ -643,19 +643,19 @@ class ZapClient {
   /// - [responseInterceptor]: Optional hook for modifying the received response.
   ///
   /// Returns:
-  ///   A [ZapResponse] of type [T] with the requested resource.
-  Future<ZapResponse<T>> get<T>(String url, {
+  ///   A [Response] of type [T] with the requested resource.
+  Future<Response<T>> get<T>(String url, {
     Headers? headers,
     String? contentType,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
-    ZapResponseInterceptor<T>? responseInterceptor,
+    ResponseInterceptor<T>? responseInterceptor,
   }) async {
     final Headers defHeaders = {};
     _setSimpleHeaders(defHeaders, contentType);
     final uri = createUri(url, query);
 
-    final request = ZapRequest<T>(
+    final request = Request<T>(
       method: 'get',
       url: uri,
       headers: defHeaders,
@@ -687,19 +687,19 @@ class ZapClient {
   /// - [responseInterceptor]: Optional hook for inspecting or altering the response.
   ///
   /// Returns:
-  ///   A [ZapResponse] of type [T] representing the server's reply.
-  Future<ZapResponse<T>> delete<T>(String url, {
+  ///   A [Response] of type [T] representing the server's reply.
+  Future<Response<T>> delete<T>(String url, {
     Headers? headers,
     String? contentType,
     RequestParam? query,
     ResponseDecoder<T>? decoder,
-    ZapResponseInterceptor<T>? responseInterceptor,
+    ResponseInterceptor<T>? responseInterceptor,
   }) async {
     final Headers defHeaders = {};
     _setSimpleHeaders(defHeaders, contentType);
     final uri = createUri(url, query);
 
-    final request = ZapRequest<T>(
+    final request = Request<T>(
       method: 'delete',
       url: uri,
       headers: defHeaders,

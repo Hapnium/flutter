@@ -7,15 +7,15 @@ import 'response.dart';
 /// A response object specifically for GraphQL operations.
 ///
 /// Includes both the successful data payload and any GraphQL errors returned.
-class GraphQLResponse<T> extends ZapResponse<T> {
+class GraphQLResponse<T> extends Response<T> {
   /// List of GraphQL errors returned by the server.
   final List<GraphQLError>? graphQLErrors;
 
   GraphQLResponse({required super.status, super.body, this.graphQLErrors, super.provider = ZapProvider.graphql});
 
-  /// Constructs a [GraphQLResponse] from a standard [ZapResponse],
+  /// Constructs a [GraphQLResponse] from a standard [Response],
   /// extracting the GraphQL `data` field as the response body.
-  GraphQLResponse.fromResponse(ZapResponse res) : graphQLErrors = null, super(
+  GraphQLResponse.fromResponse(Response res) : graphQLErrors = null, super(
     request: res.request,
     status: res.status,
     message: res.message,
@@ -28,9 +28,9 @@ class GraphQLResponse<T> extends ZapResponse<T> {
 
   /// Constructs a [GraphQLResponse] from a dynamic response body.
   /// 
-  /// This factory constructor is useful when you have a [ZapResponse]
+  /// This factory constructor is useful when you have a [Response]
   /// that contains a GraphQL response body.
-  factory GraphQLResponse.fromDynamic(ZapResponse res) {
+  factory GraphQLResponse.fromDynamic(Response res) {
     final listError = res.body['errors'];
 
     if ((listError is List) && listError.isNotEmpty) {
