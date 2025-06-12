@@ -8,7 +8,7 @@ import 'package:web/web.dart' as html;
 import 'socket_close.dart';
 import 'socket_interface.dart';
 import 'socket_notifier.dart';
-import '../enums/socket_status.dart';
+import '../../enums/socket_status.dart';
 
 /// A concrete WebSocket implementation for browser environments using `package:web`.
 ///

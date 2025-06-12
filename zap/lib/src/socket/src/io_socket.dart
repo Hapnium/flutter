@@ -5,11 +5,11 @@ import 'dart:math';
 
 import 'package:tracing/tracing.dart' show console;
 
-import '../definitions.dart';
+import '../../definitions.dart';
 import 'socket_close.dart';
 import 'socket_interface.dart';
 import 'socket_notifier.dart';
-import '../enums/socket_status.dart';
+import '../../enums/socket_status.dart';
 
 class BaseWebSocket extends SocketInterface {
   /// Underlying WebSocket instance from the `dart:io` package.

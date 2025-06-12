@@ -1,6 +1,14 @@
-import '../socket/socket_client.dart';
+// Import the correct socket implementation based on platform.
+// - On web (with `dart:js_interop`), it imports 'html_socket.dart'.
+// - On native platforms (mobile, desktop, server with `dart:io`), it imports 'io_socket.dart'.
+// - If neither is available, it falls back to 'socket_stub.dart', which throws errors.
+//
+// This allows SocketClient to work cross-platform without manually switching imports.
+import 'src/stub_socket.dart'
+    if (dart.library.js_interop) 'src/html_socket.dart'
+    if (dart.library.io) 'src/io_socket.dart';
 
-/// [ZapSocket] is a platform-agnostic WebSocket abstraction that delegates
+/// [SocketClient] is a platform-agnostic WebSocket abstraction that delegates
 /// to the correct implementation based on where the app is running:
 ///
 /// - On **web**, it uses `BaseWebSocket` from `html_socket.dart`.
@@ -12,14 +20,14 @@ import '../socket/socket_client.dart';
 ///
 /// ### Example usage:
 /// ```dart
-/// final socket = ZapSocket('wss://example.com/socket');
+/// final socket = SocketClient('wss://example.com/socket');
 /// socket.connect();
 /// socket.onOpen(() => print('Connected'));
 /// socket.onMessage((msg) => print('Received: $msg'));
 /// socket.emit('chat', {'message': 'Hi!'});
 /// ```
-class ZapSocket extends SocketClient {
-  /// Constructs a [ZapSocket] with a given WebSocket [url].
+class SocketClient extends BaseWebSocket {
+  /// Constructs a [SocketClient] with a given WebSocket [url].
   ///
   /// The [ping] duration determines how often a ping message is sent to keep the
   /// connection alive. The default is 5 seconds.
@@ -29,7 +37,7 @@ class ZapSocket extends SocketClient {
   ///
   /// The actual behavior of this constructor is determined by the imported
   /// platform-specific `BaseWebSocket` implementation.
-  ZapSocket(
+  SocketClient(
     super.url, {
     super.ping,
     super.allowSelfSigned,

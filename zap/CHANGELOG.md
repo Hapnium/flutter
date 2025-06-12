@@ -91,3 +91,8 @@
 - Renamed `ZapResponseParser` to `ResponseParser`
 - Renamed `ZapCancelToken` to `CancelToken`
 - Modified `Flux` to use either its own design principles on authentication and authorization or the design principles of [Zap]. It depends on the `useSingleInstance` parameter to decide on which design principles to use.
+
+## 0.1.2
+
+- Added support for custom socket client
+- Fixed issues with Socket methods

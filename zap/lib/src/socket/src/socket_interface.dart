@@ -1,5 +1,5 @@
-import '../exceptions/exceptions.dart';
-import './socket_notifier.dart';
+import '../../exceptions/exceptions.dart';
+import 'socket_notifier.dart';
 
 /// An abstract interface for WebSocket connections.
 ///
