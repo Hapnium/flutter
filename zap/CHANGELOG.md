@@ -96,3 +96,7 @@
 
 - Added support for custom socket client
 - Fixed issues with Socket methods
+
+## 0.1.3
+
+- Fixed issues with `Flux`

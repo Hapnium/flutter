@@ -233,8 +233,6 @@ extension FluxConfigExtension on FluxConfig {
     Response<ApiResponse<T>> response;
 
     if(useSingleInstance) {
-      response = await execute(null, cancelToken);
-    } else {
       checkAuth(useAuth);
 
       try {
@@ -255,6 +253,8 @@ extension FluxConfigExtension on FluxConfig {
       } on Exception catch (e) {
         response = handleException(e);
       }
+    } else {
+      response = await execute(null, cancelToken);
     }
 
     _log(response);
