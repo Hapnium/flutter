@@ -74,11 +74,10 @@ class SmartUtils {
   /// ```dart
   /// Color avatarColor = SmartUtils.generateColorFromName(
   ///   "Jane Doe", 
-  ///   excludedColors: [Colors.red, Colors.blue]
+  ///   excludedColors: [Color(0xFFFF0000), Color(0xFF0000FF)]
   /// );
   /// ```
-  static Color generateColorFromName(
-    String name, {
+  static Color generateColorFromName(String name, {
     List<Color>? excludedColors,
     double minDistance = 0.15,
   }) {
@@ -86,6 +85,8 @@ class SmartUtils {
     
     final hash = name.replaceAll(" ", "").hashCode;
     double hue = (hash % 360).toDouble();
+    double originalHue = hue; // Store the original hue
+    bool foundSuitableColor = false;
     
     // If we have excluded colors, ensure our generated color is different enough
     if (excludedColors != null && excludedColors.isNotEmpty) {
@@ -104,11 +105,18 @@ class SmartUtils {
         
         // If this color is acceptable, use it
         if (!tooClose) {
+          foundSuitableColor = true;
           break;
         }
         
         // Otherwise, try a different hue
         hue = (hue + 37) % 360; // Use a prime number to get good distribution
+      }
+      
+      // If we couldn't find a suitable color after all attempts, 
+      // use a completely different hue from the original
+      if (!foundSuitableColor) {
+        hue = (originalHue + 180) % 360; // Use complementary color
       }
     }
 
@@ -152,13 +160,12 @@ class SmartUtils {
   /// ```dart
   /// LinearGradient gradient = SmartUtils.generateGradientFromName(
   ///   "Jane Doe",
-  ///   excludedColors: [Colors.red, Colors.green],
+  ///   excludedColors: [Color(0xFFFF0000), Color(0xFF00FF00)],
   ///   begin: Alignment.topCenter,
   ///   end: Alignment.bottomCenter,
   /// );
   /// ```
-  static LinearGradient generateGradientFromName(
-    String name, {
+  static LinearGradient generateGradientFromName(String name, {
     /// Color exclusion
     List<Color>? excludedColors,
     double minDistance = 0.15,
@@ -195,7 +202,9 @@ class SmartUtils {
 
     final hash = name.replaceAll(" ", "").hashCode;
     double baseHue = (hash % 360).toDouble();
+    double originalBaseHue = baseHue; // Store the original hue
     double secondHue = (baseHue + hueOffset) % 360;
+    bool foundSuitableColors = false;
     
     // If we have excluded colors, ensure our generated colors are different enough
     if (excludedColors != null && excludedColors.isNotEmpty) {
@@ -215,11 +224,19 @@ class SmartUtils {
         
         // If these colors are acceptable, use them
         if (!tooClose) {
+          foundSuitableColors = true;
           break;
         }
         
         // Otherwise, try different hues
         baseHue = (baseHue + 37) % 360; // Use prime numbers for better distribution
+        secondHue = (baseHue + hueOffset) % 360;
+      }
+      
+      // If we couldn't find suitable colors after all attempts,
+      // use completely different hues from the originals
+      if (!foundSuitableColors) {
+        baseHue = (originalBaseHue + 180) % 360; // Use complementary color
         secondHue = (baseHue + hueOffset) % 360;
       }
     }
@@ -243,12 +260,17 @@ class SmartUtils {
     final hslA = HSLColor.fromColor(a);
     final hslB = HSLColor.fromColor(b);
 
-    final hueDiff = (hslA.hue - hslB.hue).abs() / 360.0;
+    // Calculate hue distance accounting for the circular nature of hue
+    double hueDiff = (hslA.hue - hslB.hue).abs();
+    if (hueDiff > 180) hueDiff = 360 - hueDiff;
+    hueDiff /= 180.0; // Normalize to 0-1 range
+
     final satDiff = (hslA.saturation - hslB.saturation).abs();
     final lightDiff = (hslA.lightness - hslB.lightness).abs();
 
     // Weighted Euclidean distance in HSL space
-    return sqrt(hueDiff * hueDiff + satDiff * satDiff + lightDiff * lightDiff) / sqrt(3);
+    // Hue is given more weight as it's the most perceptually significant
+    return sqrt(0.6 * hueDiff * hueDiff + 0.2 * satDiff * satDiff + 0.2 * lightDiff * lightDiff);
   }
 
   /// Extracts initials from a full name or a combination of first and last names.
