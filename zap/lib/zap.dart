@@ -13,6 +13,7 @@ export 'src/http/modifier/zap_modifier.dart';
 
 export 'src/enums/socket_status.dart';
 export 'src/enums/zync_state.dart';
+export 'src/enums/socket_type.dart';
 
 export 'src/core/zap.dart';
 export 'src/core/zap_interface.dart';
@@ -32,6 +33,7 @@ export 'src/models/zync_error_response.dart';
 export 'src/models/zync_response.dart';
 export 'src/models/response_parser.dart';
 export 'src/models/zap_page.dart';
+export 'src/models/socket_messenger.dart';
 
 export 'src/flux/flux.dart';
 export 'src/flux/flux_interface.dart';

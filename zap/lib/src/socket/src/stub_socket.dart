@@ -1,3 +1,4 @@
+import '../../enums/socket_type.dart';
 import 'socket_notifier.dart';
 import 'socket_interface.dart';
 
@@ -32,10 +33,10 @@ class BaseWebSocket extends SocketInterface {
   void dispose() { }
 
   @override
-  void emit(String event, data) { }
+  void emit(SocketType command, dynamic data) { }
 
   @override
-  void on(String event, MessageSocket message) { }
+  void on(SocketType command, MessageSocket message) { }
 
   @override
   void onClose(CloseSocket fn) { }

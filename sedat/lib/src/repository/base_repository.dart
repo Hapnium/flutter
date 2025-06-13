@@ -132,19 +132,27 @@ abstract class BaseRepository<Result, Insert> implements RepositoryService<Resul
   /// that emits the current data and any subsequent changes to the data in the
   /// Hive box.
   void _startListening() {
-    _controller.add(get()); // Emit the current data
+    _notifyListeners(get()); // Emit the current data
 
     _subscription = _box.watch(key: _key).listen((event) {
       if (event.deleted) {
         if(_defaultValue != null) {
-          _controller.add(_defaultValue!);
+          _notifyListeners(_defaultValue!);
         } else {
-          _controller.add(fromStore(null));
+          _notifyListeners(fromStore(null));
         }
       } else {
-        _controller.add(fromStore(event.value)); // Emit the new value
+        _notifyListeners(fromStore(event.value)); // Emit the new value
       }
     });
+  }
+
+  /// Notifies listeners of a change in the repository.
+  /// 
+  /// This method emits the given [result] to the stream controller, which
+  /// notifies any listeners of the change.
+  void _notifyListeners(Result result) {
+    _controller.add(result);
   }
 
   /// Throws a [SecureDatabaseException] if the repository is not initialized.
@@ -161,8 +169,9 @@ abstract class BaseRepository<Result, Insert> implements RepositoryService<Resul
   Future<Result> save(Result item) async {
     _throwIfNotInitialized();
 
+    Result result;
     if(put().isNotNull) {
-      return await put()!(_box, _key, item);
+      result = await put()!(_box, _key, item);
     } else {
       Insert data = toStore(item);
 
@@ -194,8 +203,11 @@ abstract class BaseRepository<Result, Insert> implements RepositoryService<Resul
         await _box.put(_key, data);
       }
 
-      return item;
+      result = item;
     }
+
+    _notifyListeners(result);
+    return result;
   }
 
   @override
@@ -570,6 +582,7 @@ abstract class BaseRepository<Result, Insert> implements RepositoryService<Resul
     _throwIfNotInitialized();
     
     await _box.delete(_key);
+    _notifyListeners(fromStore(null));
 
     runDelete();
     return Optional<Result>.empty();

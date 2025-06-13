@@ -168,7 +168,7 @@ void main() {
     test('handles event listeners with on/off', () async {
       // Arrange
       final eventCompleter = Completer<dynamic>();
-      const eventType = 'custom_event';
+      const eventType = SocketType.ack;
       final eventData = {
         'action': 'user_login',
         'userId': 'user123',
@@ -194,7 +194,7 @@ void main() {
         'data': eventData
       };
       
-      zapRealtime.send(endpoint: eventType, data: testMessage);
+      zapRealtime.send(endpoint: "", data: testMessage);
 
       // Assert
       final receivedData = await eventCompleter.future;
@@ -206,7 +206,7 @@ void main() {
     test('emits events to server', () async {
       // Arrange
       final emitCompleter = Completer<ZyncResponse>();
-      const eventType = 'user_action';
+      const eventType = SocketType.auth;
       final eventData = {
         'action': 'button_click',
         'buttonId': 'submit_btn',

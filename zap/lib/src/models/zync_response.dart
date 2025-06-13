@@ -1,10 +1,13 @@
+import '../definitions.dart';
+import '../enums/socket_type.dart';
+
 /// Represents a message response from the WebSocket connection.
 class ZyncResponse {
   /// The event type or command.
-  final String? type;
+  final SocketType? type;
   
   /// Headers associated with the message.
-  final Map<String, String>? headers;
+  final Headers? headers;
   
   /// Raw message body as string.
   final String? body;

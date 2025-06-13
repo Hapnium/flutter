@@ -15,7 +15,10 @@ ZapInterface fluxClient(FluxConfig config, [bool useAuth = false]) {
   if(config.useSingleInstance) {
     return Zap(zapConfig: config.zapConfig);
   } else {
-    return _Connect(config, useAuth);
+    ZapInterface inst = _Connect(config, useAuth);
+    inst.onStart();
+
+    return inst;
   }
 }
 
@@ -60,7 +63,7 @@ class _Connect extends Zap {
           } else {
             // If unable to refresh token, redirect user to login or handle it accordingly
             // Example: Redirect to login page
-            fx.onRemoveRoute?.call();
+            fx.whenUnauthorized?.call();
           }
         }
 

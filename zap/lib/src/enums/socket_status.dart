@@ -9,7 +9,7 @@
 ///   print('Socket is ready to send and receive data.');
 /// }
 /// ```
-enum ZapSocketStatus {
+enum SocketStatus {
   /// Indicates the socket is in the process of establishing a connection.
   ///
   /// This status is typically set immediately after the `connect()` method

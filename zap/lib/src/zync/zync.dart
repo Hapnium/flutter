@@ -1,17 +1,25 @@
 import 'dart:async';
-import 'dart:convert';
+// import 'dart:convert';
 
 import 'package:tracing/tracing.dart' show console;
 
 import '../definitions.dart';
+import '../enums/socket_type.dart';
 import '../enums/zync_state.dart';
 import '../exceptions/exceptions.dart';
 import '../models/session_response.dart';
+import '../models/socket_messenger.dart';
 import '../models/zync_config.dart';
 import '../models/zync_error_response.dart';
 import '../models/zync_response.dart';
 import '../core/zap_socket.dart';
+import '../socket/src/socket_notifier.dart';
 import 'zync_interface.dart';
+
+/// ZyncMessage is a callback function that handles incoming messages.
+/// 
+/// It takes a ZyncResponse object as a parameter and returns void.
+typedef ZyncMessage = void Function(ZyncResponse response);
 
 /// Zync is a high-level WebSocket client wrapper that provides real-time
 /// communication capabilities with authentication, session management, and
@@ -114,10 +122,10 @@ class Zync implements ZyncInterface {
   ZyncState _connectionState = ZyncState.dormant;
 
   /// Map of active subscriptions
-  final Map<String, void Function(ZyncResponse)> _subscriptions = {};
+  final Map<String, ZyncMessage> _subscriptions = {};
 
   /// Map of event listeners
-  final Map<String, void Function(dynamic)> _eventListeners = {};
+  final Map<SocketType, MessageSocket> _eventListeners = {};
 
   /// Reconnection attempt counter
   int _reconnectAttempts = 0;
@@ -199,7 +207,7 @@ class Zync implements ZyncInterface {
   /// - `Authorization: Goog abc123` (Google style)
   /// - `X-API-Key: abc123` (API key style with empty prefix)
   /// - Multiple custom headers via customAuthHeaderBuilder
-  Map<String, String> _buildAuthHeaders(SessionResponse session) {
+  Headers _buildAuthHeaders(SessionResponse session) {
     // Use custom auth header builder if provided
     if (config.customAuthHeaderBuilder != null) {
       return config.customAuthHeaderBuilder!(session);
@@ -220,7 +228,7 @@ class Zync implements ZyncInterface {
   /// 
   /// This method fetches the current session and builds the appropriate auth headers
   /// based on the configuration. It also includes any additional headers from config.
-  Map<String, String> _buildHeaders([Map<String, String>? additionalHeaders]) {
+  Headers _buildHeaders([Headers? additionalHeaders]) {
     final headers = <String, String>{
       'Accept': 'application/json',
     };
@@ -264,9 +272,9 @@ class Zync implements ZyncInterface {
       if (message is String) {
         // Try to parse as JSON
         try {
-          final data = jsonDecode(message);
+          final data = SocketMessenger.decode(message);
           response = ZyncResponse(
-            type: data['type'],
+            type: data.type,
             body: message,
             data: data,
             hasBody: true,
@@ -298,8 +306,8 @@ class Zync implements ZyncInterface {
       config.onReceived?.call(response);
 
       // Handle subscriptions
-      if (response.type != null && _subscriptions.containsKey(response.type)) {
-        _subscriptions[response.type]?.call(response);
+      if (response.type != null && _subscriptions.containsKey(response.type!.name)) {
+        _subscriptions[response.type!.name]?.call(response);
       }
 
       // Handle event listeners
@@ -335,12 +343,13 @@ class Zync implements ZyncInterface {
     _pingTimer?.cancel();
     _pingTimer = Timer.periodic(config.pingInterval, (timer) {
       if (isConnected) {
-        final pingMessage = {
-          'type': 'ping',
-          'timestamp': DateTime.now().millisecondsSinceEpoch,
-          'headers': _buildHeaders(),
-        };
-        _socket?.send(jsonEncode(pingMessage));
+        _socket?.send(
+          SocketMessenger(
+            type: SocketType.ping,
+            timestamp: DateTime.now(),
+            headers: _buildHeaders(),
+          ).encode(),
+        );
       }
     });
   }
@@ -393,12 +402,13 @@ class Zync implements ZyncInterface {
         }
 
         // Send connection headers with authentication
-        final connectionMessage = {
-          'type': 'connect',
-          'headers': _buildHeaders(),
-          'timestamp': DateTime.now().millisecondsSinceEpoch,
-        };
-        _socket!.send(jsonEncode(connectionMessage));
+        _socket!.send(
+          SocketMessenger(
+            type: SocketType.connect,
+            headers: _buildHeaders(),
+            timestamp: DateTime.now(),
+          ).encode(),
+        );
 
         // Auto-subscribe to configured subscription
         if (config.subscription != null) {
@@ -471,11 +481,7 @@ class Zync implements ZyncInterface {
   }
 
   @override
-  void send({
-    required String endpoint,
-    required dynamic data,
-    Headers? headers,
-  }) {
+  void send({required String endpoint, required dynamic data, Headers? headers}) {
     if (!isConnected) {
       if (_sendTrials >= _maxSendTrials) {
         _handleError('Send Error', 'WebSocket not connected after $_maxSendTrials attempts');
@@ -494,15 +500,15 @@ class Zync implements ZyncInterface {
     try {
       _updateConnectionState(ZyncState.sending);
       
-      final message = {
-        'type': 'send',
-        'endpoint': endpoint,
-        'data': data,
-        'headers': _buildHeaders(headers),
-        'timestamp': DateTime.now().millisecondsSinceEpoch,
-      };
-
-      _socket!.send(jsonEncode(message));
+      _socket!.send(
+        SocketMessenger(
+          type: SocketType.send,
+          endpoint: endpoint,
+          data: data,
+          headers: headers,
+          timestamp: DateTime.now(),
+        ).encode(),
+      );
       
       _updateConnectionState(ZyncState.sent);
       _resetSendTrial();
@@ -519,23 +525,20 @@ class Zync implements ZyncInterface {
   }
 
   @override
-  void subscribe({
-    required String topic,
-    required void Function(ZyncResponse) onMessage,
-  }) {
+  void subscribe({required String topic, required ZyncMessage onMessage}) {
     _subscriptions[topic] = onMessage;
     
     if (isConnected) {
       _updateConnectionState(ZyncState.subscribing);
       
-      final message = {
-        'type': 'subscribe',
-        'topic': topic,
-        'headers': _buildHeaders(),
-        'timestamp': DateTime.now().millisecondsSinceEpoch,
-      };
-
-      _socket!.send(jsonEncode(message));
+      _socket!.send(
+        SocketMessenger(
+          type: SocketType.subscribe,
+          topic: topic,
+          headers: _buildHeaders(),
+          timestamp: DateTime.now(),
+        ).encode(),
+      );
       
       _updateConnectionState(ZyncState.subscribed);
       
@@ -550,14 +553,14 @@ class Zync implements ZyncInterface {
     _subscriptions.remove(topic);
     
     if (isConnected) {
-      final message = {
-        'type': 'unsubscribe',
-        'topic': topic,
-        'headers': _buildHeaders(),
-        'timestamp': DateTime.now().millisecondsSinceEpoch,
-      };
-
-      _socket!.send(jsonEncode(message));
+      _socket!.send(
+        SocketMessenger(
+          type: SocketType.unsubscribe,
+          topic: topic,
+          headers: _buildHeaders(),
+          timestamp: DateTime.now(),
+        ).encode(),
+      );
       
       if (config.showConnectionLogs) {
         console.log('Zync: Unsubscribed from $topic');
@@ -566,26 +569,26 @@ class Zync implements ZyncInterface {
   }
 
   @override
-  void on(String event, void Function(dynamic data) callback) {
+  void on(SocketType event, void Function(dynamic data) callback) {
     _eventListeners[event] = callback;
   }
 
   @override
-  void off(String event) {
+  void off(SocketType event) {
     _eventListeners.remove(event);
   }
 
   @override
-  void emit(String event, dynamic data) {
+  void emit(SocketType event, dynamic data) {
     if (isConnected) {
-      final message = {
-        'type': event,
-        'data': data,
-        'headers': _buildHeaders(),
-        'timestamp': DateTime.now().millisecondsSinceEpoch,
-      };
-      
-      _socket!.send(jsonEncode(message));
+      _socket!.send(
+        SocketMessenger(
+          type: event,
+          data: data,
+          headers: _buildHeaders(),
+          timestamp: DateTime.now(),
+        ).encode(),
+      );
       
       if (config.showSendLogs) {
         console.info('Zync: Event emitted - $event');

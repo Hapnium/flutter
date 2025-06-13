@@ -1,10 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:js_interop';
 
 import 'package:tracing/tracing.dart' show console;
 import 'package:web/web.dart' as html;
 
+import '../../enums/socket_type.dart';
+import '../../models/socket_messenger.dart';
 import 'socket_close.dart';
 import 'socket_interface.dart';
 import 'socket_notifier.dart';
@@ -37,7 +38,7 @@ class BaseWebSocket extends SocketInterface {
   bool isDisposed = false;
 
   /// The current connection status.
-  ZapSocketStatus? connectionStatus;
+  SocketStatus? connectionStatus;
 
   /// Timer used for sending periodic ping messages.
   Timer? _t;
@@ -75,14 +76,14 @@ class BaseWebSocket extends SocketInterface {
   @override
   Future<void> connect() async {
     try {
-      connectionStatus = ZapSocketStatus.connecting;
+      connectionStatus = SocketStatus.connecting;
       socket = html.WebSocket(url);
       socket!.onOpen.listen((e) {
         socketNotifier?.open();
         _t = Timer?.periodic(ping, (t) {
           socket!.send(''.toJSBox);
         });
-        connectionStatus = ZapSocketStatus.connected;
+        connectionStatus = SocketStatus.connected;
       });
 
       socket!.onMessage.listen((event) {
@@ -92,18 +93,18 @@ class BaseWebSocket extends SocketInterface {
       socket!.onClose.listen((e) {
         _t?.cancel();
 
-        connectionStatus = ZapSocketStatus.closed;
+        connectionStatus = SocketStatus.closed;
         socketNotifier!.notifyClose(SocketClose(e.reason, e.code));
       });
       socket!.onError.listen((event) {
         _t?.cancel();
         socketNotifier!.notifyError(SocketClose(event.toString(), 0));
-        connectionStatus = ZapSocketStatus.closed;
+        connectionStatus = SocketStatus.closed;
       });
     } on Exception catch (e) {
       _t?.cancel();
       socketNotifier!.notifyError(SocketClose(e.toString(), 500));
-      connectionStatus = ZapSocketStatus.closed;
+      connectionStatus = SocketStatus.closed;
       //  close(500, e.toString());
     }
   }
@@ -116,13 +117,13 @@ class BaseWebSocket extends SocketInterface {
   }
 
   @override
-  void emit(String event, dynamic data) {
-    send(jsonEncode({'type': event, 'data': data}));
+  void emit(SocketType command, dynamic data) {
+    send(SocketMessenger.simple(command: command, data: data).encode());
   }
 
   @override
-  void on(String event, MessageSocket message) {
-    socketNotifier?.addEvents(event, message);
+  void on(SocketType command, MessageSocket message) {
+    socketNotifier?.addEvents(command, message);
   }
 
   @override
@@ -147,7 +148,7 @@ class BaseWebSocket extends SocketInterface {
   
   @override
   void send(Object data) {
-    if (connectionStatus == ZapSocketStatus.closed) {
+    if (connectionStatus == SocketStatus.closed) {
       connect();
     }
 

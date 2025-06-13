@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../../enums/socket_type.dart';
 import 'socket_close.dart';
 
 /// Signature for a callback that handles socket close events.
@@ -25,10 +26,10 @@ typedef OpenSocket = void Function();
 /// The class acts as an event bus for WebSocket-based applications.
 class SocketNotifier {
   /// List of listeners for general messages received over the socket.
-  List<void Function(dynamic)>? _onMessages = <MessageSocket>[];
+  List<MessageSocket>? _onMessages = <MessageSocket>[];
 
   /// Map of event-specific message listeners, keyed by event name.
-  Map<String, void Function(dynamic)>? _onEvents = <String, MessageSocket>{};
+  Map<SocketType, MessageSocket>? _onEvents = <SocketType, MessageSocket>{};
 
   /// List of listeners for socket close events.
   List<void Function(SocketClose)>? _onCloses = <CloseSocket>[];
@@ -60,7 +61,7 @@ class SocketNotifier {
   /// The [event] is a string key to identify the type of message.
   /// The [socket] callback will be triggered if an incoming message
   /// contains the corresponding event type.
-  void addEvents(String event, MessageSocket socket) {
+  void addEvents(SocketType event, MessageSocket socket) {
     _onEvents![event] = socket;
   }
 

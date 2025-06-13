@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import '../definitions.dart';
+import '../enums/socket_type.dart';
 import '../enums/zync_state.dart';
 import '../models/zync_error_response.dart';
 import '../models/zync_response.dart';
@@ -65,16 +66,16 @@ abstract class ZyncInterface {
   /// 
   /// - [event]: The event type to listen for
   /// - [callback]: The callback to invoke when the event is received
-  void on(String event, void Function(dynamic data) callback);
+  void on(SocketType event, void Function(dynamic data) callback);
 
   /// Removes a listener for a specific event type.
   /// 
   /// - [event]: The event type to stop listening for
-  void off(String event);
+  void off(SocketType event);
 
   /// Emits an event with data to the server.
   /// 
   /// - [event]: The event type to emit
   /// - [data]: The data to send with the event
-  void emit(String event, dynamic data);
+  void emit(SocketType event, dynamic data);
 }

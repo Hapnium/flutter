@@ -36,7 +36,7 @@ class FluxConfig {
   /// - **onRemoveRoute**: A callback function to execute when removing routes. Default is `null`.
   /// 
   /// This is used to remove the current route when the request hits an unauthorized exception.
-  final Callback? onRemoveRoute;
+  final Callback? whenUnauthorized;
 
   /// - **headers**: Additional headers to send to the request processor. Default is `null`.
   final Headers? headers;
@@ -80,7 +80,7 @@ class FluxConfig {
     this.showErrorLogs = false,
     this.zapConfig,
     this.sessionFactory,
-    this.onRemoveRoute,
+    this.whenUnauthorized,
     this.headers,
     this.showRequestLogs = false,
     this.showResponseLogs = false,
@@ -121,7 +121,7 @@ class FluxConfig {
       zapConfig: zapConfig ?? this.zapConfig,
       onSessionRefreshed: onSessionRefreshed ?? this.onSessionRefreshed,
       sessionFactory: sessionFactory ?? this.sessionFactory,
-      onRemoveRoute: onRemoveRoute ?? this.onRemoveRoute,
+      whenUnauthorized: onRemoveRoute ?? this.whenUnauthorized,
       headers: headers ?? this.headers,
       isWeb: isWeb ?? this.isWeb,
       connectTimeout: connectTimeout ?? this.connectTimeout,

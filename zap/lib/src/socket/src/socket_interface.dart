@@ -1,3 +1,4 @@
+import '../../enums/socket_type.dart';
 import '../../exceptions/exceptions.dart';
 import 'socket_notifier.dart';
 
@@ -78,9 +79,9 @@ abstract class SocketInterface {
 
   /// Registers a named event listener.
   ///
-  /// If a message contains a `"type"` field that matches [event],
+  /// If a message contains a `"type"` field that matches [command],
   /// [message] will be invoked with the corresponding `"data"` value.
-  void on(String event, MessageSocket message) {
+  void on(SocketType command, MessageSocket message) {
     throw ZapException('To use sockets you need dart:io or dart:html');
   }
 
@@ -106,7 +107,7 @@ abstract class SocketInterface {
   /// Emits a named event to the server with optional payload data.
   ///
   /// This sends a JSON message with fields `"type"` and `"data"`.
-  void emit(String event, dynamic data) {
+  void emit(SocketType command, dynamic data) {
     throw ZapException('To use sockets you need dart:io or dart:html');
   }
 }

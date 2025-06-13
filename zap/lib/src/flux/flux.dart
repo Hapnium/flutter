@@ -106,6 +106,7 @@ final class Flux implements FluxInterface {
 
   /// Disposes the current singleton instance, allowing a new one to be created.
   static void dispose() {
+    _instance?._client().onDelete();
     _instance?._client().dispose();
     _instance = null;
   }

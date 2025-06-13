@@ -213,7 +213,7 @@ extension FluxConfigExtension on FluxConfig {
     _log(response);
 
     if(response.status == HttpStatus.UNAUTHORIZED) {
-      onRemoveRoute?.call();
+      whenUnauthorized?.call();
     }
 
     return response;
