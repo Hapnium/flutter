@@ -100,3 +100,8 @@
 ## 0.1.3
 
 - Fixed issues with `Flux`
+
+## 0.1.4
+
+- Renamed `onRemoveRoute` to `whenUnauthorized`
+- Renamed `customAuthHeaderBuilder` to `authHeaderBuilder`

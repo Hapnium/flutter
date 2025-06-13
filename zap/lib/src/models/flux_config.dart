@@ -33,7 +33,7 @@ class FluxConfig {
   /// Default is `null`.
   final AsyncSessionCallback? onSessionRefreshed;
 
-  /// - **onRemoveRoute**: A callback function to execute when removing routes. Default is `null`.
+  /// - **whenUnauthorized**: A callback function to execute when removing routes. Default is `null`.
   /// 
   /// This is used to remove the current route when the request hits an unauthorized exception.
   final Callback? whenUnauthorized;
@@ -58,20 +58,20 @@ class FluxConfig {
   /// Set to empty string `''` if no prefix is needed.
   final String tokenPrefix;
 
-  /// - **customAuthHeaderBuilder**: A custom function to build authentication headers.
+  /// - **authHeaderBuilder**: A custom function to build authentication headers.
   /// 
   /// This function receives the current session and should return a map of headers to add.
   /// If provided, this takes precedence over [authHeaderName] and [tokenPrefix].
   /// 
   /// Example:
   /// ```dart
-  /// customAuthHeaderBuilder: (session) => {
+  /// authHeaderBuilder: (session) => {
   ///   'Authorization': 'Bearer ${session.accessToken}',
   ///   'X-Refresh-Token': session.refreshToken,
   ///   'X-User-ID': session.userId.toString(),
   /// }
   /// ```
-  final HeaderBuilder? customAuthHeaderBuilder;
+  final HeaderBuilder? authHeaderBuilder;
 
   FluxConfig({
     this.disposeOnCompleted = false,
@@ -88,7 +88,7 @@ class FluxConfig {
     this.connectTimeout = const Duration(seconds: 30),
     this.authHeaderName = 'Authorization',
     this.tokenPrefix = 'Bearer',
-    this.customAuthHeaderBuilder,
+    this.authHeaderBuilder,
   });
 
   /// Creates a new [FluxConfig] instance by copying existing values and
@@ -102,7 +102,7 @@ class FluxConfig {
     ZapConfig? zapConfig,
     AsyncSessionCallback? onSessionRefreshed,
     SessionCallback? sessionFactory,
-    Callback? onRemoveRoute,
+    Callback? whenUnauthorized,
     bool? removeAllPathsWhenRequestFails,
     bool? reloadPageWhenRequestFails,
     Headers? headers,
@@ -110,7 +110,7 @@ class FluxConfig {
     Duration? connectTimeout,
     String? authHeaderName,
     String? tokenPrefix,
-    HeaderBuilder? customAuthHeaderBuilder,
+    HeaderBuilder? authHeaderBuilder,
   }) {
     return FluxConfig(
       disposeOnCompleted: disposeOnCompleted ?? this.disposeOnCompleted,
@@ -121,13 +121,13 @@ class FluxConfig {
       zapConfig: zapConfig ?? this.zapConfig,
       onSessionRefreshed: onSessionRefreshed ?? this.onSessionRefreshed,
       sessionFactory: sessionFactory ?? this.sessionFactory,
-      whenUnauthorized: onRemoveRoute ?? this.whenUnauthorized,
+      whenUnauthorized: whenUnauthorized ?? this.whenUnauthorized,
       headers: headers ?? this.headers,
       isWeb: isWeb ?? this.isWeb,
       connectTimeout: connectTimeout ?? this.connectTimeout,
       authHeaderName: authHeaderName ?? this.authHeaderName,
       tokenPrefix: tokenPrefix ?? this.tokenPrefix,
-      customAuthHeaderBuilder: customAuthHeaderBuilder ?? this.customAuthHeaderBuilder,
+      authHeaderBuilder: authHeaderBuilder ?? this.authHeaderBuilder,
     );
   }
 }

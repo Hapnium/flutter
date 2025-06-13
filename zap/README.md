@@ -207,7 +207,7 @@ final zapPulse = Flux(
     tokenPrefix: 'Token',
     
     // Option 2: Custom header builder
-    customAuthHeaderBuilder: (session) => {
+    authHeaderBuilder: (session) => {
       'X-User-ID': session.userId,
       'X-Access-Token': session.accessToken,
       'X-Custom-Auth': 'User:${session.userId},Token:${session.accessToken}',

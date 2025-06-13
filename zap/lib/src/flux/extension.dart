@@ -35,15 +35,15 @@ extension FluxConfigExtension on FluxConfig {
   /// - `Authorization: Bearer abc123` (default)
   /// - `Authorization: Goog abc123` (Google style)
   /// - `X-API-Key: abc123` (API key style with empty prefix)
-  /// - Multiple custom headers via customAuthHeaderBuilder
+  /// - Multiple custom headers via authHeaderBuilder
   Headers buildHeadersWithAuth({SessionResponse? session}) {
     session ??= currentSession;
     Headers headers = {};
 
     if (session != null) {
       // Use custom auth header builder if provided
-      if (customAuthHeaderBuilder != null) {
-        headers = customAuthHeaderBuilder!(session);
+      if (authHeaderBuilder != null) {
+        headers = authHeaderBuilder!(session);
       }
 
       // Use configurable header name and token prefix

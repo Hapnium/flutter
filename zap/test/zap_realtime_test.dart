@@ -309,7 +309,7 @@ void main() {
         config: ZyncConfig(
           url: wsUrl,
           session: testSession,
-          customAuthHeaderBuilder: (session) => {
+          authHeaderBuilder: (session) => {
             'X-Access-Token': session.accessToken,
             'X-Custom-Header': 'custom_value_${session.refreshToken}',
           },

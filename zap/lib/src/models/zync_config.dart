@@ -44,20 +44,20 @@ class ZyncConfig {
   /// Set to empty string `''` if no prefix is needed.
   final String tokenPrefix;
 
-  /// - **customAuthHeaderBuilder**: A custom function to build authentication headers.
+  /// - **authHeaderBuilder**: A custom function to build authentication headers.
   /// 
   /// This function receives the current session and should return a map of headers to add.
   /// If provided, this takes precedence over [authHeaderName] and [tokenPrefix].
   /// 
   /// Example:
   /// ```dart
-  /// customAuthHeaderBuilder: (session) => {
+  /// authHeaderBuilder: (session) => {
   ///   'Authorization': 'Bearer ${session.accessToken}',
   ///   'X-Refresh-Token': session.refreshToken,
   ///   'X-User-ID': session.userId.toString(),
   /// }
   /// ```
-  final HeaderBuilder? customAuthHeaderBuilder;
+  final HeaderBuilder? authHeaderBuilder;
 
   /// - **sessionFactory**: A callback function to handle session updates. Default is `null`.
   final SessionCallback? sessionFactory;
@@ -93,7 +93,7 @@ class ZyncConfig {
     this.useToken = true,
     this.authHeaderName = 'Authorization',
     this.tokenPrefix = 'Bearer',
-    this.customAuthHeaderBuilder,
+    this.authHeaderBuilder,
     this.sessionFactory,
     this.onReceived,
     this.onError,
@@ -116,7 +116,7 @@ class ZyncConfig {
     bool? useToken,
     String? authHeaderName,
     String? tokenPrefix,
-    HeaderBuilder? customAuthHeaderBuilder,
+    HeaderBuilder? authHeaderBuilder,
     SessionCallback? sessionFactory,
     RealtimeCallback? onReceived,
     ErrorCallback? onError,
@@ -138,7 +138,7 @@ class ZyncConfig {
       useToken: useToken ?? this.useToken,
       authHeaderName: authHeaderName ?? this.authHeaderName,
       tokenPrefix: tokenPrefix ?? this.tokenPrefix,
-      customAuthHeaderBuilder: customAuthHeaderBuilder ?? this.customAuthHeaderBuilder,
+      authHeaderBuilder: authHeaderBuilder ?? this.authHeaderBuilder,
       sessionFactory: sessionFactory ?? this.sessionFactory,
       onReceived: onReceived ?? this.onReceived,
       onError: onError ?? this.onError,

@@ -185,7 +185,7 @@ void main() {
       
       zapPulse = Flux(
         config: FluxConfig(
-          customAuthHeaderBuilder: (session) => {
+          authHeaderBuilder: (session) => {
             'X-User-Token': 'user_token_${session.accessToken}',
           },
         ),
