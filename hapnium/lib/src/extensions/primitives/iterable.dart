@@ -1,9 +1,9 @@
 import 'package:hapnium/hapnium.dart';
 
 extension IterableExtension<T> on Iterable<T> {
-  /// Flattens single items or lists of items into a single iterable.
+  /// Flattens lists of items into a single iterable.
   ///
-  /// This function allows you to extract either a single element or an iterable of elements
+  /// This function allows you to extract an iterable of elements
   /// from each item in the original iterable, then flattens the result.
   ///
   /// Example:
@@ -11,14 +11,9 @@ extension IterableExtension<T> on Iterable<T> {
   /// List<User> addons = [...];
   /// List<Card> cards = addons.flatMap((e) => e.card).toList();
   /// ```
-  Iterable<E> flatMap<E>(Object? Function(T item) selector) sync* {
-    for (T item in this) {
-      final result = selector(item);
-      if (result is E) {
-        yield result;
-      } else if (result is Iterable<E>) {
-        yield* result;
-      }
+  Iterable<E> flatMap<E>(Iterable<E> Function(T item) selector) sync* {
+    for (final item in this) {
+      yield* selector(item);
     }
   }
 
@@ -31,6 +26,7 @@ extension IterableExtension<T> on Iterable<T> {
   /// final doubledNumbers = numbers.flatMapIterable((n) => [n, n * 2]);
   /// // doubledNumbers will be [1, 2, 2, 4, 3, 6]
   /// ```
+  @Deprecated('Use flatMap instead')
   Iterable<E> flattenIterable<E>(Iterable<E>? Function(T item) selector) sync* {
     for (T item in this) {
       Iterable<E>? res = selector(item);

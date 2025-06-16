@@ -116,3 +116,6 @@ export 'paged/pull_to_refresh.dart';
 /// STEPPING
 export 'stepping/stepping.dart';
 export 'stepping/stepping_list_view.dart';
+
+/// TREE
+export 'tree/smart_comment/smart_comment_thread.dart';
