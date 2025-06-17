@@ -1,8 +1,10 @@
 import 'package:tracing/tracing.dart' show console;
 
 import '../definitions.dart';
+import '../enums/exception_type.dart';
+import '../exceptions/controller_advice.dart';
+import '../exceptions/zap_exception.dart';
 import '../models/api_response.dart';
-import '../exceptions/exceptions.dart';
 import '../http/response/response.dart';
 import '../http/utils/http_status.dart';
 import '../models/flux_config.dart';
@@ -13,6 +15,9 @@ import '../models/cancel_token.dart';
 typedef RequestExecutor<T> = Future<Response<ApiResponse<T>>> Function(Headers? headers, CancelToken? cancelToken);
 
 extension FluxConfigExtension on FluxConfig {
+  /// Adviser instance for handling exceptions and logging.
+  ControllerAdvice get _adviser => controllerAdvice ?? ControllerAdvice();
+  
   /// Gets the current session, always fetching the latest from the session factory.
   /// 
   /// This ensures that the session is always up-to-date by calling the session
@@ -144,44 +149,154 @@ extension FluxConfigExtension on FluxConfig {
     }
   }
 
-  /// Handles [ZapException] and returns a [Response<ApiResponse<T>>].
+  /// Handles [Exception] and returns a [Response<ApiResponse<T>>] based on exception type.
   /// 
-  /// This method is used to handle [ZapException] that may be thrown during a request.
+  /// This method handles [Exception] that may be thrown during a request and returns
+  /// appropriate responses based on the exception type, similar to the main handler.
   /// 
   /// If [showErrorLogs] is true, the exception is logged.
   /// 
-  /// Returns a [Response<ApiResponse<T>>] with the status code and message from the exception.
-  Response<ApiResponse<T>> handleZapException<T>(ZapException e) {
-    if (showErrorLogs) {
-      console.log('[ZAP PULSE] ZapException: $e');
-    }
+  /// Returns a [Response<ApiResponse<T>>] with appropriate status code and ApiResponse body.
+  Response<ApiResponse<T>> handleException<T>(Exception e) {
+    ZapException zapException;
     
-    // Return error response
-    return Response<ApiResponse<T>>(
-      status: e.isTimeout ? HttpStatus.REQUEST_TIMEOUT : HttpStatus.INTERNAL_SERVER_ERROR,
-      message: e.isTimeout ? 'Request timed out' : e.message,
-      body: ApiResponse<T>.error(e.message),
-    );
+    // Convert to ZapException if not already
+    if (e is ZapException) {
+      zapException = e;
+    } else {
+      zapException = ZapException(e.toString());
+    }
+
+    // Log if enabled
+    if (showErrorLogs) {
+      console.log('[ZAP PULSE] Exception: $zapException');
+    }
+
+    // Always notify the adviser about the exception
+    _adviser.onException(zapException);
+
+    // Return appropriate response based on exception type
+    return _createApiResponseForException<T>(zapException);
   }
 
-  /// Handles [Exception] and returns a [Response<ApiResponse<T>>].
-  /// 
-  /// This method is used to handle [Exception] that may be thrown during a request.
-  /// 
-  /// If [showErrorLogs] is true, the exception is logged.
-  /// 
-  /// Returns a [Response<ApiResponse<T>>] with the status code and message from the exception.
-  Response<ApiResponse<T>> handleException<T>(Exception e) {
-    if (showErrorLogs) {
-      console.log('[ZAP PULSE] Exception: $e');
+  /// Creates appropriate Response<ApiResponse<T>> objects based on ZapException type
+  Response<ApiResponse<T>> _createApiResponseForException<T>(ZapException exception) {
+    switch (exception.type) {
+      case ExceptionType.timeout:
+        return Response<ApiResponse<T>>(
+          status: HttpStatus.REQUEST_TIMEOUT,
+          message: 'Request timed out. Please try again.',
+          body: ApiResponse<T>.error('Request timeout: ${exception.message}'),
+          headers: {'x-error-type': 'timeout'},
+        );
+
+      case ExceptionType.network:
+        return Response<ApiResponse<T>>(
+          status: HttpStatus.CONNECTION_NOT_REACHABLE,
+          message: 'Network connection unavailable. Check your internet connection.',
+          body: ApiResponse<T>.error('Network error: ${exception.message}'),
+          headers: {'x-error-type': 'network'},
+        );
+
+      case ExceptionType.server:
+        return Response<ApiResponse<T>>(
+          status: HttpStatus.fromCode(exception.statusCode ?? 500),
+          message: 'Server error occurred. Please try again later.',
+          body: ApiResponse<T>.error('Server error: ${exception.message}'),
+          headers: {
+            'x-error-type': 'server',
+            'x-status-code': '${exception.statusCode ?? 500}'
+          },
+        );
+
+      case ExceptionType.client:
+        return Response<ApiResponse<T>>(
+          status: HttpStatus.fromCode(exception.statusCode ?? 400),
+          message: 'Client request error. Please check your request.',
+          body: ApiResponse<T>.error('Client error: ${exception.message}'),
+          headers: {
+            'x-error-type': 'client',
+            'x-status-code': '${exception.statusCode ?? 400}'
+          },
+        );
+
+      case ExceptionType.auth:
+        return Response<ApiResponse<T>>(
+          status: HttpStatus.UNAUTHORIZED,
+          message: 'Authentication required. Please login again.',
+          body: ApiResponse<T>.error('Authentication error: ${exception.message}'),
+          headers: {
+            'x-error-type': 'auth',
+            'x-auth-required': 'true'
+          },
+        );
+
+      case ExceptionType.ssl:
+        return Response<ApiResponse<T>>(
+          status: HttpStatus.CONNECTION_NOT_REACHABLE,
+          message: 'Secure connection failed. Certificate or SSL error.',
+          body: ApiResponse<T>.error('SSL error: ${exception.message}'),
+          headers: {
+            'x-error-type': 'ssl',
+            'x-security-error': 'true'
+          },
+        );
+
+      case ExceptionType.connection:
+        return Response<ApiResponse<T>>(
+          status: HttpStatus.CONNECTION_NOT_REACHABLE,
+          message: 'Cannot connect to server. Server may be down.',
+          body: ApiResponse<T>.error('Connection error: ${exception.message}'),
+          headers: {
+            'x-error-type': 'connection',
+            'x-retry-after': '30'
+          },
+        );
+
+      case ExceptionType.dns:
+        return Response<ApiResponse<T>>(
+          status: HttpStatus.CONNECTION_NOT_REACHABLE,
+          message: 'Cannot resolve server address. Check your DNS settings.',
+          body: ApiResponse<T>.error('DNS error: ${exception.message}'),
+          headers: {
+            'x-error-type': 'dns',
+            'x-dns-error': 'true'
+          },
+        );
+
+      case ExceptionType.parsing:
+        return Response<ApiResponse<T>>(
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          message: 'Cannot parse server response. Invalid data format.',
+          body: ApiResponse<T>.error('Parsing error: ${exception.message}'),
+          headers: {
+            'x-error-type': 'parsing',
+            'x-content-error': 'true'
+          },
+        );
+
+      case ExceptionType.cancelled:
+        return Response<ApiResponse<T>>(
+          status: HttpStatus.REQUEST_CANCELLED,
+          message: 'Request was cancelled.',
+          body: ApiResponse<T>.error('Request cancelled: ${exception.message}'),
+          headers: {
+            'x-error-type': 'cancelled',
+            'x-cancelled': 'true'
+          },
+        );
+
+      default:
+        return Response<ApiResponse<T>>(
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'An unexpected error occurred. Please try again.',
+          body: ApiResponse<T>.error('Unknown error: ${exception.message}'),
+          headers: {
+            'x-error-type': 'unknown',
+            'x-unexpected-error': 'true'
+          },
+        );
     }
-    
-    // Return error response
-    return Response<ApiResponse<T>>(
-      status: HttpStatus.INTERNAL_SERVER_ERROR,
-      message: e.toString(),
-      body: ApiResponse<T>.error(e.toString()),
-    );
   }
 
   /// Creates an unauthorized response.

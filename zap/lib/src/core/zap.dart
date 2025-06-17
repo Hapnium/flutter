@@ -1,5 +1,5 @@
+import '../exceptions/zap_exception.dart';
 import '../http/client/zap_client.dart';
-import '../exceptions/exceptions.dart';
 import '../http/request/request.dart';
 import '../http/response/graphql_response.dart';
 import '../http/response/response.dart';

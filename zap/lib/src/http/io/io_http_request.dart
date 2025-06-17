@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:io' as io;
 
 import '../../definitions.dart';
+import '../../enums/exception_type.dart';
 import '../../enums/zap_provider.dart';
+import '../../exceptions/zap_exception.dart';
 import '../certificates/certificates.dart';
-import '../../exceptions/exceptions.dart';
 import '../interface/http_request_interface.dart';
 import '../request/request.dart';
 import '../response/helpers.dart';
@@ -13,7 +14,7 @@ import '../utils/body_decoder.dart';
 import '../utils/http_status.dart';
 import 'io_http_response.dart';
 
-/// A `dart:io` implementation of [HttpRequestInterface].
+/// A `dart:io` implementation of [HttpRequestInterface] with comprehensive error handling.
 class HttpRequestImplementation extends HttpRequestInterface {
   io.HttpClient? _httpClient;
   io.SecurityContext? _securityContext;
@@ -86,9 +87,71 @@ class HttpRequestImplementation extends HttpRequestInterface {
       );
     } on TimeoutException catch (_) {
       ioRequest?.abort();
-      throw ZapException('Request timed out', request.url, true);
-    } on io.HttpException catch (error) {
-      throw ZapException(error.message, error.uri);
+      throw ZapException.timeout(
+        'Request timed out after ${timeout?.inMilliseconds ?? 'unknown'}ms',
+        request.url,
+        {'timeoutMs': timeout?.inMilliseconds}
+      );
+    } on io.SocketException catch (e) {
+      throw _handleSocketException(e, request.url);
+    } on io.HttpException catch (e) {
+      throw _handleHttpException(e, request.url);
+    } on io.HandshakeException catch (e) {
+      throw ZapException.ssl('SSL handshake failed: ${e.message}', request.url);
+    } on io.CertificateException catch (e) {
+      throw ZapException.ssl('Certificate error: ${e.message}', request.url);
+    } on FormatException catch (e) {
+      throw ZapException.parsing('Invalid URL or data format: ${e.message}', request.url);
+    } catch (e, stackTrace) {
+      throw ZapException(
+        'Unexpected error: $e',
+        request.url,
+        ExceptionType.unknown,
+        null,
+        {'originalError': e.toString()},
+        e is Exception ? e : null,
+        stackTrace,
+      );
+    }
+  }
+
+  Exception _handleSocketException(io.SocketException e, Uri? uri) {
+    Map<String, dynamic> details = {
+      'osError': e.osError?.toString(),
+      'address': e.address?.toString(),
+      'port': e.port,
+    };
+
+    switch (e.osError?.errorCode) {
+      case 61: // Connection refused (macOS/Linux)
+      case 10061: // Connection refused (Windows)
+        return ZapException.connection('Connection refused - server may be down', uri, details);
+      case 64: // Host is down (macOS/Linux)
+      case 10064: // Host is down (Windows)
+        return ZapException.network('Host is unreachable or down', uri, details);
+      case 65: // No route to host (macOS/Linux)
+      case 10065: // No route to host (Windows)
+        return ZapException.network('No route to host', uri, details);
+      case 8: // Name resolution failed (macOS/Linux)
+      case 11001: // Host not found (Windows)
+        return ZapException.dns('DNS resolution failed - host not found', uri, details);
+      case 60: // Operation timed out (macOS/Linux)
+      case 10060: // Connection timed out (Windows)
+        return ZapException.timeout('Connection timed out', uri, details);
+      default:
+        return ZapException.network('Network error: ${e.message}', uri, details);
+    }
+  }
+
+  Exception _handleHttpException(io.HttpException e, Uri? uri) {
+    Map<String, dynamic> details = {'originalMessage': e.message};
+    
+    if (e.message.contains('Connection closed')) {
+      return ZapException.connection('Connection closed by server', uri, details);
+    } else if (e.message.contains('redirect')) {
+      return ZapException.client('Too many redirects or redirect loop', 0, uri, details);
+    } else {
+      return ZapException.network('HTTP protocol error: ${e.message}', uri, details);
     }
   }
 
@@ -101,9 +164,3 @@ class HttpRequestImplementation extends HttpRequestInterface {
     }
   }
 }
-
-// extension FileExt on io.FileSystemEntity {
-//   String get fileName {
-//     return this?.path?.split(io.Platform.pathSeparator)?.last;
-//   }
-// }

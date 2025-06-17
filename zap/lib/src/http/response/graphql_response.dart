@@ -1,6 +1,6 @@
 
 import '../../enums/zap_provider.dart';
-import '../../exceptions/exceptions.dart';
+import '../../exceptions/graphql_error.dart';
 import '../utils/http_status.dart';
 import 'response.dart';
 

@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import '../../definitions.dart';
+import '../../enums/exception_type.dart';
+import '../../exceptions/controller_advice.dart';
+import '../../exceptions/zap_exception.dart';
 import '../certificates/certificates.dart';
-import '../../exceptions/exceptions.dart';
 import '../interface/http_client_response.dart';
 import '../interface/http_request_interface.dart';
 import '../modifier/zap_modifier.dart';
@@ -12,6 +14,9 @@ import '../request/http_request.dart';
 import '../request/request.dart';
 import '../response/response.dart';
 import '../utils/http_status.dart';
+
+part 'client_handler.dart';
+part 'client_handler_extension.dart';
 
 /// A function that allows interception and modification of the HTTP response before it is returned.
 /// 
@@ -118,6 +123,11 @@ class ZapClient {
   /// If `null`, no proxy is used. Useful for custom proxy logic.
   ProxyFinder? findProxy;
 
+  /// A callback that returns a controller advice for a given request URL.
+  ///
+  /// If `null`, default controller advice is used.
+  ControllerAdvice? controllerAdvice;
+
   /// Creates a new instance of [ZapClient] with customizable networking behavior.
   ///
   /// This constructor allows configuring HTTP settings such as timeouts,
@@ -157,6 +167,7 @@ class ZapClient {
     ProxyFinder? findProxy,
     HttpRequestInterface? customClient,
     this.errorSafety = true,
+    this.controllerAdvice,
   })  : _client = customClient ?? createHttp(
       allowAutoSignedCert: allowAutoSignedCert,
       trustedCertificates: trustedCertificates,
@@ -212,6 +223,25 @@ class ZapClient {
     _modifier.removeResponseModifier<T>(interceptor);
   }
 
+  ClientHandler get _handler => ClientHandler(
+    modifier: _modifier,
+    client: _client,
+    errorSafety: errorSafety,
+    maxAuthRetries: maxAuthRetries,
+    maxRedirects: maxRedirects,
+    controllerAdvice: controllerAdvice,
+    followRedirects: followRedirects,
+    findProxy: findProxy,
+    baseUrl: baseUrl,
+    sendUserAgent: sendUserAgent,
+    sendContentLength: sendContentLength,
+    userAgent: userAgent,
+    defaultContentType: defaultContentType,
+    timeout: timeout,
+    defaultDecoder: defaultDecoder,
+    defaultResponseInterceptor: defaultResponseInterceptor,
+  );
+
   /// Builds a fully qualified [Uri] from a path and optional query parameters.
   ///
   /// If [baseUrl] is set, the path will be appended to it. Otherwise,
@@ -222,214 +252,7 @@ class ZapClient {
   /// - [query]: An optional map of query parameters.
   ///
   /// ### Returns:
-  Uri createUri(String? url, RequestParam? query) {
-    if (baseUrl != null) {
-      url = baseUrl! + url!;
-    }
-    
-    final uri = Uri.parse(url!);
-    if (query != null) {
-      // Convert all query parameter values to strings
-      final stringQuery = query.map((key, value) {
-        if (value is List) {
-          // Convert list to comma-separated string or bracket notation
-          return MapEntry(key, value.map((e) => e.toString()).join(','));
-          // Alternative bracket notation: return MapEntry(key, '[${value.map((e) => e.toString()).join(',')}]');
-        } else {
-          return MapEntry(key, value.toString());
-        }
-      });
-      return uri.replace(queryParameters: stringQuery);
-    }
-
-    return uri;
-  }
-
-  /// Create a request with body
-  Future<Request<T>> _requestWithBody<T>(
-    String? url,
-    String? contentType,
-    RequestBody body,
-    String method,
-    RequestParam? query,
-    ResponseDecoder<T>? decoder,
-    ResponseInterceptor<T>? responseInterceptor,
-    Progress? uploadProgress,
-  ) async {
-    BodyBytes? bodyBytes;
-    BodyByteStream? bodyStream;
-    final Headers headers = {};
-
-    if (sendUserAgent) {
-      headers['user-agent'] = userAgent;
-    }
-
-    if (body is FormData) {
-      bodyBytes = await body.toBytes();
-      headers['content-length'] = bodyBytes.length.toString();
-      headers['content-type'] = 'multipart/form-data; boundary=${body.boundary}';
-    } else if (contentType != null && contentType.toLowerCase() == 'application/x-www-form-urlencoded' && body is Map) {
-      var parts = [];
-      (body as RequestParam).forEach((key, value) {
-        parts.add('${Uri.encodeQueryComponent(key)}=${Uri.encodeQueryComponent(value.toString())}');
-      });
-      var formData = parts.join('&');
-      bodyBytes = utf8.encode(formData);
-      _setContentLength(headers, bodyBytes.length);
-      headers['content-type'] = contentType;
-    } else if (body is Map || body is List) {
-      var jsonString = json.encode(body);
-      bodyBytes = utf8.encode(jsonString);
-      _setContentLength(headers, bodyBytes.length);
-      headers['content-type'] = contentType ?? defaultContentType;
-    } else if (body is String) {
-      bodyBytes = utf8.encode(body);
-      _setContentLength(headers, bodyBytes.length);
-
-      headers['content-type'] = contentType ?? defaultContentType;
-    } else if (body == null) {
-      _setContentLength(headers, 0);
-      headers['content-type'] = contentType ?? defaultContentType;
-    } else {
-      if (!errorSafety) {
-        throw ZapUnexpectedFormat('Request body cannot be ${body.runtimeType}');
-      }
-    }
-
-    if (bodyBytes != null) {
-      bodyStream = _trackProgress(bodyBytes, uploadProgress);
-    }
-
-    final uri = createUri(url, query);
-    return Request<T>(
-      method: method,
-      url: uri,
-      headers: headers,
-      bodyBytes: bodyStream,
-      contentLength: bodyBytes?.length ?? 0,
-      followRedirects: followRedirects,
-      maxRedirects: maxRedirects,
-      decoder: decoder,
-      responseInterceptor: responseInterceptor
-    );
-  }
-
-  void _setContentLength(Headers headers, int contentLength) {
-    if (sendContentLength) {
-      headers['content-length'] = '$contentLength';
-    }
-  }
-
-  BodyByteStream _trackProgress(BodyBytes bodyBytes, Progress? uploadProgress) {
-    var total = 0;
-    var length = bodyBytes.length;
-
-    var byteStream = Stream.fromIterable(bodyBytes.map((i) => [i])).transform<BodyBytes>(
-      StreamTransformer.fromHandlers(handleData: (data, sink) {
-        total += data.length;
-        if (uploadProgress != null) {
-          var percent = total / length * 100;
-          uploadProgress(percent);
-        }
-        sink.add(data);
-      }),
-    );
-
-    return byteStream;
-  }
-
-  void _setSimpleHeaders(Headers headers, String? contentType) {
-    headers['content-type'] = contentType ?? defaultContentType;
-    if (sendUserAgent) {
-      headers['user-agent'] = userAgent;
-    }
-  }
-
-  Future<Response<T>> _handleException<T>(Exception e, Request<T> request) {
-    if (!errorSafety) {
-      if(e is ZapException) {
-        throw e;
-      }
-
-      throw ZapException(e.toString());
-    }
-
-    return Future.value(Response<T>(
-      status: HttpStatus.CONNECTION_NOT_REACHABLE,
-      message: 'Can not connect to server. Reason: $e',
-      request: request,
-      headers: null,
-      body: null,
-      bodyBytes: null,
-      bodyString: "$e",
-    ));
-  }
-
-  Future<Response<T>> _perform<T>(Request<T> request, {bool useAuth = false, int requestNumber = 1, Headers? headers}) async {
-    headers?.forEach((key, value) {
-      request.headers[key] = value;
-    });
-
-    if (useAuth) {
-      await _modifier.authenticator!(request);
-    }
-
-    final req = await _modifier.modifyRequest<T>(request);
-    _client.timeout = timeout;
-
-    try {
-      var res = await _client.send<T>(req);
-      var response = await _modifier.modifyResponse<T>(req, res);
-
-      if (response.status.isUnauthorized && _modifier.authenticator != null && requestNumber <= maxAuthRetries) {
-        return _perform<T>(req, useAuth: true, requestNumber: requestNumber + 1, headers: req.headers);
-      } else if (response.status.isUnauthorized) {
-        if (!errorSafety) {
-          throw ZapUnauthorizedException();
-        } else {
-          return Response<T>(
-            request: req,
-            headers: response.headers,
-            status: response.status,
-            body: response.body,
-            bodyBytes: response.bodyBytes,
-            bodyString: response.bodyString,
-          );
-        }
-      }
-
-      return response;
-    } on Exception catch (err) {
-      return _handleException<T>(err, request);
-    }
-  }
-
-  ResponseInterceptor<T>? _responseInterceptor<T>(ResponseInterceptor<T>? actual) {
-    if (actual != null) return actual;
-
-    if (defaultResponseInterceptor != null) {
-      return (request, targetType, response) async {
-        final result = await defaultResponseInterceptor!(request, targetType, response);
-        return result as Response<T>?;
-      };
-    }
-
-    return null;
-  }
-
-  Future<Request<T>> _getRequestWithBody<T>(String? url, String method, {
-    String? contentType,
-    required RequestBody body,
-    required RequestParam? query,
-    ResponseDecoder<T>? decoder,
-    ResponseInterceptor<T>? responseInterceptor,
-    Progress? uploadProgress,
-  }) {
-    decoder ??= defaultDecoder as ResponseDecoder<T>?;
-    responseInterceptor = _responseInterceptor(responseInterceptor);
-
-    return _requestWithBody<T>(url, contentType, body, method, query, decoder, responseInterceptor, uploadProgress);
-  }
+  Uri createUri(String? url, RequestParam? query) => _handler.createUri(url, query);
 
   /// Sends a custom [Request] through the client pipeline.
   ///
@@ -442,10 +265,10 @@ class ZapClient {
   ///   A [Response] of type [T] representing the result of the request.
   Future<Response<T>> send<T>(Request<T> request) async {
     try {
-      var response = await _perform<T>(request);
+      var response = await _handler.perform<T>(request);
       return response;
     } on Exception catch (e) {
-      return _handleException<T>(e, request);
+      return _handler.handleException<T>(e, request);
     }
   }
 
@@ -475,7 +298,7 @@ class ZapClient {
     Progress? uploadProgress,
     // List<MultipartFile> files,
   }) async {
-    final request = await _getRequestWithBody<T>(
+    final request = await _handler.getRequestWithBody<T>(
       url,
       'patch',
       contentType: contentType,
@@ -487,10 +310,10 @@ class ZapClient {
     );
 
     try {
-      var response = await _perform<T>(request, headers: headers);
+      var response = await _handler.perform<T>(request, headers: headers);
       return response;
     } on Exception catch (e) {
-      return _handleException<T>(e, request);
+      return _handler.handleException<T>(e, request);
     }
   }
 
@@ -520,7 +343,7 @@ class ZapClient {
     Progress? uploadProgress,
     // List<MultipartFile> files,
   }) async {
-    final request = await _getRequestWithBody<T>(
+    final request = await _handler.getRequestWithBody<T>(
       url,
       'post',
       contentType: contentType,
@@ -532,10 +355,10 @@ class ZapClient {
     );
 
     try {
-      var response = await _perform<T>(request, headers: headers);
+      var response = await _handler.perform<T>(request, headers: headers);
       return response;
     } on Exception catch (e) {
-      return _handleException<T>(e, request);
+      return _handler.handleException<T>(e, request);
     }
   }
 
@@ -567,7 +390,7 @@ class ZapClient {
     ResponseInterceptor<T>? responseInterceptor,
     Progress? uploadProgress,
   }) async {
-    final request = await _getRequestWithBody<T>(
+    final request = await _handler.getRequestWithBody<T>(
       url,
       method,
       contentType: contentType,
@@ -579,10 +402,10 @@ class ZapClient {
     );
 
     try {
-      var response = await _perform<T>(request, headers: headers);
+      var response = await _handler.perform<T>(request, headers: headers);
       return response;
     } on Exception catch (e) {
-      return _handleException<T>(e, request);
+      return _handler.handleException<T>(e, request);
     }
   }
 
@@ -611,7 +434,7 @@ class ZapClient {
     ResponseInterceptor<T>? responseInterceptor,
     Progress? uploadProgress,
   }) async {
-    final request = await _getRequestWithBody<T>(
+    final request = await _handler.getRequestWithBody<T>(
       url,
       'put',
       contentType: contentType,
@@ -623,10 +446,10 @@ class ZapClient {
     );
 
     try {
-      var response = await _perform<T>(request, headers: headers);
+      var response = await _handler.perform<T>(request, headers: headers);
       return response;
     } on Exception catch (e) {
-      return _handleException<T>(e, request);
+      return _handler.handleException<T>(e, request);
     }
   }
 
@@ -651,26 +474,23 @@ class ZapClient {
     ResponseDecoder<T>? decoder,
     ResponseInterceptor<T>? responseInterceptor,
   }) async {
-    final Headers defHeaders = {};
-    _setSimpleHeaders(defHeaders, contentType);
-    final uri = createUri(url, query);
-
-    final request = Request<T>(
-      method: 'get',
-      url: uri,
-      headers: defHeaders,
-      decoder: decoder ?? (defaultDecoder as ResponseDecoder<T>?),
-      responseInterceptor: _responseInterceptor(responseInterceptor),
+    final request = await _handler.getRequestWithoutBody<T>(
+      url,
+      'get',
+      contentType: contentType,
+      query: query,
+      decoder: decoder,
+      responseInterceptor: responseInterceptor,
       contentLength: 0,
       followRedirects: followRedirects,
       maxRedirects: maxRedirects,
     );
 
     try {
-      var response = await _perform<T>(request, headers: headers);
+      var response = await _handler.perform<T>(request, headers: headers);
       return response;
     } on Exception catch (e) {
-      return _handleException<T>(e, request);
+      return _handler.handleException<T>(e, request);
     }
   }
 
@@ -695,23 +515,18 @@ class ZapClient {
     ResponseDecoder<T>? decoder,
     ResponseInterceptor<T>? responseInterceptor,
   }) async {
-    final Headers defHeaders = {};
-    _setSimpleHeaders(defHeaders, contentType);
-    final uri = createUri(url, query);
-
-    final request = Request<T>(
-      method: 'delete',
-      url: uri,
-      headers: defHeaders,
-      decoder: decoder ?? (defaultDecoder as ResponseDecoder<T>?),
-      responseInterceptor: _responseInterceptor(responseInterceptor),
+    final request = await _handler.getRequestWithoutBody<T>(
+      url,
+      'delete',
+      decoder: decoder,
+      responseInterceptor: responseInterceptor,
     );
 
     try {
-      var response = await _perform<T>(request, headers: headers);
+      var response = await _handler.perform<T>(request, headers: headers);
       return response;
     } on Exception catch (e) {
-      return _handleException<T>(e, request);
+      return _handler.handleException<T>(e, request);
     }
   }
 

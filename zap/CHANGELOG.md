@@ -105,3 +105,13 @@
 
 - Renamed `onRemoveRoute` to `whenUnauthorized`
 - Renamed `customAuthHeaderBuilder` to `authHeaderBuilder`
+
+## 0.1.5
+
+- Fixed issues with `Flux`
+
+## 0.1.6
+
+- Added `ControllerAdvice` to `FluxConfig`
+- Fixed issues with `HttpClient` on web
+- Configured more ways to handle exceptions using types `ExceptionType`

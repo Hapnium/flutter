@@ -1,4 +1,5 @@
 import '../definitions.dart';
+import '../exceptions/controller_advice.dart';
 import 'zap_config.dart';
 
 /// The [FluxConfig] class holds configuration options for the Flux platform,
@@ -58,6 +59,11 @@ class FluxConfig {
   /// Set to empty string `''` if no prefix is needed.
   final String tokenPrefix;
 
+  /// - **controllerAdvice**: A callback function to handle controller advice. Default is `null`.
+  /// 
+  /// This is used to handle controller advice when the request hits an exception.
+  final ControllerAdvice? controllerAdvice;
+
   /// - **authHeaderBuilder**: A custom function to build authentication headers.
   /// 
   /// This function receives the current session and should return a map of headers to add.
@@ -88,6 +94,7 @@ class FluxConfig {
     this.connectTimeout = const Duration(seconds: 30),
     this.authHeaderName = 'Authorization',
     this.tokenPrefix = 'Bearer',
+    this.controllerAdvice,
     this.authHeaderBuilder,
   });
 
@@ -110,6 +117,7 @@ class FluxConfig {
     Duration? connectTimeout,
     String? authHeaderName,
     String? tokenPrefix,
+    ControllerAdvice? controllerAdvice,
     HeaderBuilder? authHeaderBuilder,
   }) {
     return FluxConfig(
@@ -127,6 +135,7 @@ class FluxConfig {
       connectTimeout: connectTimeout ?? this.connectTimeout,
       authHeaderName: authHeaderName ?? this.authHeaderName,
       tokenPrefix: tokenPrefix ?? this.tokenPrefix,
+      controllerAdvice: controllerAdvice ?? this.controllerAdvice,
       authHeaderBuilder: authHeaderBuilder ?? this.authHeaderBuilder,
     );
   }

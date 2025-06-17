@@ -40,7 +40,7 @@ class ApiResponse<T> {
   /// `message`, and optionally `data`.
   /// 
   /// The [parser] parameter is an optional [DataParser] function that can be used to parse the `data` field.
-  factory ApiResponse.fromJson(Map<String, dynamic> json, [DataParser<T>? parser]) {
+  factory ApiResponse.fromJson(Map<String, dynamic> json, [DataParser? parser]) {
     ApiResponse<T> response = ApiResponse(
       status: json['status'] ?? "",
       code: json['code'] ?? 400,

@@ -19,7 +19,7 @@ abstract class FluxInterface {
   /// - [token]: Optional cancellation token for request cancellation
   /// 
   /// Returns a [Response] containing an [ApiResponse] with parsed data of type T.
-  Future<Response<ApiResponse<T>>> get<T>({required String endpoint, RequestParam? query, bool useAuth = true, ResponseParser<T>? parser, CancelToken? token});
+  Future<Response<ApiResponse>> get({required String endpoint, RequestParam? query, bool useAuth = true, ResponseParser? parser, CancelToken? token});
 
   /// Performs a POST request.
   /// 
@@ -32,13 +32,13 @@ abstract class FluxInterface {
   /// - [token]: Optional cancellation token for request cancellation
   /// 
   /// Returns a [Response] containing an [ApiResponse] with parsed data of type T.
-  Future<Response<ApiResponse<T>>> post<T>({
+  Future<Response<ApiResponse>> post({
     required String endpoint,
     RequestBody body,
     RequestParam? query,
     Progress? onProgress,
     bool useAuth = true,
-    ResponseParser<T>? parser,
+    ResponseParser? parser,
     CancelToken? token,
   });
 
@@ -53,13 +53,13 @@ abstract class FluxInterface {
   /// - [token]: Optional cancellation token for request cancellation
   /// 
   /// Returns a [Response] containing an [ApiResponse] with parsed data of type T.
-  Future<Response<ApiResponse<T>>> put<T>({
+  Future<Response<ApiResponse>> put({
     required String endpoint,
     RequestBody body,
     RequestParam? query,
     Progress? onProgress,
     bool useAuth = true,
-    ResponseParser<T>? parser,
+    ResponseParser? parser,
     CancelToken? token,
   });
 
@@ -74,13 +74,13 @@ abstract class FluxInterface {
   /// - [token]: Optional cancellation token for request cancellation
   /// 
   /// Returns a [Response] containing an [ApiResponse] with parsed data of type T.
-  Future<Response<ApiResponse<T>>> patch<T>({
+  Future<Response<ApiResponse>> patch({
     required String endpoint,
     RequestBody body,
     RequestParam? query,
     Progress? onProgress,
     bool useAuth = true,
-    ResponseParser<T>? parser,
+    ResponseParser? parser,
     CancelToken? token,
   });
 
@@ -94,5 +94,5 @@ abstract class FluxInterface {
   /// - [token]: Optional cancellation token for request cancellation
   /// 
   /// Returns a [Response] containing an [ApiResponse] with parsed data of type T.
-  Future<Response<ApiResponse<T>>> delete<T>({required String endpoint, RequestParam? query, RequestBody body, bool useAuth = true, ResponseParser<T>? parser, CancelToken? token  });
+  Future<Response<ApiResponse>> delete({required String endpoint, RequestParam? query, RequestBody body, bool useAuth = true, ResponseParser? parser, CancelToken? token  });
 }

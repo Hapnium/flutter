@@ -20,7 +20,7 @@ typedef DataParser<T> = T Function(dynamic data);
 /// A map that associates HTTP status codes with their corresponding data parsers.
 ///
 /// The key is the HTTP status code (e.g., 200, 400, 429) and the value is
-/// a `DataParser<T>` function that knows how to parse the response data for that status.
+/// a `DataParser` function that knows how to parse the response data for that status.
 ///
 /// Example:
 /// ```dart
@@ -30,7 +30,7 @@ typedef DataParser<T> = T Function(dynamic data);
 ///   429: (data) => RateLimitResponse.fromJson(data),
 /// };
 /// ```
-typedef MultiParser<T> = Map<HttpStatus, DataParser<T>>;
+typedef MultiParser = Map<HttpStatus, DataParser>;
 
 /// Configuration class for handling response data parsing in Flux HTTP requests.
 ///
@@ -118,7 +118,7 @@ typedef MultiParser<T> = Map<HttpStatus, DataParser<T>>;
 /// - Always provide a `defaultParser` when using `statusParsers` to handle unexpected status codes
 /// - Consider the return type `T` carefully - use `dynamic` when different parsers return different types
 /// - Test your parsers with actual API responses to ensure they handle all expected data structures
-class ResponseParser<T> {
+class ResponseParser {
   /// The default parser to use when no status-specific parser is found.
   ///
   /// This parser will be used as a fallback when:
@@ -127,7 +127,7 @@ class ResponseParser<T> {
   ///
   /// If both `defaultParser` and `statusParsers` are null, the response data
   /// will be returned without parsing.
-  final DataParser<T>? defaultParser;
+  final DataParser? defaultParser;
 
   /// A map of HTTP status codes to their corresponding data parsers.
   ///
@@ -144,7 +144,7 @@ class ResponseParser<T> {
   ///   500: (data) => ServerError.fromJson(data),
   /// }
   /// ```
-  final MultiParser<T>? statusParsers;
+  final MultiParser? statusParsers;
 
   /// Creates a new `ResponseParser` with optional default and status-specific parsers.
   ///
@@ -171,7 +171,7 @@ class ResponseParser<T> {
   /// ```dart
   /// ResponseParser.single((data) => User.fromJson(data))
   /// ```
-  const ResponseParser.single(DataParser<T> parser)
+  const ResponseParser.single(DataParser parser)
       : defaultParser = parser,
         statusParsers = null;
 
@@ -190,7 +190,7 @@ class ResponseParser<T> {
   ///   400: (data) => ErrorResponse.fromJson(data),
   /// })
   /// ```
-  const ResponseParser.multi(MultiParser<T> parsers)
+  const ResponseParser.multi(MultiParser parsers)
       : defaultParser = null,
         statusParsers = parsers;
 
@@ -211,7 +211,7 @@ class ResponseParser<T> {
   /// - The status-specific parser if found in [statusParsers]
   /// - The [defaultParser] if no status-specific parser is found
   /// - `null` if no parser is available
-  DataParser<T>? getParser(HttpStatus statusCode) {
+  DataParser? getParser(HttpStatus statusCode) {
     if(hasParserForStatus(statusCode)) {
       return statusParsers![statusCode];
     }
@@ -237,12 +237,12 @@ class ResponseParser<T> {
   ///   400: (data) => ErrorResponse.fromJson(data),
   /// });
   /// ```
-  static DataParser<List<R>> parseAsList<R>(DataParser<R> itemParser) {
+  static DataParser<List<R>> parseAsList<R>(DataParser itemParser) {
     return (dynamic data) {
       if (data == null) return <R>[];
       
       final List<dynamic> list = data is List ? data : [data];
-      return list.map((item) => itemParser(item)).toList();
+      return list.map((item) => itemParser(item)).toList().cast<R>();
     };
   }
 
@@ -258,7 +258,7 @@ class ResponseParser<T> {
   ///   ResponseParser.parseAsList<User>((data) => User.fromJson(data))
   /// );
   /// ```
-  static DataParser<R> parseNested<R>(List<String> path, DataParser<R> parser) {
+  static DataParser<R> parseNested<R>(List<String> path, DataParser parser) {
     return (dynamic data) {
       dynamic current = data;
       
@@ -287,7 +287,7 @@ class ResponseParser<T> {
   /// ```
   static DataParser<ZapPage<R>> parsePaginated<R>({
     required String dataKey,
-    required DataParser<R> itemParser,
+    required DataParser itemParser,
     String totalKey = 'total',
     String pageKey = 'page',
     String limitKey = 'limit',
@@ -297,7 +297,7 @@ class ResponseParser<T> {
         throw FormatException('Expected Map for paginated response');
       }
 
-      final items = parseAsList(itemParser)(data[dataKey]);
+      final items = parseAsList<R>(itemParser)(data[dataKey]);
       
       return ZapPage<R>(
         data: items,
@@ -316,7 +316,7 @@ class ResponseParser<T> {
   /// ```dart
   /// final parser = ResponseParser.parseOptional<User>((data) => User.fromJson(data));
   /// ```
-  static DataParser<R?> parseOptional<R>(DataParser<R> parser) {
+  static DataParser<R?> parseOptional<R>(DataParser parser) {
     return (dynamic data) {
       if (data == null) return null;
       return parser(data);
@@ -340,8 +340,8 @@ class ResponseParser<T> {
   /// ```
   static DataParser<R> parsePolymorphic<R>({
     required String discriminatorKey,
-    required Map<String, DataParser<R>> parsers,
-    DataParser<R>? fallbackParser,
+    required Map<String, DataParser> parsers,
+    DataParser? fallbackParser,
   }) {
     return (dynamic data) {
       if (data is! Map<String, dynamic>) {
@@ -374,7 +374,7 @@ class ResponseParser<T> {
   /// ```
   static DataParser<R> parseWithTransform<R>({
     required dynamic Function(dynamic) transform,
-    required DataParser<R> parser,
+    required DataParser parser,
   }) {
     return (dynamic data) {
       final transformed = transform(data);
@@ -396,7 +396,7 @@ class ResponseParser<T> {
   /// ```
   static DataParser<R> parseWithValidation<R>({
     required bool Function(dynamic) validator,
-    required DataParser<R> parser,
+    required DataParser parser,
     String errorMessage = 'Data validation failed',
   }) {
     return (dynamic data) {
@@ -415,12 +415,12 @@ class ResponseParser<T> {
   /// ```dart
   /// final parser = ResponseParser.parseAsListOrSingle<User>((data) => User.fromJson(data));
   /// ```
-  static DataParser<List<R>> parseAsListOrSingle<R>(DataParser<R> itemParser) {
+  static DataParser<List<R>> parseAsListOrSingle<R>(DataParser itemParser) {
     return (dynamic data) {
       if (data == null) return <R>[];
       
       if (data is List) {
-        return data.map((item) => itemParser(item)).toList();
+        return data.map((item) => itemParser(item)).toList().cast<R>();
       } else {
         return [itemParser(data)];
       }
@@ -435,8 +435,8 @@ class ResponseParser<T> {
   /// ```dart
   /// final parser = ResponseParser.forList<User>((data) => User.fromJson(data));
   /// ```
-  static ResponseParser<List<R>> forList<R>(DataParser<R> itemParser) {
-    return ResponseParser.single(parseAsList(itemParser));
+  static ResponseParser forList<R>(DataParser itemParser) {
+    return ResponseParser.single(parseAsList<R>(itemParser));
   }
 
   /// Creates a parser for paginated responses.
@@ -447,8 +447,8 @@ class ResponseParser<T> {
   ///   itemParser: (data) => User.fromJson(data),
   /// );
   /// ```
-  static ResponseParser<ZapPage<R>> forPaginated<R>({
-    required DataParser<R> itemParser,
+  static ResponseParser forPaginated({
+    required DataParser itemParser,
     String dataKey = 'data',
     String totalKey = 'total',
     String pageKey = 'page',

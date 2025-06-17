@@ -1,5 +1,5 @@
 import '../../enums/socket_type.dart';
-import '../../exceptions/exceptions.dart';
+import '../../exceptions/zap_exception.dart';
 import 'socket_notifier.dart';
 
 /// An abstract interface for WebSocket connections.

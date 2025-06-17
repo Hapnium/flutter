@@ -2,7 +2,6 @@ library;
 
 export 'src/http/certificates/certificates.dart';
 export 'src/http/client/zap_client.dart';
-export 'src/exceptions/exceptions.dart';
 export 'src/http/multipart/form_data.dart';
 export 'src/http/multipart/multipart_file.dart';
 export 'src/http/request/request.dart';
@@ -14,6 +13,13 @@ export 'src/http/modifier/zap_modifier.dart';
 export 'src/enums/socket_status.dart';
 export 'src/enums/zync_state.dart';
 export 'src/enums/socket_type.dart';
+export 'src/enums/exception_type.dart';
+
+export 'src/extensions/api_response_extension.dart';
+
+export 'src/exceptions/graphql_error.dart';
+export 'src/exceptions/zap_exception.dart';
+export 'src/exceptions/controller_advice.dart';
 
 export 'src/core/zap.dart';
 export 'src/core/zap_interface.dart';

@@ -59,8 +59,7 @@ class FormData {
   /// Returns the header string for a field. The return value is guaranteed to
   /// contain only ASCII characters.
   String _fieldHeader(String name, String value) {
-    var header =
-        'content-disposition: form-data; name="${browserEncode(name)}"';
+    var header = 'content-disposition: form-data; name="${browserEncode(name)}"';
     if (!isPlainAscii(value)) {
       header = '$header\r\n'
         'content-type: text/plain; charset=utf-8\r\n'

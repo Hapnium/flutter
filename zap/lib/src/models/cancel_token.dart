@@ -1,6 +1,6 @@
 import 'dart:async' show Completer;
 
-import '../exceptions/exceptions.dart';
+import '../exceptions/zap_exception.dart';
 
 /// A token that can be used to cancel HTTP requests.
 /// 

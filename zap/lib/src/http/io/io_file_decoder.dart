@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import '../../definitions.dart';
-import '../../exceptions/exceptions.dart';
+import '../../exceptions/zap_exception.dart';
 
 /// Convert a file to bytes
 BodyBytes fileToBytes(dynamic data) {
@@ -11,12 +11,12 @@ BodyBytes fileToBytes(dynamic data) {
     if (File(data).existsSync()) {
       return File(data).readAsBytesSync();
     } else {
-      throw ZapException('File $data not exists');
+      throw ZapException.parsing('File $data not exists');
     }
   } else if (data is BodyBytes) {
     return data;
   } else {
-    throw const FormatException('File is not "File" or "String" or "BodyBytes"');
+    throw ZapException.parsing('File is not "File" or "String" or "BodyBytes"');
   }
 }
 

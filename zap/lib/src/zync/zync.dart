@@ -6,7 +6,7 @@ import 'package:tracing/tracing.dart' show console;
 import '../definitions.dart';
 import '../enums/socket_type.dart';
 import '../enums/zync_state.dart';
-import '../exceptions/exceptions.dart';
+import '../exceptions/zap_exception.dart';
 import '../models/session_response.dart';
 import '../models/socket_messenger.dart';
 import '../models/zync_config.dart';
@@ -102,9 +102,7 @@ class Zync implements ZyncInterface {
   /// Throws [ZapException] if no instance has been created yet.
   static Zync get instance {
     if (_instance == null) {
-      throw ZapException(
-        "No Zync instance found. Create an instance first using Zync(config: config)."
-      );
+      throw ZapException("No Zync instance found. Create an instance first using Zync(config: config).");
     }
     return _instance!;
   }

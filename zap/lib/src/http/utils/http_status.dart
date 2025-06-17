@@ -737,12 +737,20 @@ class HttpStatus {
     "Non-standard: Network connect timeout error"
   );
 
-  /// 600 Connection Not Reachable – Non-standard status code used by some proxies to indicate a connection not reachable.
+  /// 600 Connection Not Reachable – H-Standard status code used by some proxies to indicate a connection not reachable.
   /// Used when a proxy cannot reach the upstream server.
   static const HttpStatus CONNECTION_NOT_REACHABLE = HttpStatus._(
     "CONNECTION_NOT_REACHABLE",
     600,
-    "Non-standard: Connection not reachable"
+    "H-Standard: Connection not reachable"
+  );
+
+  /// 601 Request Cancelled – H-Standard status code used by some proxies to indicate a request cancellation.
+  /// Used when a request is cancelled by the user or due to a timeout.
+  static const HttpStatus REQUEST_CANCELLED = HttpStatus._(
+    "REQUEST_CANCELLED",
+    601,
+    "H-Standard: Request was cancelled"
   );
 
   /// List of all predefined status codes for initialization
@@ -781,6 +789,7 @@ class HttpStatus {
 
     // 6xx Custom
     CONNECTION_NOT_REACHABLE,
+    REQUEST_CANCELLED,
   ];
 
   // --- Custom helpers ---

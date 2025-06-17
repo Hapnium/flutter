@@ -1,9 +1,9 @@
 import 'package:tracing/tracing.dart' show console;
 
 import '../definitions.dart';
+import '../exceptions/zap_exception.dart';
 import '../models/api_response.dart';
 import '../core/zap_interface.dart';
-import '../exceptions/exceptions.dart';
 import '../http/response/response.dart';
 import '../http/utils/http_status.dart';
 import '../models/response_parser.dart';
@@ -122,7 +122,7 @@ final class Flux implements FluxInterface {
   ZapInterface _client([bool useAuth = false]) => fluxClient(config, useAuth);
 
   /// Creates a decoder function for ApiResponse with custom data parsing.
-  ResponseDecoder<ApiResponse<T>> _createDecoder<T>(ResponseParser<T>? parserConfig) {
+  ResponseDecoder<ApiResponse<dynamic>> _createDecoder(ResponseParser? parserConfig) {
     return (HttpStatus status, dynamic responseData) {
       final response = ApiResponse.fromJson(responseData);
 
@@ -133,7 +133,7 @@ final class Flux implements FluxInterface {
         if (parser != null) {
           try {
             final parsedData = parser(response.data);
-            return ApiResponse<T>(
+            return ApiResponse(
               status: response.status,
               message: response.message,
               data: parsedData,
@@ -143,28 +143,28 @@ final class Flux implements FluxInterface {
             if (config.showErrorLogs) {
               console.log('Flux Parser Error for status ${response.code}: $e');
             }
-            return ApiResponse<T>.error('Failed to parse response data for status ${response.code}: $e');
+            return ApiResponse.error('Failed to parse response data for status ${response.code}: $e');
           }
         }
       }
 
-      return ApiResponse<T>(
+      return ApiResponse(
         status: response.status,
         message: response.message,
-        data: response.data as T?,
+        data: response.data,
         code: response.code,
       );
     };
   }
 
   @override
-  Future<Response<ApiResponse<T>>> delete<T>({required String endpoint, RequestParam? query, dynamic body, bool useAuth = true, ResponseParser<T>? parser, CancelToken? token}) async {
+  Future<Response<ApiResponse>> delete({required String endpoint, RequestParam? query, dynamic body, bool useAuth = true, ResponseParser? parser, CancelToken? token}) async {
     try {
-      return config.execute<T>((Headers? headers, CancelToken? cancelToken) => _client(useAuth).delete<ApiResponse<T>>(
+      return config.execute((Headers? headers, CancelToken? cancelToken) => _client(useAuth).delete<ApiResponse>(
         endpoint,
         headers: headers, 
         query: query, 
-        decoder: _createDecoder<T>(parser), 
+        decoder: _createDecoder(parser), 
         cancelToken: cancelToken
       ), 'DELETE', endpoint, useAuth, token);
     } finally {
@@ -175,13 +175,13 @@ final class Flux implements FluxInterface {
   }
 
   @override
-  Future<Response<ApiResponse<T>>> get<T>({required String endpoint, RequestParam? query, bool useAuth = true, ResponseParser<T>? parser, CancelToken? token}) async {
+  Future<Response<ApiResponse>> get({required String endpoint, RequestParam? query, bool useAuth = true, ResponseParser? parser, CancelToken? token}) async {
     try {
-      return config.execute<T>((Headers? headers, CancelToken? cancelToken) => _client(useAuth).get<ApiResponse<T>>(
+      return config.execute((Headers? headers, CancelToken? cancelToken) => _client(useAuth).get<ApiResponse>(
         endpoint,
         headers: headers, 
         query: query, 
-        decoder: _createDecoder<T>(parser), 
+        decoder: _createDecoder(parser), 
         cancelToken: cancelToken
       ), 'GET', endpoint, useAuth, token);
     } finally {
@@ -192,14 +192,14 @@ final class Flux implements FluxInterface {
   }
 
   @override
-  Future<Response<ApiResponse<T>>> patch<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, ResponseParser<T>? parser, CancelToken? token}) async {
+  Future<Response<ApiResponse>> patch({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, ResponseParser? parser, CancelToken? token}) async {
     try {
-      return config.execute<T>((Headers? headers, CancelToken? cancelToken) => _client(useAuth).patch<ApiResponse<T>>(
+      return config.execute((Headers? headers, CancelToken? cancelToken) => _client(useAuth).patch<ApiResponse>(
         endpoint, 
         body, 
         headers: headers, 
         query: query, 
-        decoder: _createDecoder<T>(parser), 
+        decoder: _createDecoder(parser), 
         uploadProgress: onProgress, 
         cancelToken: cancelToken
       ), 'PATCH', endpoint, useAuth, token);
@@ -211,14 +211,14 @@ final class Flux implements FluxInterface {
   }
 
   @override
-  Future<Response<ApiResponse<T>>> post<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, ResponseParser<T>? parser, CancelToken? token}) async {
+  Future<Response<ApiResponse>> post({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, ResponseParser? parser, CancelToken? token}) async {
     try {
-      return config.execute<T>((Headers? headers, CancelToken? cancelToken) => _client(useAuth).post<ApiResponse<T>>(
+      return config.execute((Headers? headers, CancelToken? cancelToken) => _client(useAuth).post<ApiResponse>(
         endpoint, 
         body, 
         headers: headers, 
         query: query, 
-        decoder: _createDecoder<T>(parser), 
+        decoder: _createDecoder(parser), 
         uploadProgress: onProgress, 
         cancelToken: cancelToken
       ), 'POST', endpoint, useAuth, token);
@@ -230,14 +230,14 @@ final class Flux implements FluxInterface {
   }
 
   @override
-  Future<Response<ApiResponse<T>>> put<T>({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, ResponseParser<T>? parser, CancelToken? token}) async {
+  Future<Response<ApiResponse>> put({required String endpoint, dynamic body, RequestParam? query, Progress? onProgress, bool useAuth = true, ResponseParser? parser, CancelToken? token}) async {
     try {
-      return config.execute<T>((Headers? headers, CancelToken? cancelToken) => _client(useAuth).put<ApiResponse<T>>(
+      return config.execute((Headers? headers, CancelToken? cancelToken) => _client(useAuth).put<ApiResponse>(
         endpoint, 
         body, 
         headers: headers, 
         query: query, 
-        decoder: _createDecoder<T>(parser), 
+        decoder: _createDecoder(parser), 
         uploadProgress: onProgress, 
         cancelToken: cancelToken
       ), 'PUT', endpoint, useAuth, token);
