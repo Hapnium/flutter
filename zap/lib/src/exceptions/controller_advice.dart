@@ -1,4 +1,4 @@
-import 'package:tracing/tracing.dart' show console;
+import '../core/zap_inst.dart';
 import '../enums/exception_type.dart';
 import 'zap_exception.dart';
 
@@ -18,7 +18,7 @@ typedef OnException = void Function(ZapException exception);
 /// Example:
 /// ```dart
 /// final config = ControllerAdvice(
-///   onTimeout: (e) => console.log('Timeout: ${e.message}'),
+///   onTimeout: (e) => Z.log('Timeout: ${e.message}'),
 ///   onAuth: (e) => redirectToLogin(),
 ///   enableLogging: true,
 /// );
@@ -106,16 +106,16 @@ class ControllerAdvice {
 
   void _registerDefaultLoggersIfMissing() {
     final defaultHandlers = <ExceptionType, OnException>{
-      ExceptionType.timeout: (e) => console.log('⏱️  TIMEOUT: ${e.message}'),
-      ExceptionType.network: (e) => console.log('🌐 NETWORK: ${e.message}'),
-      ExceptionType.server: (e) => console.log('🔥 SERVER: ${e.message}'),
-      ExceptionType.client: (e) => console.log('❌ CLIENT: ${e.message}'),
-      ExceptionType.auth: (e) => console.log('🔐 AUTH: ${e.message}'),
-      ExceptionType.ssl: (e) => console.log('🔒 SSL: ${e.message}'),
-      ExceptionType.connection: (e) => console.log('🔌 CONNECTION: ${e.message}'),
-      ExceptionType.dns: (e) => console.log('🌍 DNS: ${e.message}'),
-      ExceptionType.parsing: (e) => console.log('📝 PARSING: ${e.message}'),
-      ExceptionType.cancelled: (e) => console.log('🚫 CANCELLED: ${e.message}'),
+      ExceptionType.timeout: (e) => Z.log('⏱️  TIMEOUT: ${e.message}'),
+      ExceptionType.network: (e) => Z.log('🌐 NETWORK: ${e.message}'),
+      ExceptionType.server: (e) => Z.log('🔥 SERVER: ${e.message}'),
+      ExceptionType.client: (e) => Z.log('❌ CLIENT: ${e.message}'),
+      ExceptionType.auth: (e) => Z.log('🔐 AUTH: ${e.message}'),
+      ExceptionType.ssl: (e) => Z.log('🔒 SSL: ${e.message}'),
+      ExceptionType.connection: (e) => Z.log('🔌 CONNECTION: ${e.message}'),
+      ExceptionType.dns: (e) => Z.log('🌍 DNS: ${e.message}'),
+      ExceptionType.parsing: (e) => Z.log('📝 PARSING: ${e.message}'),
+      ExceptionType.cancelled: (e) => Z.log('🚫 CANCELLED: ${e.message}'),
     };
 
     for (final entry in defaultHandlers.entries) {
@@ -126,7 +126,7 @@ class ControllerAdvice {
   }
 
   static void _defaultLogger(ZapException e) {
-    console.log('🔍 ZAP EXCEPTION: ${e.toString()}');
+    Z.log('🔍 ZAP EXCEPTION: ${e.toString()}');
   }
 
   void onException(ZapException e) {

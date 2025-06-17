@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tracing/tracing.dart' show console;
 import 'package:zap/zap.dart';
 import 'dart:typed_data';
 
@@ -22,7 +21,7 @@ void main() {
       final ipv4Regex = RegExp(r'^(\d{1,3}\.){3}\d{1,3}$');
       expect(ipv4Regex.hasMatch(ipAddress), true);
       
-      console.log('Fetched IP: $ipAddress');
+      Z.log('Fetched IP: $ipAddress');
     });
 
     test('fetchImageData downloads real image', () async {
@@ -46,7 +45,7 @@ void main() {
       expect(imageData!.length, greaterThan(0));
       expect(errorMessage, isNull);
       
-      console.log('Downloaded image size: ${imageData!.length} bytes');
+      Z.log('Downloaded image size: ${imageData!.length} bytes');
     });
 
     test('fetchImageDataAsync downloads image', () async {
@@ -59,7 +58,7 @@ void main() {
       expect(imageData, isNotNull);
       expect(imageData!.length, greaterThan(0));
       
-      console.log('Downloaded image size: ${imageData.length} bytes');
+      Z.log('Downloaded image size: ${imageData.length} bytes');
     });
 
     test('fetchImageData handles 404 error', () async {
@@ -96,9 +95,9 @@ void main() {
       expect(location, isNotNull);
       expect(location.displayName, isNotEmpty);
       
-      console.log('Location: ${location.displayName}');
-      console.log('State: ${location.address.state}');
-      console.log('Country: ${location.address.country}');
+      Z.log('Location: ${location.displayName}');
+      Z.log('State: ${location.address.state}');
+      Z.log('Country: ${location.address.country}');
     });
 
     test('getLocationInformation handles invalid coordinates', () async {
@@ -122,7 +121,7 @@ void main() {
       
       // Skip if no API key provided
       if (googleApiKey == 'YOUR_GOOGLE_MAPS_API_KEY') {
-        console.log('Skipping distance test - no Google Maps API key provided');
+        Z.log('Skipping distance test - no Google Maps API key provided');
         return;
       }
 
@@ -148,8 +147,8 @@ void main() {
       expect(result[0]['duration'], isNotNull);
       expect(result[0]['status'], 'OK');
       
-      console.log('Distance: ${result[0]['distance']['text']}');
-      console.log('Duration: ${result[0]['duration']['text']}');
+      Z.log('Distance: ${result[0]['distance']['text']}');
+      Z.log('Duration: ${result[0]['duration']['text']}');
     }, skip: true); // Skip by default
 
     test('Multiple concurrent requests work correctly', () async {

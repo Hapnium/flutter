@@ -1,5 +1,5 @@
 import '../definitions.dart';
-import 'session_response.dart';
+import 'response/session_response.dart';
 
 /// Configuration class for Zync WebSocket connections with flexible authentication.
 class ZyncConfig {

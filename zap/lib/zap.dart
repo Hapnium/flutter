@@ -25,10 +25,12 @@ export 'src/core/zap.dart';
 export 'src/core/zap_interface.dart';
 export 'src/core/zap_lifecycle.dart';
 export 'src/core/zap_socket.dart';
+export 'src/core/zap_inst.dart';
+
 export 'src/definitions.dart';
 
-export 'src/models/api_response.dart';
-export 'src/models/session_response.dart';
+export 'src/models/response/api_response.dart';
+export 'src/models/response/session_response.dart';
 export 'src/models/location/location_data.dart';
 export 'src/models/location/location_information.dart';
 export 'src/models/cancel_token.dart';
@@ -37,7 +39,6 @@ export 'src/models/flux_config.dart';
 export 'src/models/zync_config.dart';
 export 'src/models/zync_error_response.dart';
 export 'src/models/zync_response.dart';
-export 'src/models/response_parser.dart';
 export 'src/models/zap_page.dart';
 export 'src/models/socket_messenger.dart';
 

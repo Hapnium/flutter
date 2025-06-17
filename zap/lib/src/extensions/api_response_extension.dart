@@ -1,35 +1,22 @@
-import '../models/api_response.dart';
+import '../http/response/response.dart';
+import '../models/response/api_response.dart';
 
-
-extension ApiResponseExtension on ApiResponse<dynamic> {
-  /// Extension on [ApiResponse] that allows converting a generic
-  /// `ApiResponse<dynamic>` into a more strongly typed `ApiResponse<T>`.
+/// An extension on [Response<ApiResponse>] that provides convenient accessors
+/// for common properties used in API response handling.
+extension ApiResponseExtension on Response<ApiResponse> {
+  /// Retrieves the most relevant message from the API response.
   ///
-  /// This is useful when the response data is parsed dynamically (e.g. from JSON)
-  /// but the consuming code requires a specific data type. Instead of manually
-  /// creating a new `ApiResponse<T>`, this extension simplifies the conversion.
+  /// This getter prioritizes the `message` field inside the [ApiResponse] body.
+  /// If the body is `null` or does not contain a message, it falls back to the
+  /// top-level `message` property of the [Response] object itself.
   ///
-  /// ### Example
+  /// This is especially useful when you want to display user-friendly messages
+  /// in UI or logs without needing to manually check multiple levels.
+  ///
+  /// Example:
   /// ```dart
-  /// final rawResponse = ApiResponse<dynamic>(
-  ///   status: true,
-  ///   message: "Success",
-  ///   data: rawJsonData, // dynamic at this point
-  ///   code: 200,
-  /// );
-  ///
-  /// final typedResponse = rawResponse.resolvedAs<User>();
-  /// final user = typedResponse.data; // Now typed as User
+  /// final message = response.detailedMessage;
+  /// print(message); // Outputs either ApiResponse.message or Response.message
   /// ```
-  ///
-  /// ⚠️ **Important:** Ensure that the dynamic `data` can be safely cast to type `T`.
-  /// A runtime error will occur if the cast is invalid.
-  ApiResponse<T> resolvedAs<T>() {
-    return ApiResponse<T>(
-      status: status,
-      message: message,
-      data: data as T,
-      code: code,
-    );
-  }
+  String get detailedMessage => body?.message ?? message;
 }

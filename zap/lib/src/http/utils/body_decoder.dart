@@ -1,11 +1,9 @@
 import 'dart:convert';
 
-import 'package:tracing/tracing.dart';
-
+import '../../core/zap_inst.dart';
 import '../request/request.dart';
-import 'http_status.dart';
 
-T? bodyDecoded<T>(Request<T> request, String stringBody, String? mimeType, HttpStatus status) {
+T? bodyDecoded<T>(Request<T> request, String stringBody, String? mimeType) {
   T? body;
   dynamic bodyToDecode;
 
@@ -13,7 +11,7 @@ T? bodyDecoded<T>(Request<T> request, String stringBody, String? mimeType, HttpS
     try {
       bodyToDecode = jsonDecode(stringBody);
     } on FormatException catch (_) {
-      console.log('Cannot decode server response to json');
+      Z.log('Cannot decode server response to json');
       bodyToDecode = stringBody;
     }
   } else {
@@ -26,7 +24,7 @@ T? bodyDecoded<T>(Request<T> request, String stringBody, String? mimeType, HttpS
     } else if (request.decoder == null) {
       body = bodyToDecode as T?;
     } else {
-      body = request.decoder!(status, bodyToDecode);
+      body = request.decoder!(bodyToDecode);
     }
   } on Exception catch (_) {
     body = stringBody as T;

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart' show Uint8List;
-import 'package:tracing/tracing.dart' show console;
 
+
+import '../core/zap_inst.dart';
 import '../definitions.dart';
 import '../models/location/location_information.dart';
 import '../models/zap_config.dart';
@@ -54,7 +55,7 @@ final class ZapUtils {
       // Make a GET request to a public IP API
       final response = await _client.get<Map<String, dynamic>>(
         "https://api64.ipify.org?format=json",
-        decoder: (status, data) => data as Map<String, dynamic>,
+        decoder: (data) => data as Map<String, dynamic>,
       );
 
       if (response.status == HttpStatus.OK && response.body?['ip'] != null) {
@@ -62,7 +63,7 @@ final class ZapUtils {
       }
     } catch (e) {
       if (log) {
-        console.log('ZapUtils: Failed to fetch IP address - $e');
+        Z.log('ZapUtils: Failed to fetch IP address - $e');
       }
     }
 
@@ -104,7 +105,7 @@ final class ZapUtils {
       // Make a GET request expecting binary data
       final response = await _client.get<BodyBytes>(
         url,
-        decoder: (status, data) {
+        decoder: (data) {
           if (data is BodyBytes) {
             return data;
           } else if (data is String) {
@@ -124,7 +125,7 @@ final class ZapUtils {
       }
     } catch (error) {
       if (log) {
-        console.log('ZapUtils: Error fetching image: $error');
+        Z.log('ZapUtils: Error fetching image: $error');
       }
       // Invoke the error callback with the error message in case of an exception
       onError.call('Error fetching image: $error');
@@ -150,7 +151,7 @@ final class ZapUtils {
     try {
       final response = await _client.get<BodyBytes>(
         url,
-        decoder: (status, data) {
+        decoder: (data) {
           if (data is BodyBytes) {
             return data;
           } else if (data is String) {
@@ -165,7 +166,7 @@ final class ZapUtils {
       }
     } catch (e) {
       if (log) {
-        console.log('ZapUtils: Failed to fetch image data - $e');
+        Z.log('ZapUtils: Failed to fetch image data - $e');
       }
     }
     return null;
@@ -230,7 +231,7 @@ final class ZapUtils {
       final response = await _client.get<Map<String, dynamic>>(
         "https://maps.googleapis.com/maps/api/distancematrix/json",
         query: queryParams,
-        decoder: (status, data) => data as Map<String, dynamic>,
+        decoder: (data) => data as Map<String, dynamic>,
       );
 
       if (response.status == HttpStatus.OK && response.body != null) {
@@ -254,7 +255,7 @@ final class ZapUtils {
       }
     } catch (e) {
       if (log) {
-        console.log('ZapUtils: Error calculating distance and time: $e');
+        Z.log('ZapUtils: Error calculating distance and time: $e');
       }
       throw Exception('Error calculating distance and time: $e');
     }
@@ -307,19 +308,19 @@ final class ZapUtils {
         "https://nominatim.openstreetmap.org/reverse",
         query: queryParams,
         headers: headers,
-        decoder: (status, data) => data as Map<String, dynamic>,
+        decoder: (data) => data as Map<String, dynamic>,
       );
 
       if (response.status == HttpStatus.OK && response.body != null) {
         return LocationInformation.fromJson(response.body!);
       } else {
         if (log) {
-          console.log('ZapUtils: Failed to fetch location information - HTTP ${response.status}');
+          Z.log('ZapUtils: Failed to fetch location information - HTTP ${response.status}');
         }
       }
     } catch (e) {
       if (log) {
-        console.log('ZapUtils: Error fetching location information - $e');
+        Z.log('ZapUtils: Error fetching location information - $e');
       }
     }
 

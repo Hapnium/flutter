@@ -35,7 +35,7 @@ void main() {
       // Assert
       expect(response.isOk, true);
       expect(response.body?.code, 200);
-      expect(response.body?.resolvedAs<Map<String, dynamic>>().data, isA<Map<String, dynamic>>());
+      expect(response.body?.data, isA<Map<String, dynamic>>());
       
       // Verify auth header was sent
       final headers = response.headers;
@@ -52,9 +52,9 @@ void main() {
       // Assert
       expect(response.isOk, true);
       expect(response.body?.code, 200);
-      expect(response.body?.resolvedAs<Map<String, dynamic>>().data, isA<Map<String, dynamic>>());
-      expect(response.body?.resolvedAs<Map<String, dynamic>>().data?['id'], 1);
-      expect(response.body?.resolvedAs<Map<String, dynamic>>().data?['title'], isNotEmpty);
+      expect(response.body?.data, isA<Map<String, dynamic>>());
+      expect(response.body?.data?['id'], 1);
+      expect(response.body?.data?['title'], isNotEmpty);
     });
 
     test('POST request with body and authentication', () async {
@@ -75,10 +75,10 @@ void main() {
       // Assert
       expect(response.isOk, true);
       expect(response.body?.code, 201);
-      expect(response.body?.resolvedAs<Map<String, dynamic>>().data, isA<Map<String, dynamic>>());
-      expect(response.body?.resolvedAs<Map<String, dynamic>>().data?['title'], postData['title']);
-      expect(response.body?.resolvedAs<Map<String, dynamic>>().data?['body'], postData['body']);
-      expect(response.body?.resolvedAs<Map<String, dynamic>>().data?['id'], isNotNull);
+      expect(response.body?.data, isA<Map<String, dynamic>>());
+      expect(response.body?.data?['title'], postData['title']);
+      expect(response.body?.data?['body'], postData['body']);
+      expect(response.body?.data?['id'], isNotNull);
     });
 
     test('PUT request updates resource', () async {
@@ -100,8 +100,8 @@ void main() {
       // Assert
       expect(response.isOk, true);
       expect(response.body?.code, 200);
-      expect(response.body?.resolvedAs<Map<String, dynamic>>().data?['title'], updateData['title']);
-      expect(response.body?.resolvedAs<Map<String, dynamic>>().data?['body'], updateData['body']);
+      expect(response.body?.data?['title'], updateData['title']);
+      expect(response.body?.data?['body'], updateData['body']);
     });
 
     test('PATCH request with partial update', () async {
@@ -120,8 +120,8 @@ void main() {
       // Assert
       expect(response.isOk, true);
       expect(response.body?.code, 200);
-      expect(response.body?.resolvedAs<Map<String, dynamic>>().data?['title'], patchData['title']);
-      expect(response.body?.resolvedAs<Map<String, dynamic>>().data?['id'], 1); // Should retain original id
+      expect(response.body?.data?['title'], patchData['title']);
+      expect(response.body?.data?['id'], 1); // Should retain original id
     });
 
     test('DELETE request removes resource', () async {
@@ -147,11 +147,11 @@ void main() {
       // Assert
       expect(response.isOk, true);
       expect(response.body?.code, 200);
-      expect(response.body?.resolvedAs<List<dynamic>>().data, isA<List<dynamic>>());
-      expect(response.body?.resolvedAs<List<dynamic>>().data?.length, lessThanOrEqualTo(5));
+      expect(response.body?.data, isA<List<dynamic>>());
+      expect(response.body?.data?.length, lessThanOrEqualTo(5));
       
       // Verify all posts are from userId 1
-      for (var post in response.body?.resolvedAs<List<dynamic>>().data ?? []) {
+      for (var post in response.body?.data ?? []) {
         expect(post['userId'], 1);
       }
     });
@@ -175,7 +175,7 @@ void main() {
 
       // Assert
       expect(response.isOk, true);
-      final headers = response.body?.resolvedAs<Map<String, dynamic>>().data?['headers'] as Map<String, dynamic>?;
+      final headers = response.body?.data?['headers'] as Map<String, dynamic>?;
       expect(headers?['X-Api-Key'], 'Token test_access_token_12345');
     });
 
@@ -199,7 +199,7 @@ void main() {
 
       // Assert
       expect(response.isOk, true);
-      final headers = response.body?.resolvedAs<Map<String, dynamic>>().data?['headers'] as Map<String, dynamic>?;
+      final headers = response.body?.data?['headers'] as Map<String, dynamic>?;
       expect(headers?['X-User-Token'], 'user_token_test_access_token_12345');
     });
 
@@ -223,7 +223,7 @@ void main() {
 
       // Assert first request
       expect(response.isOk, true);
-      var headers = response.body?.resolvedAs<Map<String, dynamic>>().data?['headers'] as Map<String, dynamic>?;
+      var headers = response.body?.data?['headers'] as Map<String, dynamic>?;
       expect(headers?['Authorization'], 'Bearer test_access_token_12345');
 
       // Update session
@@ -240,7 +240,7 @@ void main() {
 
       // Assert second request uses updated token
       expect(response.isOk, true);
-      headers = response.body?.resolvedAs<Map<String, dynamic>>().data?['headers'] as Map<String, dynamic>?;
+      headers = response.body?.data?['headers'] as Map<String, dynamic>?;
       expect(headers?['Authorization'], 'Bearer updated_access_token_67890');
     });
 
@@ -289,7 +289,7 @@ void main() {
 
     test('Multiple concurrent requests', () async {
       // Arrange
-      final futures = <Future<Response<ApiResponse<dynamic>>>>[];
+      final futures = <Future<Response<ApiResponse>>>[];
 
       // Act
       for (int i = 1; i <= 5; i++) {

@@ -115,3 +115,8 @@
 - Added `ControllerAdvice` to `FluxConfig`
 - Fixed issues with `HttpClient` on web
 - Configured more ways to handle exceptions using types `ExceptionType`
+
+## 0.1.7
+
+- Fixed issues with `Flux`
+- Removed `ResponseParser` and `T` in `ApiResponse`

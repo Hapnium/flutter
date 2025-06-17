@@ -68,12 +68,7 @@ class HttpRequestImplementation extends HttpRequestInterface {
 
       final stringBody = await bodyBytesToString(bodyBytes, headers);
 
-      final body = bodyDecoded<T>(
-        request,
-        stringBody,
-        response.headers.contentType?.mimeType,
-        HttpStatus.fromCode(response.statusCode)
-      );
+      final body = bodyDecoded<T>(request, stringBody, response.headers.contentType?.mimeType);
 
       return Response(
         headers: headers,

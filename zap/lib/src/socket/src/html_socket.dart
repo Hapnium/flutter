@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:js_interop';
 
-import 'package:tracing/tracing.dart' show console;
 import 'package:web/web.dart' as html;
 
+import '../../core/zap_inst.dart';
 import '../../enums/socket_type.dart';
 import '../../models/socket_messenger.dart';
 import 'socket_close.dart';
@@ -155,7 +155,7 @@ class BaseWebSocket extends SocketInterface {
     if (socket != null && socket!.readyState == html.WebSocket.OPEN) {
       socket!.send(data.toJSBox);
     } else {
-      console.log('WebSocket not connected, message $data not sent');
+      Z.log('WebSocket not connected, message $data not sent');
     }
   }
 }

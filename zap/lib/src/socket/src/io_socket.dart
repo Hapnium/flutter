@@ -3,8 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:tracing/tracing.dart' show console;
-
+import '../../core/zap_inst.dart';
 import '../../definitions.dart';
 import '../../enums/socket_type.dart';
 import '../../models/socket_messenger.dart';
@@ -125,7 +124,7 @@ class BaseWebSocket extends SocketInterface {
       var key = base64.encode(BodyBytes.generate(8, (_) => r.nextInt(255)));
       var client = HttpClient(context: SecurityContext());
       client.badCertificateCallback = (cert, host, port) {
-        console.log('BaseWebSocket: Allow self-signed certificate => $host:$port. ');
+        Z.log('BaseWebSocket: Allow self-signed certificate => $host:$port. ');
         return true;
       };
 

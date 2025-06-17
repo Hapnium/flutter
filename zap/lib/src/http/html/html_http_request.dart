@@ -1,10 +1,13 @@
+// ignore_for_file: library_prefixes
+
 import 'dart:async';
 import 'dart:js_interop';
+import 'dart:math' as Math show min;
 import 'dart:typed_data';
 
-import 'package:tracing/tracing.dart' show console;
 import 'package:web/web.dart' show XMLHttpRequest, Event;
 
+import '../../core/zap_inst.dart';
 import '../../definitions.dart';
 import '../../enums/exception_type.dart';
 import '../../enums/zap_provider.dart';
@@ -42,8 +45,12 @@ class HttpRequestImplementation implements HttpRequestInterface {
     xhr.timeout = (timeout ?? Duration.zero).inMilliseconds;
     
     try {
-      xhr.open(request.method, '${request.url}', true);
+      // Use absolute URL to avoid CORS issues
+      final url = request.url.toString();
+      Z.log('Sending ${request.method} request to: $url');
+      xhr.open(request.method, url, true);
     } catch (e) {
+      Z.log('Failed to open connection: $e');
       throw ZapException.network('Failed to open connection: $e', request.url);
     }
 
@@ -58,7 +65,7 @@ class HttpRequestImplementation implements HttpRequestInterface {
         xhr.setRequestHeader(key, value);
       } catch (e) {
         // Some headers might be restricted by CORS or browser security
-        console.log('Warning: Could not set header $key: $e');
+        Z.log('Warning: Could not set header $key: $e');
       }
     });
 
@@ -66,11 +73,13 @@ class HttpRequestImplementation implements HttpRequestInterface {
 
     // Handle successful response
     xhr.onload = (Event event) {
+      Z.log('XHR onload fired with status: ${xhr.status}');
       _handleResponse(xhr, request, completer);
     }.toJS;
 
     // Handle network errors
     xhr.onerror = (Event event) {
+      Z.log('XHR onerror fired');
       if (!completer.isCompleted) {
         _handleError(xhr, request, completer);
       }
@@ -78,6 +87,7 @@ class HttpRequestImplementation implements HttpRequestInterface {
 
     // Handle timeout
     xhr.ontimeout = (Event event) {
+      Z.log('XHR ontimeout fired');
       if (!completer.isCompleted) {
         final timeoutDuration = timeout?.inMilliseconds ?? xhr.timeout;
         completer.completeError(
@@ -93,6 +103,7 @@ class HttpRequestImplementation implements HttpRequestInterface {
 
     // Handle abort
     xhr.onabort = (Event event) {
+      Z.log('XHR onabort fired');
       if (!completer.isCompleted) {
         completer.completeError(
           ZapException.cancelled('Request aborted', request.url),
@@ -103,12 +114,14 @@ class HttpRequestImplementation implements HttpRequestInterface {
 
     // Send the request with error handling
     try {
+      Z.log('Sending request with ${bytes.length} bytes of data');
       if (bytes.isNotEmpty) {
         xhr.send(bytes.toJS);
       } else {
         xhr.send();
       }
     } catch (e) {
+      Z.log('Error sending request: $e');
       if (!completer.isCompleted) {
         completer.completeError(
           ZapException.network('Failed to send request: $e', request.url),
@@ -133,17 +146,22 @@ class HttpRequestImplementation implements HttpRequestInterface {
       'statusText': xhr.statusText,
     };
 
+    Z.log('Handling error: readyState=${xhr.readyState}, status=${xhr.status}');
+
     if (xhr.status == 0) {
       // Status 0 usually indicates network issues or CORS problems
       if (xhr.readyState == 4) {
         // Request completed but with network error
         errorMessage = 'Network error - unable to connect to server';
         errorType = ExceptionType.network;
+        Z.log('Network error detected - readyState=4, status=0');
       } else {
         // CORS or other browser security restriction
         errorMessage = 'CORS error or network connectivity issue';
         errorType = ExceptionType.network;
         details['corsIssue'] = true;
+        Z.log('CORS issue detected - readyState=${xhr.readyState}, status=0');
+        Z.log('Check that the server allows cross-origin requests and has proper CORS headers');
       }
     } else if (xhr.status >= 400 && xhr.status < 500) {
       // Client errors
@@ -171,6 +189,7 @@ class HttpRequestImplementation implements HttpRequestInterface {
     try {
       // Check for HTTP error status codes even in onload
       if (xhr.status >= 400) {
+        Z.log('Error status code detected in onload: ${xhr.status}');
         _handleError(xhr, request, completer);
         return;
       }
@@ -182,7 +201,9 @@ class HttpRequestImplementation implements HttpRequestInterface {
           try {
             final jsArrayBuffer = xhr.response as JSArrayBuffer;
             bodyBytes = jsArrayBuffer.toDart.asUint8List();
+            Z.log('Successfully parsed arraybuffer response: ${bodyBytes.length} bytes');
           } catch (e) {
+            Z.log('Failed to parse arraybuffer response: $e');
             throw ZapException.parsing('Failed to parse arraybuffer response: $e', request.url);
           }
         } else {
@@ -190,11 +211,14 @@ class HttpRequestImplementation implements HttpRequestInterface {
           try {
             final responseText = xhr.responseText;
             bodyBytes = Uint8List.fromList(responseText.codeUnits);
+            Z.log('Using responseText fallback: ${bodyBytes.length} bytes');
           } catch (e) {
+            Z.log('Failed to parse text response: $e');
             throw ZapException.parsing('Failed to parse text response: $e', request.url);
           }
         }
       } else {
+        Z.log('No response data received');
         bodyBytes = Uint8List(0);
       }
 
@@ -207,13 +231,10 @@ class HttpRequestImplementation implements HttpRequestInterface {
       final responseHeaders = _parseResponseHeaders(xhr);
       final stringBody = await bodyBytesToString(bodyStream, responseHeaders);
       final contentType = responseHeaders['content-type'] ?? 'application/json';
+      
+      Z.log('Response body: ${stringBody.substring(0, Math.min(100, stringBody.length))}...');
 
-      final body = bodyDecoded<T>(
-        request, 
-        stringBody, 
-        contentType, 
-        HttpStatus.fromCode(xhr.status)
-      );
+      final body = bodyDecoded<T>(request, stringBody, contentType);
 
       final response = Response<T>(
         bodyBytes: bodyStream,
@@ -227,9 +248,11 @@ class HttpRequestImplementation implements HttpRequestInterface {
       );
 
       if (!completer.isCompleted) {
+        Z.log('Completing request with successful response');
         completer.complete(response);
       }
     } catch (e, stackTrace) {
+      Z.log('Error in _handleResponse: $e');
       if (!completer.isCompleted) {
         if (e is ZapException) {
           completer.completeError(e, stackTrace);
@@ -264,8 +287,9 @@ class HttpRequestImplementation implements HttpRequestInterface {
           }
         }
       }
+      Z.log('Parsed response headers: $headers');
     } catch (e) {
-      console.log('Warning: Could not parse response headers: $e');
+      Z.log('Warning: Could not parse response headers: $e');
     }
     return headers;
   }

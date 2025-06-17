@@ -1,13 +1,12 @@
 import 'dart:async';
 // import 'dart:convert';
 
-import 'package:tracing/tracing.dart' show console;
-
+import '../core/zap_inst.dart';
 import '../definitions.dart';
 import '../enums/socket_type.dart';
 import '../enums/zync_state.dart';
 import '../exceptions/zap_exception.dart';
-import '../models/session_response.dart';
+import '../models/response/session_response.dart';
 import '../models/socket_messenger.dart';
 import '../models/zync_config.dart';
 import '../models/zync_error_response.dart';
@@ -189,7 +188,7 @@ class Zync implements ZyncInterface {
     config.onStateChanged?.call(state);
     
     if (config.showConnectionLogs) {
-      console.log('Zync: Connection state changed to $state');
+      Z.log('Zync: Connection state changed to $state');
     }
   }
 
@@ -244,7 +243,7 @@ class Zync implements ZyncInterface {
         headers.addAll(authHeaders);
         
         if (config.showConnectionLogs && authHeaders.isNotEmpty) {
-          console.log('Zync: Added auth headers: ${authHeaders.keys.join(', ')}');
+          Z.log('Zync: Added auth headers: ${authHeaders.keys.join(', ')}');
         }
       }
     }
@@ -314,7 +313,7 @@ class Zync implements ZyncInterface {
       }
 
       if (config.showDebugLogs) {
-        console.log('Zync: Message received - ${response.type ?? 'unknown'}');
+        Z.log('Zync: Message received - ${response.type ?? 'unknown'}');
       }
     } catch (e) {
       _handleError('Message Processing Error', e);
@@ -332,7 +331,7 @@ class Zync implements ZyncInterface {
     config.onError?.call(where, error);
     
     if (config.showErrorLogs) {
-      console.error('Zync Error [$where]: $error');
+      Z.error('Zync Error [$where]: $error');
     }
   }
 
@@ -369,7 +368,7 @@ class Zync implements ZyncInterface {
     _reconnectAttempts++;
     
     if (config.showConnectionLogs) {
-      console.log('Zync: Attempting reconnection $_reconnectAttempts/${config.maxReconnectAttempts}');
+      Z.log('Zync: Attempting reconnection $_reconnectAttempts/${config.maxReconnectAttempts}');
     }
 
     _reconnectTimer = Timer(config.reconnectDelay, () {
@@ -383,7 +382,7 @@ class Zync implements ZyncInterface {
       _updateConnectionState(ZyncState.connecting);
       
       if (config.showConnectionLogs) {
-        console.log('Zync: Connecting to ${config.url}');
+        Z.log('Zync: Connecting to ${config.url}');
       }
 
       // Create new socket instance
@@ -396,7 +395,7 @@ class Zync implements ZyncInterface {
         _startPingTimer();
         
         if (config.showConnectionLogs) {
-          console.log('Zync: Connected to ${config.url}');
+          Z.log('Zync: Connected to ${config.url}');
         }
 
         // Send connection headers with authentication
@@ -435,7 +434,7 @@ class Zync implements ZyncInterface {
         _stopPingTimer();
         
         if (config.showConnectionLogs) {
-          console.log('Zync: Connection closed - ${close.message}');
+          Z.log('Zync: Connection closed - ${close.message}');
         }
 
         // Attempt reconnection if not manually disconnected
@@ -474,7 +473,7 @@ class Zync implements ZyncInterface {
     _errorStreamController.close();
     
     if (config.showConnectionLogs) {
-      console.log('Zync: Disconnected');
+      Z.log('Zync: Disconnected');
     }
   }
 
@@ -512,7 +511,7 @@ class Zync implements ZyncInterface {
       _resetSendTrial();
       
       if (config.showSendLogs) {
-        console.info('Zync: Message sent to $endpoint');
+        Z.info('Zync: Message sent to $endpoint');
       }
       
     } catch (e) {
@@ -541,7 +540,7 @@ class Zync implements ZyncInterface {
       _updateConnectionState(ZyncState.subscribed);
       
       if (config.showConnectionLogs) {
-        console.log('Zync: Subscribed to $topic');
+        Z.log('Zync: Subscribed to $topic');
       }
     }
   }
@@ -561,7 +560,7 @@ class Zync implements ZyncInterface {
       );
       
       if (config.showConnectionLogs) {
-        console.log('Zync: Unsubscribed from $topic');
+        Z.log('Zync: Unsubscribed from $topic');
       }
     }
   }
@@ -589,7 +588,7 @@ class Zync implements ZyncInterface {
       );
       
       if (config.showSendLogs) {
-        console.info('Zync: Event emitted - $event');
+        Z.info('Zync: Event emitted - $event');
       }
     } else {
       _handleError('Emit Error', 'WebSocket not connected');

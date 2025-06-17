@@ -31,12 +31,7 @@ class MockHttpRequest extends HttpRequestInterface {
         ? response.headers!['content-type']
         : '';
 
-    final body = bodyDecoded<T>(
-      request,
-      stringBody,
-      mimeType,
-      response.status
-    );
+    final body = bodyDecoded<T>(request, stringBody, mimeType);
 
     return Response(
       headers: response.headers,

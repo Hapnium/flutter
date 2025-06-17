@@ -1,18 +1,17 @@
-import 'package:tracing/tracing.dart' show console;
-
+import '../core/zap_inst.dart';
 import '../definitions.dart';
 import '../enums/exception_type.dart';
 import '../exceptions/controller_advice.dart';
 import '../exceptions/zap_exception.dart';
-import '../models/api_response.dart';
+import '../models/response/api_response.dart';
 import '../http/response/response.dart';
 import '../http/utils/http_status.dart';
 import '../models/flux_config.dart';
-import '../models/session_response.dart';
+import '../models/response/session_response.dart';
 import '../models/cancel_token.dart';
 
 /// Type definition for request executor function with cancellation support
-typedef RequestExecutor<T> = Future<Response<ApiResponse<T>>> Function(Headers? headers, CancelToken? cancelToken);
+typedef RequestExecutor = Future<Response<ApiResponse>> Function(Headers? headers, CancelToken? cancelToken);
 
 extension FluxConfigExtension on FluxConfig {
   /// Adviser instance for handling exceptions and logging.
@@ -109,14 +108,14 @@ extension FluxConfigExtension on FluxConfig {
         final session = await onSessionRefreshed!();
         if(session != null) {
           if (showResponseLogs) {
-            console.log('Flux: Session refreshed successfully');
+            Z.log('Flux: Session refreshed successfully');
           }
 
           return session;
         }
       } catch (e) {
         if (showErrorLogs) {
-          console.log('Flux: Session refresh failed: $e');
+          Z.log('Flux: Session refresh failed: $e');
         }
 
         return null;
@@ -128,9 +127,9 @@ extension FluxConfigExtension on FluxConfig {
   /// Logs request information if request logging is enabled.
   void __log(String method, String endpoint, RequestParam? query) {
     if (showRequestLogs) {
-      console.log('Flux Request: $method $endpoint');
+      Z.log('Flux Request: $method $endpoint');
       if (query != null && query.isNotEmpty) {
-        console.log('Flux Query: $query');
+        Z.log('Flux Query: $query');
       }
     }
   }
@@ -138,14 +137,14 @@ extension FluxConfigExtension on FluxConfig {
   /// Logs header information if header logging is enabled.
   void ___log(Headers headers) {
     if (showRequestLogs) {
-      console.log('Flux Headers: $headers');
+      Z.log('Flux Headers: $headers');
     }
   }
 
   /// Logs response information if response logging is enabled.
-  void _log<T>(Response<ApiResponse<T>> response) {
+  void _log<T>(Response<ApiResponse> response) {
     if (showResponseLogs) {
-      console.log('Flux Response: ${response.status} - ${response.body?.status} - ${response.body?.message}');
+      Z.log('Flux Response: ${response.status} - ${response.body?.status} - ${response.body?.message}');
     }
   }
 
@@ -157,7 +156,7 @@ extension FluxConfigExtension on FluxConfig {
   /// If [showErrorLogs] is true, the exception is logged.
   /// 
   /// Returns a [Response<ApiResponse<T>>] with appropriate status code and ApiResponse body.
-  Response<ApiResponse<T>> handleException<T>(Exception e) {
+  Response<ApiResponse> handleException(Exception e) {
     ZapException zapException;
     
     // Convert to ZapException if not already
@@ -169,40 +168,41 @@ extension FluxConfigExtension on FluxConfig {
 
     // Log if enabled
     if (showErrorLogs) {
-      console.log('[ZAP PULSE] Exception: $zapException');
+      Z.log('[ZAP PULSE] Exception: $zapException');
     }
 
     // Always notify the adviser about the exception
     _adviser.onException(zapException);
 
     // Return appropriate response based on exception type
-    return _createApiResponseForException<T>(zapException);
+    return _createApiResponseForException(zapException);
   }
 
+  // ignore: unintended_html_in_doc_comment
   /// Creates appropriate Response<ApiResponse<T>> objects based on ZapException type
-  Response<ApiResponse<T>> _createApiResponseForException<T>(ZapException exception) {
+  Response<ApiResponse> _createApiResponseForException(ZapException exception) {
     switch (exception.type) {
       case ExceptionType.timeout:
-        return Response<ApiResponse<T>>(
+        return Response<ApiResponse>(
           status: HttpStatus.REQUEST_TIMEOUT,
           message: 'Request timed out. Please try again.',
-          body: ApiResponse<T>.error('Request timeout: ${exception.message}'),
+          body: ApiResponse.error('Request timeout: ${exception.message}'),
           headers: {'x-error-type': 'timeout'},
         );
 
       case ExceptionType.network:
-        return Response<ApiResponse<T>>(
+        return Response<ApiResponse>(
           status: HttpStatus.CONNECTION_NOT_REACHABLE,
           message: 'Network connection unavailable. Check your internet connection.',
-          body: ApiResponse<T>.error('Network error: ${exception.message}'),
+          body: ApiResponse.error('Network error: ${exception.message}'),
           headers: {'x-error-type': 'network'},
         );
 
       case ExceptionType.server:
-        return Response<ApiResponse<T>>(
+        return Response<ApiResponse>(
           status: HttpStatus.fromCode(exception.statusCode ?? 500),
           message: 'Server error occurred. Please try again later.',
-          body: ApiResponse<T>.error('Server error: ${exception.message}'),
+          body: ApiResponse.error('Server error: ${exception.message}'),
           headers: {
             'x-error-type': 'server',
             'x-status-code': '${exception.statusCode ?? 500}'
@@ -210,10 +210,10 @@ extension FluxConfigExtension on FluxConfig {
         );
 
       case ExceptionType.client:
-        return Response<ApiResponse<T>>(
+        return Response<ApiResponse>(
           status: HttpStatus.fromCode(exception.statusCode ?? 400),
           message: 'Client request error. Please check your request.',
-          body: ApiResponse<T>.error('Client error: ${exception.message}'),
+          body: ApiResponse.error('Client error: ${exception.message}'),
           headers: {
             'x-error-type': 'client',
             'x-status-code': '${exception.statusCode ?? 400}'
@@ -221,10 +221,10 @@ extension FluxConfigExtension on FluxConfig {
         );
 
       case ExceptionType.auth:
-        return Response<ApiResponse<T>>(
+        return Response<ApiResponse>(
           status: HttpStatus.UNAUTHORIZED,
           message: 'Authentication required. Please login again.',
-          body: ApiResponse<T>.error('Authentication error: ${exception.message}'),
+          body: ApiResponse.error('Authentication error: ${exception.message}'),
           headers: {
             'x-error-type': 'auth',
             'x-auth-required': 'true'
@@ -232,10 +232,10 @@ extension FluxConfigExtension on FluxConfig {
         );
 
       case ExceptionType.ssl:
-        return Response<ApiResponse<T>>(
+        return Response<ApiResponse>(
           status: HttpStatus.CONNECTION_NOT_REACHABLE,
           message: 'Secure connection failed. Certificate or SSL error.',
-          body: ApiResponse<T>.error('SSL error: ${exception.message}'),
+          body: ApiResponse.error('SSL error: ${exception.message}'),
           headers: {
             'x-error-type': 'ssl',
             'x-security-error': 'true'
@@ -243,10 +243,10 @@ extension FluxConfigExtension on FluxConfig {
         );
 
       case ExceptionType.connection:
-        return Response<ApiResponse<T>>(
+        return Response<ApiResponse>(
           status: HttpStatus.CONNECTION_NOT_REACHABLE,
           message: 'Cannot connect to server. Server may be down.',
-          body: ApiResponse<T>.error('Connection error: ${exception.message}'),
+          body: ApiResponse.error('Connection error: ${exception.message}'),
           headers: {
             'x-error-type': 'connection',
             'x-retry-after': '30'
@@ -254,10 +254,10 @@ extension FluxConfigExtension on FluxConfig {
         );
 
       case ExceptionType.dns:
-        return Response<ApiResponse<T>>(
+        return Response<ApiResponse>(
           status: HttpStatus.CONNECTION_NOT_REACHABLE,
           message: 'Cannot resolve server address. Check your DNS settings.',
-          body: ApiResponse<T>.error('DNS error: ${exception.message}'),
+          body: ApiResponse.error('DNS error: ${exception.message}'),
           headers: {
             'x-error-type': 'dns',
             'x-dns-error': 'true'
@@ -265,10 +265,10 @@ extension FluxConfigExtension on FluxConfig {
         );
 
       case ExceptionType.parsing:
-        return Response<ApiResponse<T>>(
+        return Response<ApiResponse>(
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           message: 'Cannot parse server response. Invalid data format.',
-          body: ApiResponse<T>.error('Parsing error: ${exception.message}'),
+          body: ApiResponse.error('Parsing error: ${exception.message}'),
           headers: {
             'x-error-type': 'parsing',
             'x-content-error': 'true'
@@ -276,10 +276,10 @@ extension FluxConfigExtension on FluxConfig {
         );
 
       case ExceptionType.cancelled:
-        return Response<ApiResponse<T>>(
+        return Response<ApiResponse>(
           status: HttpStatus.REQUEST_CANCELLED,
           message: 'Request was cancelled.',
-          body: ApiResponse<T>.error('Request cancelled: ${exception.message}'),
+          body: ApiResponse.error('Request cancelled: ${exception.message}'),
           headers: {
             'x-error-type': 'cancelled',
             'x-cancelled': 'true'
@@ -287,10 +287,10 @@ extension FluxConfigExtension on FluxConfig {
         );
 
       default:
-        return Response<ApiResponse<T>>(
+        return Response<ApiResponse>(
           status: HttpStatus.INTERNAL_SERVER_ERROR,
           message: 'An unexpected error occurred. Please try again.',
-          body: ApiResponse<T>.error('Unknown error: ${exception.message}'),
+          body: ApiResponse.error('Unknown error: ${exception.message}'),
           headers: {
             'x-error-type': 'unknown',
             'x-unexpected-error': 'true'
@@ -304,25 +304,25 @@ extension FluxConfigExtension on FluxConfig {
   /// This method is used to create an unauthorized response.
   /// 
   /// Returns a [Response<ApiResponse<T>>] with the status code and message from the exception.
-  Response<ApiResponse<T>> unauthorized<T>() {
-    return Response<ApiResponse<T>>(
+  Response<ApiResponse> unauthorized() {
+    return Response<ApiResponse>(
       status: HttpStatus.UNAUTHORIZED,
       headers: {},
-      body: ApiResponse<T>.unauthorized('Unable to complete request due to authentication failure'),
+      body: ApiResponse.unauthorized('Unable to complete request due to authentication failure'),
     );
   }
 
   /// Retries a request after session refresh.
-  Future<Response<ApiResponse<T>>> _retryRequest<T>(RequestExecutor<T> execute, CancelToken? cancelToken) async {
+  Future<Response<ApiResponse>> _retryRequest(RequestExecutor execute, CancelToken? cancelToken) async {
     final newSession = await handleSessionRefresh();
-    Response<ApiResponse<T>> response;
+    Response<ApiResponse> response;
 
     if (newSession != null) {
       // Retry the request with new session
       final headers = buildHeaders();
       response = await execute(headers, cancelToken);
     } else {
-      response = unauthorized<T>();
+      response = unauthorized();
     }
 
     _log(response);
@@ -343,9 +343,9 @@ extension FluxConfigExtension on FluxConfig {
   /// 4. Handles HttpStatus.UNAUTHORIZED errors with session refresh
   /// 5. Logs request/response if enabled
   /// 6. Parses response data using provided parser
-  Future<Response<ApiResponse<T>>> execute<T>(RequestExecutor<T> execute, String method, String endpoint, bool useAuth, CancelToken? cancelToken) async {
+  Future<Response<ApiResponse>> execute(RequestExecutor execute, String method, String endpoint, bool useAuth, CancelToken? cancelToken) async {
     __log(method, endpoint, null);
-    Response<ApiResponse<T>> response;
+    Response<ApiResponse> response;
 
     if(useSingleInstance) {
       checkAuth(useAuth);
@@ -375,4 +375,7 @@ extension FluxConfigExtension on FluxConfig {
     _log(response);
     return response;
   }
+
+  /// Creates a decoder function for ApiResponse with custom data parsing.
+  ResponseDecoder<ApiResponse> get decoder => (dynamic data) => ApiResponse.fromJson(data);
 }

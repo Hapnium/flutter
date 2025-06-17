@@ -1,6 +1,5 @@
-import 'http/utils/http_status.dart';
 import 'enums/zync_state.dart';
-import 'models/session_response.dart';
+import 'models/response/session_response.dart';
 import 'models/zync_response.dart';
 
 /// Signature for a callback function that handles responses from a socket.
@@ -83,7 +82,7 @@ typedef RequestParam = Map<String, dynamic>;
 typedef RequestBody = dynamic;
 
 /// A function that decodes the response body into a specific type [T].
-typedef ResponseDecoder<T> = T Function(HttpStatus status, dynamic data);
+typedef ResponseDecoder<T> = T Function(dynamic data);
 
 /// A function used to track upload progress by returning the current percentage (0.0 - 100.0).
 typedef Progress = Function(double percent);
