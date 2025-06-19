@@ -585,7 +585,7 @@ abstract class BaseRepository<Result, Insert> implements RepositoryService<Resul
     _notifyListeners(fromStore(null));
 
     runDelete();
-    return Optional<Result>.empty();
+    return Optional.empty<Result>();
   }
 
   @override

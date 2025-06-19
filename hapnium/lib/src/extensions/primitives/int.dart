@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import '../../exceptions/hapnium_exception.dart';
 import './iterable.dart';
 
 extension IntExtensions on int {
@@ -229,5 +230,35 @@ extension IntExtensions on int {
     } else {
       return "${(this / 1_000_000_000.0).toStringAsFixed(1)}B";
     }
+  }
+
+  /// Converts the integer to a string and left-pads it with zeroes until it reaches [digits] length.
+  ///
+  /// Useful for formatting numeric values such as dates, times, and identifiers
+  /// where a fixed-width string is expected.
+  ///
+  /// ### Example:
+  /// ```dart
+  /// final padded = 7.toDigits(3); // '007'
+  /// final padded2 = 123.toDigits(5); // '00123'
+  /// ```
+  ///
+  /// ### Parameters:
+  /// - [digits]: The total number of digits the output string should have.
+  ///
+  /// ### Returns:
+  /// A string version of this integer, padded with '0' on the left if necessary.
+  ///
+  /// ### Throws:
+  /// - If [digits] is less than or equal to zero.
+  ///
+  /// ### Notes:
+  /// - If the integer already has the same or more digits, it returns the number as a string.
+  String toDigits([int digits = 2]) {
+    if(digits <= 0) {
+      throw HapniumException('digits must be greater than 0');
+    }
+
+    return toString().padLeft(digits, '0');
   }
 }

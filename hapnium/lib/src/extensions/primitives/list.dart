@@ -21,7 +21,7 @@ extension ListExtensions<T> on List<T> {
 
   /// Adds an item to a list if a condition is met.
   void addIf(ConditionTester<T> condition, T element) {
-    for (var item in this) {
+    for (var item in List<T>.from(this)) {
       if (condition(item)) {
         add(element);
       }
@@ -39,7 +39,7 @@ extension ListExtensions<T> on List<T> {
 
   /// Removes an item from a list if a condition is met.
   void removeIf(ConditionTester<T> condition, T element) {
-    for (var item in this) {
+    for (var item in List<T>.from(this)) {
       if (condition(item)) {
         remove(element);
       }
@@ -67,5 +67,26 @@ extension ListExtensions<T> on List<T> {
       if (test(element)) return element;
     }
     return null;
+  }
+
+  /// Removes and returns the first element of the list.
+  /// 
+  /// Returns `null` if the list is empty.
+  T? shift() {
+    if (isEmpty) return null;
+    return removeAt(0);
+  }
+
+  /// Removes and returns the last element of the list.
+  /// 
+  /// Returns `null` if the list is empty.
+  T? pop() {
+    if (isEmpty) return null;
+    return removeAt(length - 1);
+  }
+
+  /// Returns a new list with the elements in reverse order.
+  List<T> reverse() {
+    return List<T>.from(this).reversed.toList();
   }
 }
