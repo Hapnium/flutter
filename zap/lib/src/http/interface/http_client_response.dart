@@ -1,5 +1,5 @@
 import '../../definitions.dart';
-import 'http_headers.dart';
+import '../utils/http_headers.dart';
 import 'redirect_info.dart';
 
 /// This interface is used to represent a response from a server.

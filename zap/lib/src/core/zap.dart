@@ -48,7 +48,9 @@ class Zap extends ZapInterface {
   ///   timeouts, authentication, SSL settings, and base URL configuration.
   /// 
   /// {@macro zap}
-  Zap({super.zapConfig, super.zapClient, super.zapSockets});
+  Zap({super.zapConfig, super.zapClient, super.zapSockets}) {
+    onStart();
+  }
 
   /// Set of active cancel tokens for tracking ongoing requests
   final Set<CancelToken> _activeTokens = <CancelToken>{};
@@ -363,5 +365,7 @@ class Zap extends ZapInterface {
 
     client.close();
     sockets.clear();
+
+    super.onDelete();
   }
 }

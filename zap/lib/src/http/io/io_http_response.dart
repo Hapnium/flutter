@@ -3,7 +3,7 @@ import 'dart:io' as io;
 
 import '../../definitions.dart';
 import '../interface/http_client_response.dart';
-import '../interface/http_headers.dart';
+import '../utils/http_headers.dart';
 import '../interface/redirect_info.dart';
 import 'io_http_headers.dart';
 import 'io_redirect_info.dart';

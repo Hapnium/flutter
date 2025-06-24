@@ -1,6 +1,6 @@
 import 'dart:io' as io;
 
-import '../interface/http_headers.dart';
+import '../utils/http_headers.dart';
 
 /// {@template io_http_headers}
 /// A wrapper for [io.HttpHeaders]

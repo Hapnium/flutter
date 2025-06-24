@@ -15,10 +15,7 @@ ZapInterface fluxClient(FluxConfig config, [bool useAuth = false]) {
   if(config.useSingleInstance) {
     return Zap(zapConfig: config.zapConfig);
   } else {
-    ZapInterface inst = _Connect(config, useAuth);
-    inst.onStart();
-
-    return inst;
+    return _Connect(config, useAuth);
   }
 }
 
