@@ -35,14 +35,14 @@ extension ClientHandlerExtension on ClientHandler {
     final Headers headers = {};
 
     if (sendUserAgent) {
-      headers['user-agent'] = userAgent;
+      headers[HttpHeaders.USER_AGENT] = userAgent;
     }
 
     if (body is FormData) {
       bodyBytes = await body.toBytes();
-      headers['content-length'] = bodyBytes.length.toString();
-      headers['content-type'] = 'multipart/form-data; boundary=${body.boundary}';
-    } else if (contentType != null && contentType.toLowerCase() == 'application/x-www-form-urlencoded' && body is Map) {
+      headers[HttpHeaders.CONTENT_LENGTH] = bodyBytes.length.toString();
+      headers[HttpHeaders.CONTENT_TYPE] = HttpContentType.MULTIPARET_FORM_DATA_WITH_BOUNDARY(body.boundary);
+    } else if (contentType != null && contentType.toLowerCase() == HttpContentType.APPLICATION_X_WWW_FORM_URLENCODED && body is Map) {
       var parts = [];
       (body as RequestParam).forEach((key, value) {
         parts.add('${Uri.encodeQueryComponent(key)}=${Uri.encodeQueryComponent(value.toString())}');
@@ -50,20 +50,20 @@ extension ClientHandlerExtension on ClientHandler {
       var formData = parts.join('&');
       bodyBytes = utf8.encode(formData);
       _setContentLength(headers, bodyBytes.length);
-      headers['content-type'] = contentType;
+      headers[HttpHeaders.CONTENT_TYPE] = contentType;
     } else if (body is Map || body is List) {
       var jsonString = json.encode(body);
       bodyBytes = utf8.encode(jsonString);
       _setContentLength(headers, bodyBytes.length);
-      headers['content-type'] = contentType ?? defaultContentType;
+      headers[HttpHeaders.CONTENT_TYPE] = contentType ?? defaultContentType;
     } else if (body is String) {
       bodyBytes = utf8.encode(body);
       _setContentLength(headers, bodyBytes.length);
 
-      headers['content-type'] = contentType ?? defaultContentType;
+      headers[HttpHeaders.CONTENT_TYPE] = contentType ?? defaultContentType;
     } else if (body == null) {
       _setContentLength(headers, 0);
-      headers['content-type'] = contentType ?? defaultContentType;
+      headers[HttpHeaders.CONTENT_TYPE] = contentType ?? defaultContentType;
     } else {
       if (!errorSafety) {
         throw ZapException.parsing('Request body cannot be ${body.runtimeType}');
@@ -91,7 +91,7 @@ extension ClientHandlerExtension on ClientHandler {
   /// Sets the content length header if sendContentLength is true.
   void _setContentLength(Headers headers, int contentLength) {
     if (sendContentLength) {
-      headers['content-length'] = '$contentLength';
+      headers[HttpHeaders.CONTENT_LENGTH] = '$contentLength';
     }
   }
 
@@ -116,9 +116,9 @@ extension ClientHandlerExtension on ClientHandler {
 
   /// Sets simple headers for a request.
   void _setSimpleHeaders(Headers headers, String? contentType) {
-    headers['content-type'] = contentType ?? defaultContentType;
+    headers[HttpHeaders.CONTENT_TYPE] = contentType ?? defaultContentType;
     if (sendUserAgent) {
-      headers['user-agent'] = userAgent;
+      headers[HttpHeaders.USER_AGENT] = userAgent;
     }
   }
 
@@ -312,7 +312,9 @@ extension ClientHandlerExtension on ClientHandler {
           status: HttpStatus.REQUEST_TIMEOUT,
           message: 'Request timed out. Please try again.',
           request: request,
-          headers: {'x-error-type': 'timeout'},
+          headers: {
+            HttpHeaders.X_ERROR_TYPE: 'timeout'
+          },
           body: null,
           bodyBytes: null,
           bodyString: 'Request timeout: ${exception.message}',
@@ -323,7 +325,9 @@ extension ClientHandlerExtension on ClientHandler {
           status: HttpStatus.CONNECTION_NOT_REACHABLE,
           message: 'Network connection unavailable. Check your internet connection.',
           request: request,
-          headers: {'x-error-type': 'network'},
+          headers: {
+            HttpHeaders.X_ERROR_TYPE: 'network'
+          },
           body: null,
           bodyBytes: null,
           bodyString: 'Network error: ${exception.message}',
@@ -335,8 +339,8 @@ extension ClientHandlerExtension on ClientHandler {
           message: 'Server error occurred. Please try again later.',
           request: request,
           headers: {
-            'x-error-type': 'server',
-            'x-status-code': '${exception.statusCode ?? 500}'
+            HttpHeaders.X_ERROR_TYPE: 'server',
+            HttpHeaders.X_STATUS_CODE: '${exception.statusCode ?? 500}'
           },
           body: null,
           bodyBytes: null,
@@ -349,8 +353,8 @@ extension ClientHandlerExtension on ClientHandler {
           message: 'Client request error. Please check your request.',
           request: request,
           headers: {
-            'x-error-type': 'client',
-            'x-status-code': '${exception.statusCode ?? 400}'
+            HttpHeaders.X_ERROR_TYPE: 'client',
+            HttpHeaders.X_STATUS_CODE: '${exception.statusCode ?? 400}'
           },
           body: null,
           bodyBytes: null,
@@ -363,8 +367,8 @@ extension ClientHandlerExtension on ClientHandler {
           message: 'Authentication required. Please login again.',
           request: request,
           headers: {
-            'x-error-type': 'auth',
-            'x-auth-required': 'true'
+            HttpHeaders.X_ERROR_TYPE: 'auth',
+            HttpHeaders.X_AUTH_REQUIRED: 'true'
           },
           body: null,
           bodyBytes: null,
@@ -377,8 +381,8 @@ extension ClientHandlerExtension on ClientHandler {
           message: 'Secure connection failed. Certificate or SSL error.',
           request: request,
           headers: {
-            'x-error-type': 'ssl',
-            'x-security-error': 'true'
+            HttpHeaders.X_ERROR_TYPE: 'ssl',
+            HttpHeaders.X_SECURITY_ERROR: 'true'
           },
           body: null,
           bodyBytes: null,
@@ -391,8 +395,8 @@ extension ClientHandlerExtension on ClientHandler {
           message: 'Cannot connect to server. Server may be down.',
           request: request,
           headers: {
-            'x-error-type': 'connection',
-            'x-retry-after': '30'
+            HttpHeaders.X_ERROR_TYPE: 'connection',
+            HttpHeaders.X_RETRY_AFTER: '30'
           },
           body: null,
           bodyBytes: null,
@@ -405,8 +409,8 @@ extension ClientHandlerExtension on ClientHandler {
           message: 'Cannot resolve server address. Check your DNS settings.',
           request: request,
           headers: {
-            'x-error-type': 'dns',
-            'x-dns-error': 'true'
+            HttpHeaders.X_ERROR_TYPE: 'dns',
+            HttpHeaders.X_DNS_ERROR: 'true'
           },
           body: null,
           bodyBytes: null,
@@ -419,8 +423,8 @@ extension ClientHandlerExtension on ClientHandler {
           message: 'Cannot parse server response. Invalid data format.',
           request: request,
           headers: {
-            'x-error-type': 'parsing',
-            'x-content-error': 'true'
+            HttpHeaders.X_ERROR_TYPE: 'parsing',
+            HttpHeaders.X_CONTENT_ERROR: 'true'
           },
           body: null,
           bodyBytes: null,
@@ -433,8 +437,8 @@ extension ClientHandlerExtension on ClientHandler {
           message: 'Request was cancelled.',
           request: request,
           headers: {
-            'x-error-type': 'cancelled',
-            'x-cancelled': 'true'
+            HttpHeaders.X_ERROR_TYPE: 'cancelled',
+            HttpHeaders.X_CANCELLED: 'true'
           },
           body: null,
           bodyBytes: null,
@@ -446,8 +450,8 @@ extension ClientHandlerExtension on ClientHandler {
           message: 'An unexpected error occurred. Please try again.',
           request: request,
           headers: {
-            'x-error-type': 'unknown',
-            'x-unexpected-error': 'true'
+            HttpHeaders.X_ERROR_TYPE: 'unknown',
+            HttpHeaders.X_UNEXPECTED_ERROR: 'true'
           },
           body: null,
           bodyBytes: null,

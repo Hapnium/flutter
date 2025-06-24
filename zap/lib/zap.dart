@@ -131,6 +131,8 @@ export 'src/http/response/response.dart';
 export 'src/http/response/graphql_response.dart';
 export 'src/http/utils/http_status.dart';
 export 'src/http/utils/http_headers.dart';
+export 'src/http/utils/http_content_type.dart';
+export 'src/http/utils/http_method.dart';
 export 'src/http/modifier/zap_modifier.dart';
 
 /// --- ENUM TYPES ---

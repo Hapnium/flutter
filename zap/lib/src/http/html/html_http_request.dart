@@ -18,6 +18,8 @@ import '../response/helpers.dart';
 import '../response/response.dart';
 import '../interface/http_request_interface.dart';
 import '../utils/body_decoder.dart';
+import '../utils/http_content_type.dart';
+import '../utils/http_headers.dart';
 import '../utils/http_status.dart';
 
 /// {@template html_http_request}
@@ -235,7 +237,7 @@ class HttpRequestImplementation implements HttpRequestInterface {
 
       final responseHeaders = _parseResponseHeaders(xhr);
       final stringBody = await bodyBytesToString(bodyStream, responseHeaders);
-      final contentType = responseHeaders['content-type'] ?? 'application/json';
+      final contentType = responseHeaders[HttpHeaders.CONTENT_TYPE] ?? HttpContentType.APPLICATION_JSON;
       
       Z.log('Response body: ${stringBody.substring(0, Math.min(100, stringBody.length))}...');
 

@@ -4,6 +4,7 @@ import '../stub/stub_file_decoder.dart'
     if (dart.library.io) '../io/io_file_decoder.dart';
 
 import '../request/request.dart';
+import '../utils/http_content_type.dart';
 
 /// {@template multipart_file}
 /// A class to represent a file in a form data
@@ -23,7 +24,7 @@ class MultipartFile {
   /// {@macro multipart_file}
   MultipartFile(dynamic data, {
     required this.filename,
-    this.contentType = 'application/octet-stream',
+    this.contentType = HttpContentType.APPLICATION_OCTET_STREAM,
   }) : _bytes = fileToBytes(data) {
     _length = _bytes.length;
     _stream = _bytes.toStream();

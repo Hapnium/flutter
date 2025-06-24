@@ -1,5 +1,7 @@
 import '../definitions.dart';
 import '../http/certificates/certificates.dart';
+import '../http/utils/constants.dart';
+import '../http/utils/http_content_type.dart';
 
 /// {@template zap_config}
 /// This class handles the configuration of Zap. It is used to modify and define the behaviour of a
@@ -92,7 +94,7 @@ class ZapConfig {
   /// 
   /// {@macro zap_config}
   ZapConfig({
-    this.userAgent = 'hapx-client',
+    this.userAgent = Constants.DEFAULT_USER_AGENT,
     this.timeout = const Duration(seconds: 5),
     this.followRedirects = true,
     this.maxRedirects = 5,
@@ -101,7 +103,7 @@ class ZapConfig {
     this.allowAutoSignedCert = false,
     this.withCredentials = false,
     this.baseUrl,
-    this.defaultContentType = 'application/json; charset=utf-8',
+    this.defaultContentType = '${HttpContentType.APPLICATION_JSON}; ${HttpContentType.CHARSET_UTF_8}',
     this.defaultDecoder,
     this.trustedCertificates,
     this.findProxy,

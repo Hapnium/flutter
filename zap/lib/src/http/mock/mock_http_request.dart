@@ -3,6 +3,7 @@ import '../request/request.dart';
 import '../response/helpers.dart';
 import '../response/response.dart';
 import '../utils/body_decoder.dart';
+import '../utils/http_headers.dart';
 
 /// A handler for [MockHttpRequest]
 typedef MockHttpRequestHandler = Future<Response> Function(Request request);
@@ -29,8 +30,8 @@ class MockHttpRequest extends HttpRequestInterface {
 
     final stringBody = await bodyBytesToString(bodyBytes, response.headers!);
 
-    var mimeType = response.headers!.containsKey('content-type')
-        ? response.headers!['content-type']
+    var mimeType = response.headers!.containsKey(HttpHeaders.CONTENT_TYPE)
+        ? response.headers![HttpHeaders.CONTENT_TYPE]
         : '';
 
     final body = bodyDecoded<T>(request, stringBody, mimeType);

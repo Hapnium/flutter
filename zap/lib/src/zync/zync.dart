@@ -6,6 +6,8 @@ import '../definitions.dart';
 import '../enums/socket_type.dart';
 import '../enums/zync_state.dart';
 import '../exceptions/zap_exception.dart';
+import '../http/utils/http_content_type.dart';
+import '../http/utils/http_headers.dart';
 import '../models/response/session_response.dart';
 import '../models/socket_messenger.dart';
 import '../models/zync_config.dart';
@@ -234,7 +236,7 @@ class Zync implements ZyncInterface {
   /// based on the configuration. It also includes any additional headers from config.
   Headers _buildHeaders([Headers? additionalHeaders]) {
     final headers = <String, String>{
-      'Accept': 'application/json',
+      HttpHeaders.ACCEPT: HttpContentType.APPLICATION_JSON,
     };
 
     // Add base headers from config
@@ -257,7 +259,7 @@ class Zync implements ZyncInterface {
 
     // Add content type for non-web platforms
     if (!config.isWebPlatform) {
-      headers['Content-Type'] = 'application/json';
+      headers[HttpHeaders.CONTENT_TYPE] = HttpContentType.APPLICATION_JSON;
     }
 
     // Add any additional headers passed to the method

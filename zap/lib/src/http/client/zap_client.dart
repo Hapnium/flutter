@@ -13,6 +13,10 @@ import '../multipart/form_data.dart';
 import '../request/http_request.dart';
 import '../request/request.dart';
 import '../response/response.dart';
+import '../utils/constants.dart';
+import '../utils/http_content_type.dart';
+import '../utils/http_headers.dart';
+import '../utils/http_method.dart';
 import '../utils/http_status.dart';
 
 part 'client_handler.dart';
@@ -63,7 +67,7 @@ class ZapClient {
   ///
   /// Typically used for APIs expecting JSON, form-encoded data, etc.
   /// Default is `'application/json; charset=utf-8'`.
-  String defaultContentType = 'application/json; charset=utf-8';
+  String defaultContentType = Constants.DEFAULT_CONTENT_TYPE;
 
   /// Whether the client should automatically follow HTTP redirects.
   ///
@@ -158,7 +162,7 @@ class ZapClient {
   /// 
   /// {@macro zap_client}
   ZapClient({
-    this.userAgent = 'hapx-client',
+    this.userAgent = Constants.DEFAULT_USER_AGENT,
     this.timeout = const Duration(seconds: 8),
     this.followRedirects = true,
     this.maxRedirects = 5,
@@ -305,7 +309,7 @@ class ZapClient {
   }) async {
     final request = await _handler.getRequestWithBody<T>(
       url,
-      'patch',
+      HttpMethod.PATCH,
       contentType: contentType,
       body: body,
       query: query,
@@ -350,7 +354,7 @@ class ZapClient {
   }) async {
     final request = await _handler.getRequestWithBody<T>(
       url,
-      'post',
+      HttpMethod.POST,
       contentType: contentType,
       body: body,
       query: query,
@@ -397,7 +401,7 @@ class ZapClient {
   }) async {
     final request = await _handler.getRequestWithBody<T>(
       url,
-      method,
+      HttpMethod.FROM(method),
       contentType: contentType,
       body: body,
       query: query,
@@ -441,7 +445,7 @@ class ZapClient {
   }) async {
     final request = await _handler.getRequestWithBody<T>(
       url,
-      'put',
+      HttpMethod.PUT,
       contentType: contentType,
       query: query,
       body: body,
@@ -481,7 +485,7 @@ class ZapClient {
   }) async {
     final request = await _handler.getRequestWithoutBody<T>(
       url,
-      'get',
+      HttpMethod.GET,
       contentType: contentType,
       query: query,
       decoder: decoder,
@@ -522,7 +526,7 @@ class ZapClient {
   }) async {
     final request = await _handler.getRequestWithoutBody<T>(
       url,
-      'delete',
+      HttpMethod.DELETE,
       decoder: decoder,
       responseInterceptor: responseInterceptor,
     );

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import '../../core/zap_inst.dart';
 import '../request/request.dart';
+import 'http_content_type.dart';
 
 /// Decodes the body of a request
 /// 
@@ -16,7 +17,7 @@ T? bodyDecoded<T>(Request<T> request, String stringBody, String? mimeType) {
   T? body;
   dynamic bodyToDecode;
 
-  if (mimeType != null && mimeType.contains('application/json')) {
+  if (mimeType != null && mimeType.contains(HttpContentType.APPLICATION_JSON)) {
     try {
       bodyToDecode = jsonDecode(stringBody);
     } on FormatException catch (_) {

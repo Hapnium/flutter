@@ -3,6 +3,7 @@ import '../definitions.dart';
 import '../enums/exception_type.dart';
 import '../exceptions/controller_advice.dart';
 import '../exceptions/zap_exception.dart';
+import '../http/utils/http_headers.dart';
 import '../models/response/api_response.dart';
 import '../http/response/response.dart';
 import '../http/utils/http_status.dart';
@@ -187,7 +188,9 @@ extension FluxConfigExtension on FluxConfig {
           status: HttpStatus.REQUEST_TIMEOUT,
           message: 'Request timed out. Please try again.',
           body: ApiResponse.error('Request timeout: ${exception.message}'),
-          headers: {'x-error-type': 'timeout'},
+          headers: {
+            HttpHeaders.X_ERROR_TYPE: 'timeout'
+          },
         );
 
       case ExceptionType.network:
@@ -195,7 +198,9 @@ extension FluxConfigExtension on FluxConfig {
           status: HttpStatus.CONNECTION_NOT_REACHABLE,
           message: 'Network connection unavailable. Check your internet connection.',
           body: ApiResponse.error('Network error: ${exception.message}'),
-          headers: {'x-error-type': 'network'},
+          headers: {
+            HttpHeaders.X_ERROR_TYPE: 'network'
+          },
         );
 
       case ExceptionType.server:
@@ -204,8 +209,8 @@ extension FluxConfigExtension on FluxConfig {
           message: 'Server error occurred. Please try again later.',
           body: ApiResponse.error('Server error: ${exception.message}'),
           headers: {
-            'x-error-type': 'server',
-            'x-status-code': '${exception.statusCode ?? 500}'
+            HttpHeaders.X_ERROR_TYPE: 'server',
+            HttpHeaders.X_STATUS_CODE: '${exception.statusCode ?? 500}'
           },
         );
 
@@ -215,8 +220,8 @@ extension FluxConfigExtension on FluxConfig {
           message: 'Client request error. Please check your request.',
           body: ApiResponse.error('Client error: ${exception.message}'),
           headers: {
-            'x-error-type': 'client',
-            'x-status-code': '${exception.statusCode ?? 400}'
+            HttpHeaders.X_ERROR_TYPE: 'client',
+            HttpHeaders.X_STATUS_CODE: '${exception.statusCode ?? 400}'
           },
         );
 
@@ -226,8 +231,8 @@ extension FluxConfigExtension on FluxConfig {
           message: 'Authentication required. Please login again.',
           body: ApiResponse.error('Authentication error: ${exception.message}'),
           headers: {
-            'x-error-type': 'auth',
-            'x-auth-required': 'true'
+            HttpHeaders.X_ERROR_TYPE: 'auth',
+            HttpHeaders.X_AUTH_REQUIRED: 'true'
           },
         );
 
@@ -237,8 +242,8 @@ extension FluxConfigExtension on FluxConfig {
           message: 'Secure connection failed. Certificate or SSL error.',
           body: ApiResponse.error('SSL error: ${exception.message}'),
           headers: {
-            'x-error-type': 'ssl',
-            'x-security-error': 'true'
+            HttpHeaders.X_ERROR_TYPE: 'ssl',
+            HttpHeaders.X_SECURITY_ERROR: 'true'
           },
         );
 
@@ -248,8 +253,8 @@ extension FluxConfigExtension on FluxConfig {
           message: 'Cannot connect to server. Server may be down.',
           body: ApiResponse.error('Connection error: ${exception.message}'),
           headers: {
-            'x-error-type': 'connection',
-            'x-retry-after': '30'
+            HttpHeaders.X_ERROR_TYPE: 'connection',
+            HttpHeaders.X_RETRY_AFTER: '30'
           },
         );
 
@@ -259,8 +264,8 @@ extension FluxConfigExtension on FluxConfig {
           message: 'Cannot resolve server address. Check your DNS settings.',
           body: ApiResponse.error('DNS error: ${exception.message}'),
           headers: {
-            'x-error-type': 'dns',
-            'x-dns-error': 'true'
+            HttpHeaders.X_ERROR_TYPE: 'dns',
+            HttpHeaders.X_DNS_ERROR: 'true'
           },
         );
 
@@ -270,8 +275,8 @@ extension FluxConfigExtension on FluxConfig {
           message: 'Cannot parse server response. Invalid data format.',
           body: ApiResponse.error('Parsing error: ${exception.message}'),
           headers: {
-            'x-error-type': 'parsing',
-            'x-content-error': 'true'
+            HttpHeaders.X_ERROR_TYPE: 'parsing',
+            HttpHeaders.X_CONTENT_ERROR: 'true'
           },
         );
 
@@ -281,8 +286,8 @@ extension FluxConfigExtension on FluxConfig {
           message: 'Request was cancelled.',
           body: ApiResponse.error('Request cancelled: ${exception.message}'),
           headers: {
-            'x-error-type': 'cancelled',
-            'x-cancelled': 'true'
+            HttpHeaders.X_ERROR_TYPE: 'cancelled',
+            HttpHeaders.X_CANCELLED: 'true'
           },
         );
 
@@ -292,8 +297,8 @@ extension FluxConfigExtension on FluxConfig {
           message: 'An unexpected error occurred. Please try again.',
           body: ApiResponse.error('Unknown error: ${exception.message}'),
           headers: {
-            'x-error-type': 'unknown',
-            'x-unexpected-error': 'true'
+            HttpHeaders.X_ERROR_TYPE: 'unknown',
+            HttpHeaders.X_UNEXPECTED_ERROR: 'true'
           },
         );
     }

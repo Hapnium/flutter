@@ -4,6 +4,8 @@ import 'dart:math';
 
 import '../../definitions.dart';
 import '../request/request.dart';
+import '../utils/http_content_type.dart';
+import '../utils/http_headers.dart';
 import '../utils/utils.dart';
 import 'multipart_file.dart';
 
@@ -25,13 +27,25 @@ import 'multipart_file.dart';
 /// {@endtemplate}
 class FormData {
   /// {@macro form_data}
-  FormData(Map<String, dynamic> map) : boundary = _getBoundary() {
+  /// 
+  /// This class is used to build a form data for a request
+  /// 
+  /// Args:
+  ///   map: The map of the form data
+  ///   applyKeyToFile: Whether to apply the key to the file
+  FormData(Map<String, dynamic> map, {
+    bool applyKeyToFile = true,
+  }) : boundary = _getBoundary() {
     map.forEach((key, value) {
       if (value == null) return;
       if (value is MultipartFile) {
         files.add(MapEntry(key, value));
       } else if (value is List<MultipartFile>) {
-        files.addAll(value.map((e) => MapEntry(key, e)));
+        if(applyKeyToFile) {
+          files.addAll(value.map((e) => MapEntry(key, e)));
+        } else {
+          multipleFiles.add(MapEntry(key, value));
+        }
       } else if (value is List) {
         fields.addAll(value.map((e) => MapEntry(key, e.toString())));
       } else {
@@ -60,14 +74,17 @@ class FormData {
   /// The files to send for this request
   final files = <MapEntry<String, MultipartFile>>[];
 
+  /// The multiple files to send for this request
+  final multipleFiles = <MapEntry<String, List<MultipartFile>>>[];
+
   /// Returns the header string for a field. The return value is guaranteed to
   /// contain only ASCII characters.
   String _fieldHeader(String name, String value) {
-    var header = 'content-disposition: form-data; name="${browserEncode(name)}"';
+    var header = '${HttpHeaders.CONTENT_DISPOSITION}: ${HttpContentType.FORM_DATA}; name="${browserEncode(name)}"';
     if (!isPlainAscii(value)) {
       header = '$header\r\n'
-        'content-type: text/plain; charset=utf-8\r\n'
-        'content-transfer-encoding: binary';
+        '${HttpHeaders.CONTENT_TYPE}: ${HttpContentType.TEXT_PLAIN}; ${HttpContentType.CHARSET_UTF_8}\r\n'
+        '${HttpHeaders.CONTENT_TRANSFER_ENCODING}: ${HttpContentType.BINARY}';
     }
     return '$header\r\n\r\n';
   }
@@ -75,10 +92,10 @@ class FormData {
   /// Returns the header string for a file. The return value is guaranteed to
   /// contain only ASCII characters.
   String _fileHeader(MapEntry<String, MultipartFile> file) {
-    var header = 'content-disposition: form-data; name="${browserEncode(file.key)}"';
+    var header = '${HttpHeaders.CONTENT_DISPOSITION}: ${HttpContentType.FORM_DATA}; name="${browserEncode(file.key)}"';
     header = '$header; filename="${browserEncode(file.value.filename)}"';
     header = '$header\r\n'
-      'content-type: ${file.value.contentType}';
+      '${HttpHeaders.CONTENT_TYPE}: ${file.value.contentType}';
     return '$header\r\n\r\n';
   }
 
@@ -102,6 +119,17 @@ class FormData {
           utf8.encode(_fileHeader(file)).length +
           file.value.length! +
           '\r\n'.length;
+    }
+
+    for (var file in multipleFiles) {
+      for (var f in file.value) {
+        length += '--'.length +
+            _maxBoundaryLength +
+            '\r\n'.length +
+            utf8.encode(_fileHeader(MapEntry(file.key, f))).length +
+            f.length! +
+            '\r\n'.length;
+      }
     }
 
     return length + '--'.length + _maxBoundaryLength + '--\r\n'.length;
@@ -130,6 +158,15 @@ class FormData {
       yield utf8.encode(_fileHeader(file));
       yield* file.value.stream!;
       yield line;
+    }
+
+    for (var file in multipleFiles) {
+      for (var f in file.value) {
+        yield separator;
+        yield utf8.encode(_fileHeader(MapEntry(file.key, f)));
+        yield* f.stream!;
+        yield line;
+      }
     }
     yield close;
   }

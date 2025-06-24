@@ -1,5 +1,6 @@
 import '../definitions.dart';
 import '../exceptions/zap_exception.dart';
+import '../http/utils/http_method.dart';
 import '../models/response/api_response.dart';
 import '../core/zap_interface.dart';
 import '../http/response/response.dart';
@@ -136,7 +137,7 @@ final class Flux implements FluxInterface {
         headers: headers, 
         query: query,
         cancelToken: cancelToken
-      ), 'DELETE', endpoint, useAuth, token);
+      ), HttpMethod.DELETE, endpoint, useAuth, token);
     } finally {
       if(config.disposeOnCompleted) {
         dispose();
@@ -153,7 +154,7 @@ final class Flux implements FluxInterface {
         query: query,
         cancelToken: cancelToken,
         decoder: config.decoder
-      ), 'GET', endpoint, useAuth, token);
+      ), HttpMethod.GET, endpoint, useAuth, token);
     } finally {
       if(config.disposeOnCompleted) {
         dispose();
@@ -172,7 +173,7 @@ final class Flux implements FluxInterface {
         uploadProgress: onProgress, 
         cancelToken: cancelToken,
         decoder: config.decoder
-      ), 'PATCH', endpoint, useAuth, token);
+      ), HttpMethod.PATCH, endpoint, useAuth, token);
     } finally {
       if(config.disposeOnCompleted) {
         dispose();
@@ -191,7 +192,7 @@ final class Flux implements FluxInterface {
         uploadProgress: onProgress, 
         cancelToken: cancelToken,
         decoder: config.decoder
-      ), 'POST', endpoint, useAuth, token);
+      ), HttpMethod.POST, endpoint, useAuth, token);
     } finally {
       if(config.disposeOnCompleted) {
         dispose();
@@ -210,7 +211,7 @@ final class Flux implements FluxInterface {
         uploadProgress: onProgress, 
         cancelToken: cancelToken,
         decoder: config.decoder
-      ), 'PUT', endpoint, useAuth, token);
+      ), HttpMethod.PUT, endpoint, useAuth, token);
     } finally {
       if(config.disposeOnCompleted) {
         dispose();

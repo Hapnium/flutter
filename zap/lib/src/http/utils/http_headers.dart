@@ -96,6 +96,33 @@ abstract interface class HttpHeaders {
   /// Mostly used to specify the methods that the client is able to process.
   static const String ACCESS_CONTROL_REQUEST_METHOD = 'access-control-request-method';
 
+  /// The `access-control-allow-private-network` header.
+  ///
+  /// Indicates whether the response to the request can expose the resource
+  /// to a private network (non-publicly routable addresses).
+  static const String ACCESS_CONTROL_ALLOW_PRIVATE_NETWORK = 'access-control-allow-private-network';
+
+  /// The `origin` header.
+  ///
+  /// Used in CORS requests to indicate the origin of the request.
+  static const String ORIGIN = 'origin';
+
+  /// The `timing-allow-origin` header.
+  ///
+  /// Indicates whether the resource supports being accessed by timing APIs.
+  static const String TIMING_ALLOW_ORIGIN = 'timing-allow-origin';
+
+  /// The `link` header.
+  ///
+  /// Used to express relationships between the current resource and other resources (e.g., pagination).
+  static const String LINK = 'link';
+
+  /// The `retry-after` header (HTTP-date version).
+  ///
+  /// This may already be defined but ensure you're accounting for both seconds and date format cases.
+  /// Commonly used with `429 Too Many Requests`.
+  static const String RETRY_AFTER = 'retry-after';
+
   /// The `age` header.
   /// 
   /// Mostly used to specify the age that the client is able to process.
@@ -145,6 +172,11 @@ abstract interface class HttpHeaders {
   /// 
   /// Mostly used to specify the md5 that the client is able to process.
   static const String CONTENT_MD5 = "content-md5";
+
+  /// The `content-transfer-encoding` header.
+  /// 
+  /// Mostly used to specify the transfer encoding that the client is able to process.
+  static const String CONTENT_TRANSFER_ENCODING = 'content-transfer-encoding';
 
   /// The `content-range` header.
   /// 
@@ -251,11 +283,6 @@ abstract interface class HttpHeaders {
   /// Mostly used to specify the referer that the client is able to process.
   static const String REFERER = "referer";
 
-  /// The `retry-after` header.
-  /// 
-  /// Mostly used to specify the retry after that the client is able to process.
-  static const String RETRY_AFTER = "retry-after";
-
   /// The `server` header.
   /// 
   /// Mostly used to specify the server that the client is able to process.
@@ -322,6 +349,91 @@ abstract interface class HttpHeaders {
   /// 
   /// Mostly used to specify the cookie that the client is able to process.
   static const String SET_COOKIE = "set-cookie";
+
+  /// The `x-content-type-options` header.
+  ///
+  /// Prevents MIME sniffing. Commonly set to `nosniff`.
+  static const String X_CONTENT_TYPE_OPTIONS = 'x-content-type-options';
+
+  /// The `x-frame-options` header.
+  ///
+  /// Indicates whether a browser should be allowed to render a page in a frame, iframe, embed, or object.
+  static const String X_FRAME_OPTIONS = 'x-frame-options';
+
+  /// The `x-xss-protection` header.
+  ///
+  /// Enables or disables the browser’s XSS protection.
+  static const String X_XSS_PROTECTION = 'x-xss-protection';
+
+  /// The `x-requested-with` header.
+  ///
+  /// Commonly used to identify Ajax requests. Most JavaScript frameworks send this field with value `XMLHttpRequest`.
+  static const String X_REQUESTED_WITH = 'x-requested-with';
+
+  /// The `x-forwarded-for` header.
+  ///
+  /// Identifies the originating IP address of a client connecting through a proxy.
+  static const String X_FORWARDED_FOR = 'x-forwarded-for';
+
+  /// The `x-forwarded-host` header.
+  ///
+  /// Identifies the original host requested by the client in the `Host` HTTP request header.
+  static const String X_FORWARDED_HOST = 'x-forwarded-host';
+
+  /// The `x-forwarded-proto` header.
+  ///
+  /// Identifies the protocol (HTTP or HTTPS) that a client used to connect to your proxy or load balancer.
+  static const String X_FORWARDED_PROTO = 'x-forwarded-proto';
+
+  /// The `x-real-ip` header.
+  ///
+  /// Used to pass the real IP address of the client when behind a reverse proxy.
+  static const String X_REAL_IP = 'x-real-ip';
+
+  /// The `x-cancelled` header.
+  ///
+  /// Mostly used to specify the cancelled that the client is able to process.
+  static const String X_CANCELLED = "x-cancelled";
+
+  /// The `x-unexpected-error` header.
+  ///
+  /// Mostly used to specify the unexpected error that the client is able to process.
+  static const String X_UNEXPECTED_ERROR = "x-unexpected-error";
+
+  /// The `x-content-error` header.
+  ///
+  /// Mostly used to specify the content error that the client is able to process.
+  static const String X_CONTENT_ERROR = "x-content-error";
+
+  /// The `x-dns-error` header.
+  ///
+  /// Mostly used to specify the dns error that the client is able to process.
+  static const String X_DNS_ERROR = "x-dns-error";
+
+  /// The `x-retry-after` header.
+  ///
+  /// Mostly used to specify the retry after that the client is able to process.
+  static const String X_RETRY_AFTER = "x-retry-after";
+
+  /// The `x-security-error` header.
+  ///
+  /// Mostly used to specify the security error that the client is able to process.
+  static const String X_SECURITY_ERROR = "x-security-error";
+
+  /// The `x-auth-required` header.
+  ///
+  /// Mostly used to specify the auth required that the client is able to process.
+  static const String X_AUTH_REQUIRED = "x-auth-required";
+
+  /// The `x-status-code` header.
+  ///
+  /// Mostly used to specify the status code that the client is able to process.
+  static const String X_STATUS_CODE = "x-status-code";
+
+  /// The `x-error-type` header.
+  ///
+  /// Mostly used to specify the error type that the client is able to process.
+  static const String X_ERROR_TYPE = "x-error-type";
 
   /// The general headers.
   ///
