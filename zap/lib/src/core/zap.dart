@@ -46,10 +46,13 @@ class Zap extends ZapInterface {
   ///
   /// - [config] contains all configuration options for the client including
   ///   timeouts, authentication, SSL settings, and base URL configuration.
+  /// - [useLifecycle] whether to use the lifecycle callbacks or not.
   /// 
   /// {@macro zap}
-  Zap({super.zapConfig, super.zapClient, super.zapSockets}) {
-    onStart();
+  Zap({super.zapConfig, super.zapClient, super.zapSockets, bool useLifecycle = true}) {
+    if(useLifecycle) {
+      onStart();
+    }
   }
 
   /// Set of active cancel tokens for tracking ongoing requests
