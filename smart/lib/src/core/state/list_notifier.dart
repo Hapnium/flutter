@@ -42,7 +42,7 @@ mixin ListNotifierSingleMixin on Listenable {
   @protected
   void refresh() {
     assert(_debugAssertNotDisposed());
-    _notifyUpdate();
+    _tappyUpdate();
   }
 
   @protected
@@ -55,7 +55,7 @@ mixin ListNotifierSingleMixin on Listenable {
     Notifier.instance.add(disposer);
   }
 
-  void _notifyUpdate() {
+  void _tappyUpdate() {
     final list = _updaters?.toList() ?? [];
 
     for (var element in list) {
@@ -90,14 +90,14 @@ mixin ListNotifierSingleMixin on Listenable {
 mixin ListNotifierGroupMixin on Listenable {
   HashMap<Object?, ListNotifierSingleMixin>? _updatersGroupIds = HashMap<Object?, ListNotifierSingleMixin>();
 
-  void _notifyGroupUpdate(Object id) {
+  void _tappyGroupUpdate(Object id) {
     if (_updatersGroupIds!.containsKey(id)) {
-      _updatersGroupIds![id]!._notifyUpdate();
+      _updatersGroupIds![id]!._tappyUpdate();
     }
   }
 
   @protected
-  void notifyGroupChildren(Object id) {
+  void tappyGroupChildren(Object id) {
     assert(_debugAssertNotDisposed());
     Notifier.instance.read(_updatersGroupIds![id]!);
   }
@@ -109,7 +109,7 @@ mixin ListNotifierGroupMixin on Listenable {
   @protected
   void refreshGroup(Object id) {
     assert(_debugAssertNotDisposed());
-    _notifyGroupUpdate(id);
+    _tappyGroupUpdate(id);
   }
 
   bool _debugAssertNotDisposed() {

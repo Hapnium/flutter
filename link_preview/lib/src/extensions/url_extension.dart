@@ -92,7 +92,7 @@ extension UrlExtension on LinkPreviewInterface {
     return false;
   }
 
-  /// check if the string is a URL
+  /// Checks if the string is a URL
   ///
   /// `options` is a `Map` which defaults to
   /// `{ 'protocols': ['http','https','ftp'], 'require_tld': true,
@@ -189,7 +189,7 @@ extension UrlExtension on LinkPreviewInterface {
     return true;
   }
 
-  /// check if the string is an IP (version 4 or 6)
+  /// Checks if the string is an IP (version 4 or 6)
   ///
   /// `version` is a String or an `int`.
   bool isIP(String str, [Object? version]) {
@@ -208,7 +208,7 @@ extension UrlExtension on LinkPreviewInterface {
     return version == '6' && _ipv6.hasMatch(str);
   }
 
-  /// check if the string is a fully qualified domain name (e.g. domain.com).
+  /// Checks if the string is a fully qualified domain name (e.g. domain.com).
   ///
   /// `options` is a `Map` which defaults to `{ 'require_tld': true, 'allow_underscores': false }`.
   bool isFQDN(String str, [Map<String, Object>? options]) {
@@ -241,6 +241,7 @@ extension UrlExtension on LinkPreviewInterface {
     return true;
   }
 
+  /// Checks if the provided url link is a valid link
   bool isValidLink(String link, {
     List<String> protocols = const ['http', 'https', 'ftp'],
     List<String> hostWhitelist = const [],

@@ -1,8 +1,23 @@
 import 'package:secure/src/enums/pem_style.dart';
 import 'package:secure/src/utilities/pem_delimiter.dart';
 
-/// A utility class for encoding and decoding keys in PEM format.
+/// {@template pem_utils}
+/// A utility class for encoding and decoding RSA or EC keys in PEM format.
+///
+/// PEM (Privacy-Enhanced Mail) format represents keys as base64 strings wrapped
+/// with delimiter lines like `-----BEGIN RSA PUBLIC KEY-----`.
+///
+/// This class handles:
+/// - Encoding base64 strings to PEM-wrapped keys
+/// - Decoding PEM-wrapped keys back to base64
+/// - Proper formatting for RSA (with line breaks) and EC (compact) styles
+///
+/// Supported key types are defined by [PemStyle].
+/// {@endtemplate}
 class PemUtils {
+  /// {@macro pem_utils}
+  PemUtils._();
+
   /// Encodes a public key in base64 format to PEM format.
   ///
   /// [base64Key]: The public key in base64 encoding.
@@ -75,9 +90,17 @@ class PemUtils {
     return pem.replaceAll(header, '').replaceAll(footer, '').replaceAll('\n', '');
   }
 
-  /// Helper method to add line breaks to base64-encoded strings.
+  /// Adds line breaks to a base64 string every 64 characters.
   ///
-  /// Splits the string into chunks of 64 characters, as required by PEM format.
+  /// This is used for formatting RSA keys according to PEM standards.
+  ///
+  /// Example:
+  /// ```
+  /// MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...
+  /// becomes:
+  /// MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A
+  /// ...
+  /// ```
   static String _addBreaks(String base64Key) {
     const chunkSize = 64;
     final buffer = StringBuffer();

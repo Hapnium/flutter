@@ -2,9 +2,17 @@ import 'dart:io' as io;
 
 import '../interface/http_headers.dart';
 
+/// {@template io_http_headers}
 /// A wrapper for [io.HttpHeaders]
+/// 
+/// This class is used to wrap [io.HttpHeaders] to implement [HttpHeaders].
+/// 
+/// {@endtemplate}
 class IoHttpHeaders implements HttpHeaders {
+  /// The wrapped [io.HttpHeaders].
   final io.HttpHeaders _headers;
+
+  /// {@macro io_http_headers}
   IoHttpHeaders({required io.HttpHeaders headers}) : _headers = headers;
 
   @override

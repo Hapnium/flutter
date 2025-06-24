@@ -9,11 +9,14 @@ const SmartShareConfig _defaultConfig = const SmartShareConfig();
 
 const SmartShareItemConfig _defaultItemConfig = const SmartShareItemConfig();
 
+/// {@template smart_share}
 /// A widget that provides a customizable share sheet with various sharing options.
 ///
 /// [SmartShare] allows users to easily share content via different social media
 /// platforms and other sharing methods. It supports both list and grid layouts,
 /// customizable item configurations, and loading states.
+/// 
+/// {@endtemplate}
 class SmartShare extends StatelessWidget {
   /// A builder function to customize the appearance of each share item.
   final SmartShareItemBuilder? itemBuilder;
@@ -77,6 +80,8 @@ class SmartShare extends StatelessWidget {
   final Decoration? loadingDecoration;
 
   /// Creates a SmartShare widget with a list layout.
+  /// 
+  /// {@macro smart_share}
   const SmartShare.list({
     super.key,
     this.isLoading = false,
@@ -99,6 +104,8 @@ class SmartShare extends StatelessWidget {
       height = null;
 
   /// Creates a SmartShare widget with a grid layout.
+  /// 
+  /// {@macro smart_share}
   const SmartShare.grid({
     super.key,
     this.gridDelegate,

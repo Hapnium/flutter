@@ -11,12 +11,15 @@ part 'enums/time_label_type.dart';
 part 'models/thumbnail_drag_details.dart';
 part 'configs/typedefs.dart';
 
+/// {@template progress_slider}
 /// A progress bar widget to show or set the location of the currently
 /// playing audio or video content.
 ///
 /// This widget does not itself play audio or video content, but you can
 /// use it in conjunction with an audio plugin. It is a more convenient
 /// replacement for the Flutter Slider widget.
+/// 
+/// {@endtemplate}
 class ProgressSlider extends LeafRenderObjectWidget {
   /// You must set the current audio or video duration [progress] and also
   /// the [total] duration. Optionally set the [buffered] content progress
@@ -24,6 +27,8 @@ class ProgressSlider extends LeafRenderObjectWidget {
   ///
   /// When a user drags the thumb to a new location you can be notified
   /// by the [onSeek] callback so that you can update your audio/video player.
+  /// 
+  /// {@macro progress_slider}
   const ProgressSlider({
     Key? key,
     required this.progress,
@@ -92,7 +97,7 @@ class ProgressSlider extends LeafRenderObjectWidget {
   /// A callback when the user is moving the thumb.
   ///
   /// This will be called repeatedly as the thumb position changes. This
-  /// provides you with the [ThumbDragDetails], which notify you of the global
+  /// provides you with the [ThumbDragDetails], which tappy you of the global
   /// and local positions of the drag event as well as the current thumb
   /// duration. The current thumb duration will not go beyond [total] or less
   /// that `Duration.zero` so you can use this information to clamp the drag

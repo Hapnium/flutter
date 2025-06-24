@@ -4,17 +4,51 @@ import 'dart:convert';
 
 import '../../definitions.dart';
 
+/// {@template is_token_char}
+/// 
+/// Args:
+///   byte: The byte to check
+/// 
+/// Returns:
+///   Whether the byte is a token character
+/// 
+/// {@endtemplate}
 bool isTokenChar(int byte) {
   return byte > 31 && byte < 128 && !SEPARATOR_MAP[byte];
 }
 
+/// {@template is_value_char}
+/// 
+/// Args:
+///   byte: The byte to check
+/// 
+/// Returns:
+///   Whether the byte is a value character
+/// 
+/// {@endtemplate}
 bool isValueChar(int byte) {
   return (byte > 31 && byte < 128) ||
       (byte == CharCode.SP) ||
       (byte == CharCode.HT);
 }
 
+/// {@template char_code}
+/// 
+/// Args:
+///   HT: Horizontal tab
+///   LF: Line feed
+///   CR: Carriage return
+///   SP: Space
+///   COMMA: Comma
+///   SLASH: Slash
+///   ZERO: Zero
+///   ONE: One
+///   COLON: Colon
+///   SEMI_COLON: Semicolon
+/// 
+/// {@endtemplate}
 class CharCode {
+  /// {@macro char_code}
   static const int HT = 9;
   static const int LF = 10;
   static const int CR = 13;
@@ -66,9 +100,23 @@ final newlineRegExp = RegExp(r'\r\n|\r|\n');
 /// characters.
 bool isPlainAscii(String string) => _asciiOnly.hasMatch(string);
 
-const String GET_BOUNDARY = 'getx-http-boundary-';
+/// {@template get_boundary}
+/// 
+/// Args:
+///   GET_BOUNDARY: The boundary string
+/// 
+/// {@endtemplate}
+const String GET_BOUNDARY = 'hap-http-boundary-';
 
-/// Encode [value] like browsers
+/// {@template browser_encode}
+/// 
+/// Args:
+///   value: The value to encode
+/// 
+/// Returns:
+///   The encoded value
+/// 
+/// {@endtemplate}
 String browserEncode(String value) {
   return value.replaceAll(newlineRegExp, '%0D%0A').replaceAll('"', '%22');
 }

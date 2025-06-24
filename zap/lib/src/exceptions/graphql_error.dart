@@ -1,3 +1,4 @@
+/// {@template graphql_error}
 /// Represents an error returned by a GraphQL API.
 ///
 /// This class is used to encapsulate the structure of a typical GraphQL error
@@ -6,12 +7,16 @@
 /// In GraphQL, errors can be returned even when the response has a 200 status code.
 /// This class helps capture and inspect those logical or validation errors
 /// returned in the `errors` field of a GraphQL response.
+/// 
+/// {@endtemplate}
 class GraphQLError {
   /// Creates a [GraphQLError] with an optional [code] and [message].
   ///
   /// - [code] may represent an application-specific error identifier.
   /// - [message] is typically the human-readable description of the error,
   ///   useful for debugging or displaying to the user.
+  /// 
+  /// {@macro graphql_error}
   GraphQLError({this.code, this.message});
 
   /// A descriptive message explaining the GraphQL error.

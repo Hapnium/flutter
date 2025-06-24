@@ -171,7 +171,7 @@ extension FluxConfigExtension on FluxConfig {
       Z.log('[ZAP PULSE] Exception: $zapException');
     }
 
-    // Always notify the adviser about the exception
+    // Always tappy the adviser about the exception
     _adviser.onException(zapException);
 
     // Return appropriate response based on exception type

@@ -1,47 +1,80 @@
 part of '../gallery.dart';
 
-/// A medium in the gallery.
+/// {@template medium}
+/// Represents a single media item (photo or video) in the gallery.
 ///
-/// It can be of image or video [mediumType].
+/// It contains metadata like ID, dimensions, orientation, creation date, and more.
+/// Provides utility methods for retrieving the thumbnail or original file.
+///
+/// ### Example usage:
+/// ```dart
+/// final medium = await Gallery.getMedium(mediumId: 'abc123');
+///
+/// final thumb = await medium.getThumbnail(width: 100, height: 100);
+/// final file = await medium.getFile();
+/// ```
+/// {@endtemplate}
 @immutable
 class Medium {
-  /// A unique identifier for the medium.
+  /// Unique identifier for the medium in the gallery.
   final String id;
 
-  /// The medium filename.
+  /// File name of the medium.
+  ///
+  /// Default: `null`
   final String? filename;
 
-  /// The medium title
+  /// Title metadata of the medium.
+  ///
+  /// Default: `null`
   final String? title;
 
-  /// The medium type.
+  /// Type of media (image or video).
+  ///
+  /// Default: `null`
   final MediumType? mediumType;
 
-  /// The medium width.
+  /// Width in pixels.
+  ///
+  /// Default: `null`
   final int? width;
 
-  /// The medium height.
+  /// Height in pixels.
+  ///
+  /// Default: `null`
   final int? height;
 
-  /// The medium size.
+  /// File size in bytes.
+  ///
+  /// Default: `null`
   final int? size;
 
-  /// The medium orientation.
+  /// Orientation of the media.
+  ///
+  /// Default: `null`
   final int? orientation;
 
-  /// The medium mimeType.
+  /// MIME type (e.g., image/jpeg).
+  ///
+  /// Default: `null`
   final String? mimeType;
 
-  /// The duration of video
+  /// Duration in milliseconds for videos.
+  ///
+  /// Default: `0`
   final int duration;
 
-  /// The date at which the photo or video was taken.
+  /// When the media was created.
+  ///
+  /// Default: `null`
   final DateTime? creationDate;
 
-  /// The date at which the photo or video was modified.
+  /// When the media was last modified.
+  ///
+  /// Default: `null`
   final DateTime? modifiedDate;
 
-  /// Creates a medium from platform channel protocol.
+  /// {@macro medium}
   Medium.fromJson(dynamic json)
       : id = json["id"],
         filename = json["filename"],
@@ -61,6 +94,8 @@ class Medium {
             : null;
 
   /// Get a JPEG thumbnail's data for this medium.
+  /// 
+  /// {@macro medium}
   Future<List<int>> getThumbnail({
     int? width,
     int? height,
@@ -76,6 +111,8 @@ class Medium {
   }
 
   /// Get the original file.
+  /// 
+  /// {@macro medium}
   Future<File> getFile() {
     return Gallery.getFile(
       mediumId: id,

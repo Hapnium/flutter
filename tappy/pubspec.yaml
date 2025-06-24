@@ -1,0 +1,22 @@
+name: tappy
+description: "Notification (In-App and Device) management for Hapnium mobile platforms."
+
+publish_to: none
+
+version: 0.4.0
+homepage: https://github.com/Hapnium/flutter/tree/main/tappy
+repository: https://github.com/Hapnium/flutter/tree/main/tappy
+
+environment:
+  sdk: ^3.0.0
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_local_notifications: ^19.3.0
+  fluttertoast: ^8.2.12
+  toastification: ^3.0.3
+
+  tracing:
+    path: ../tracing

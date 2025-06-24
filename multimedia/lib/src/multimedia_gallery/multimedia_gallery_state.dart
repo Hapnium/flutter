@@ -185,6 +185,7 @@ class _MultimediaGalleryState extends SmartState<MultimediaGallery> {
                 body: fileManagerConfig.body ?? "You can select up to 30mb of photo size",
               ),
               color: fileManagerConfig.color ?? Theme.of(context).primaryColor,
+              backgroundColor: Colors.transparent,
               onTap: () {
                 if(fileManagerConfig.onPressed.isNotNull) {
                   fileManagerConfig.onPressed!();
@@ -195,7 +196,9 @@ class _MultimediaGalleryState extends SmartState<MultimediaGallery> {
                     onlyVideo: parent.showOnlyVideo,
                     onlyPhoto: parent.showOnlyPhoto,
                     multipleAllowed: multipleAllowed,
-                    title: parent.title
+                    title: parent.title,
+                    maxSize: parent.maxSize,
+                    minSize: parent.minSize
                   );
                 }
               },

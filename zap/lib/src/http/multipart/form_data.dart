@@ -7,6 +7,7 @@ import '../request/request.dart';
 import '../utils/utils.dart';
 import 'multipart_file.dart';
 
+/// {@template form_data}
 /// A class to build a form data for a request
 /// 
 /// Args:
@@ -20,7 +21,10 @@ import 'multipart_file.dart';
 ///   'file': MultipartFile.fromFile('path/to/file'),
 /// });
 /// ```
+/// 
+/// {@endtemplate}
 class FormData {
+  /// {@macro form_data}
   FormData(Map<String, dynamic> map) : boundary = _getBoundary() {
     map.forEach((key, value) {
       if (value == null) return;

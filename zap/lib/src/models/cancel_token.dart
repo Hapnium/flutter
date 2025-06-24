@@ -2,6 +2,7 @@ import 'dart:async' show Completer;
 
 import '../exceptions/zap_exception.dart';
 
+/// {@template cancel_token}
 /// A token that can be used to cancel HTTP requests.
 /// 
 /// This class provides a way to cancel ongoing requests when they are no longer needed,
@@ -20,6 +21,8 @@ import '../exceptions/zap_exception.dart';
 /// // Cancel the request if needed
 /// cancelToken.cancel('User navigated away');
 /// ```
+/// 
+/// {@endtemplate}
 class CancelToken {
   final Completer<String> _completer = Completer<String>();
   bool _isCancelled = false;
@@ -50,7 +53,7 @@ class CancelToken {
   /// 
   /// This method should be called at various points during request processing
   /// to check if the operation should be aborted.
-  void throwIfCancelled() {
+    void throwIfCancelled() {
     if (_isCancelled) {
       throw ZapException('Request cancelled: $_reason');
     }

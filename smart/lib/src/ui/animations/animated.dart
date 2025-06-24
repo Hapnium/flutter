@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smart/ui.dart';
 
+/// {@template animated}
 /// A customizable widget that wraps any child with a container transition animation
 /// using Flutter's `OpenContainer` animation.
 ///
@@ -28,7 +29,10 @@ import 'package:smart/ui.dart';
 ///   child: Text("Tap me"),
 /// );
 /// ```
+/// 
+/// {@endtemplate}
 class Animated<T> extends StatelessWidget {
+  /// {@macro animated}
   const Animated({
     super.key,
     required this.toWidget,

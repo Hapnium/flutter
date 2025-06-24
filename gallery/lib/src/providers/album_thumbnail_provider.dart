@@ -1,26 +1,47 @@
 part of '../gallery.dart';
 
-/// Fetches the given album thumbnail from the gallery.
+/// {@template album_thumbnail_provider}
+/// An [ImageProvider] that asynchronously loads a thumbnail representing an album.
+///
+/// This is usually derived from the newest item in the album.
+///
+/// ### Example usage:
+/// ```dart
+/// Image(
+///   image: AlbumThumbnailProvider(
+///     album: album,
+///     width: 100,
+///     height: 100,
+///   ),
+/// )
+/// ```
+/// {@endtemplate}
 class AlbumThumbnailProvider extends ImageProvider<AlbumThumbnailProvider> {
-  /// ImageProvider of album thumbnail
+  /// The [Album] whose thumbnail should be shown.
+  final Album album;
+
+  /// Desired height of the album thumbnail in pixels.
+  ///
+  /// Default: `null`
+  final int? height;
+
+  /// Desired width of the album thumbnail in pixels.
+  ///
+  /// Default: `null`
+  final int? width;
+
+  /// Whether to use a high-quality thumbnail.
+  ///
+  /// Default: `false`
+  final bool? highQuality;
+
+  /// {@macro album_thumbnail_provider}
   const AlbumThumbnailProvider({
     required this.album,
     this.height,
     this.width,
     this.highQuality = false,
   });
-
-  /// Album info
-  final Album album;
-
-  /// Height of album thumbnail
-  final int? height;
-
-  /// Width of album thumbnail
-  final int? width;
-
-  /// Whether using high quality of album thumbnail
-  final bool? highQuality;
 
   @override
   ImageStreamCompleter loadImage(key, decode) {

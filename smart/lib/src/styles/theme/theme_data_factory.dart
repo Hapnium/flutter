@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import '../models/theme_settings.dart';
 
+/// {@template theme_data_factory} 
 /// An abstract class that defines the structure of a theme.
 ///
 /// Any theme class (e.g., `LightTheme`, `DarkTheme`) must extend this class.
 /// It enforces the presence of key theme properties such as colors and [ThemeData].
+/// 
+/// {@endtemplate}
 abstract class ThemeDataFactory {
   /// The theme settings that define custom configurations.
   final ThemeSettings settings;

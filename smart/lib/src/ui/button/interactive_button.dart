@@ -4,6 +4,7 @@ import 'package:smart/utilities.dart';
 import '../loading/loading.dart';
 import '../text/text_builder.dart';
 
+/// {@template interactive_button}
 /// A customizable button widget with a built-in loading indicator.
 ///
 /// The `LoadingButton` supports different styles, icons, custom padding, and auto-sizing.
@@ -17,6 +18,8 @@ import '../text/text_builder.dart';
 ///   loading: true,
 /// )
 /// ```
+/// 
+/// {@endtemplate}
 class InteractiveButton extends StatelessWidget {
   /// The background color of the button.
   final Color? buttonColor;
@@ -107,6 +110,8 @@ class InteractiveButton extends StatelessWidget {
   ///   loading: true,
   /// )
   /// ```
+  /// 
+  /// {@macro interactive_button}
   InteractiveButton({
     super.key,
     this.buttonColor,

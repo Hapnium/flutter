@@ -8,14 +8,14 @@ void main() {
   SecureKeyResponse recipient = service.generate("@UserTesting1");
 
   String message = "Welcome to Hapnium";
-  console.log(message, from: "Secure Messaging | Initial Message");
+  console.log(message, tag: "Secure Messaging | Initial Message");
 
   String encryptedMessage = service.encrypt(message: message, publicKey: recipient.publicKey);
   console.log(encryptedMessage);
   String decryptedMessage = service.decrypt(message: encryptedMessage, privateKey: recipient.privateKey);
-  console.log(decryptedMessage, from: "Secure Messaging | Decrypted Recipient Message");
+  console.log(decryptedMessage, tag: "Secure Messaging | Decrypted Recipient Message");
 
   String encryptedUserMessage = service.encrypt(message: message, publicKey: user.publicKey);
   String decryptedUserMessage = service.decrypt(message: encryptedUserMessage, privateKey: user.privateKey);
-  console.log(decryptedUserMessage, from: "Secure Messaging | Decrypted User Message");
+  console.log(decryptedUserMessage, tag: "Secure Messaging | Decrypted User Message");
 }

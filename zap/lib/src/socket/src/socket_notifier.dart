@@ -15,6 +15,7 @@ typedef MessageSocket = void Function(dynamic val);
 /// Assigned to [SocketNotifier.open].
 typedef OpenSocket = void Function();
 
+/// {@template socket_notifier}
 /// A class to manage WebSocket communications using GetConnect.
 ///
 /// `SocketNotifier` allows registering multiple listeners for:
@@ -24,7 +25,14 @@ typedef OpenSocket = void Function();
 /// - Error events
 ///
 /// The class acts as an event bus for WebSocket-based applications.
+/// 
+/// {@endtemplate}
 class SocketNotifier {
+  /// {@macro socket_notifier}
+  SocketNotifier() {
+    open = () {};
+  }
+
   /// List of listeners for general messages received over the socket.
   List<MessageSocket>? _onMessages = <MessageSocket>[];
 
@@ -86,7 +94,7 @@ class SocketNotifier {
   /// Notifies all registered close listeners with [err].
   ///
   /// Usually called when the WebSocket connection is closed.
-  void notifyClose(SocketClose err) {
+  void tappyClose(SocketClose err) {
     for (var item in _onCloses!) {
       item(err);
     }
@@ -96,7 +104,7 @@ class SocketNotifier {
   ///
   /// If the message is a string, it is also parsed to check for
   /// named event dispatching via [_tryOn].
-  void notifyData(dynamic data) {
+  void tappyData(dynamic data) {
     for (var item in _onMessages!) {
       item(data);
     }
@@ -108,7 +116,7 @@ class SocketNotifier {
   /// Notifies all registered error listeners with [err].
   ///
   /// Should be called when a socket-related error occurs.
-  void notifyError(SocketClose err) {
+  void tappyError(SocketClose err) {
     for (var item in _onErrors!) {
       item(err);
     }

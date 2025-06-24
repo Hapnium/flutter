@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:hapnium/hapnium.dart';
 
+/// {@template widget_utils}
 /// A utility class for measuring the size of a Flutter widget.
 ///
 /// This class provides a static method [measure] to calculate the size of a given widget
 /// by laying it out in a temporary render tree.
+/// 
+/// {@endtemplate}
 class WidgetUtils {
+  WidgetUtils._();
+  
   /// Measures the size of the given [widget].
   ///
   /// This method creates a temporary render tree, attaches the [widget] to it,

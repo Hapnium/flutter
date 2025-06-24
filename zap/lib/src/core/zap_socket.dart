@@ -1,5 +1,6 @@
 import '../socket/socket_client.dart';
 
+/// {@template zap_socket}
 /// [ZapSocket] is a platform-agnostic WebSocket abstraction that delegates
 /// to the correct implementation based on where the app is running:
 ///
@@ -18,6 +19,8 @@ import '../socket/socket_client.dart';
 /// socket.onMessage((msg) => print('Received: $msg'));
 /// socket.emit('chat', {'message': 'Hi!'});
 /// ```
+/// 
+/// {@endtemplate}
 class ZapSocket extends SocketClient {
   /// Constructs a [ZapSocket] with a given WebSocket [url].
   ///
@@ -29,6 +32,8 @@ class ZapSocket extends SocketClient {
   ///
   /// The actual behavior of this constructor is determined by the imported
   /// platform-specific `BaseWebSocket` implementation.
+  /// 
+  /// {@macro zap_socket}
   ZapSocket(
     super.url, {
     super.ping,

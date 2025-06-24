@@ -7,6 +7,7 @@ import '../country/country_data.dart';
 import '../country/country.dart';
 import 'google_map_style.dart';
 
+/// {@template smart_utils}
 /// A utility class providing access to various helper functions and data.
 ///
 /// The class contains commonly used utilities related to:
@@ -16,6 +17,8 @@ import 'google_map_style.dart';
 /// - Name-based utilities (initials, colors)
 ///
 /// This class is **not meant to be instantiated** and should be accessed statically.
+/// 
+/// {@endtemplate}
 class SmartUtils {
   /// Private constructor to prevent instantiation.
   SmartUtils._();

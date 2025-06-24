@@ -1,8 +1,11 @@
+/// {@template domain_app_link}
 /// A class that holds the app links for different platforms (web, Android, and iOS).
 ///
 /// This class is used to store the URLs for the web version, Android version,
 /// and iOS version of the app, providing a convenient structure for managing
 /// these links.
+/// 
+/// {@endtemplate}
 class DomainAppLink {
   /// The URL for the web version of the app.
   ///
@@ -37,5 +40,7 @@ class DomainAppLink {
   ///   ios: "https://apps.apple.com/us/app/example-app/id123456789"
   /// );
   /// ```
+  /// 
+  /// {@macro domain_app_link}
   DomainAppLink({required this.web, required this.android, required this.ios});
 }

@@ -1,8 +1,11 @@
 import '../definitions.dart';
 import '../http/certificates/certificates.dart';
 
+/// {@template zap_config}
 /// This class handles the configuration of Zap. It is used to modify and define the behaviour of a
 /// [ZapClient] throughout the lifecycle of the client.
+/// 
+/// {@endtemplate}
 class ZapConfig {
   /// Whether self-signed or invalid SSL certificates are allowed.
   ///
@@ -86,6 +89,8 @@ class ZapConfig {
   /// - [allowAutoSignedCert] allows bypassing SSL certificate validation for self-signed certs.
   /// - [withCredentials] controls whether cross-origin requests include credentials (cookies, etc.).
   /// - [errorSafety] controls whether the client should safely handle errors during request execution.
+  /// 
+  /// {@macro zap_config}
   ZapConfig({
     this.userAgent = 'hapx-client',
     this.timeout = const Duration(seconds: 5),
@@ -104,6 +109,8 @@ class ZapConfig {
   });
 
   /// Copies the current instance of ZapConfig with new updates
+  /// 
+  /// {@macro zap_config}
   ZapConfig copyWith({
     bool? allowAutoSignedCert,
     String? userAgent,

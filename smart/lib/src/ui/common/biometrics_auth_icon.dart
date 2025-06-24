@@ -3,6 +3,7 @@ import 'package:smart/enums.dart';
 import 'package:smart/extensions.dart';
 import 'package:smart/src/styles/colors/common_colors.dart';
 
+/// {@template biometrics_auth_icon}
 /// A visual indicator for the status of biometric authentication.
 /// 
 /// This widget displays an icon representing the current state of biometric 
@@ -22,6 +23,8 @@ import 'package:smart/src/styles/colors/common_colors.dart';
 ///     * The color of the icon when the state is `BiometricAuthState.failed`.
 /// * **successColor:** 
 ///     * The color of the icon when the state is `BiometricAuthState.success`.
+/// 
+/// {@endtemplate}
 class BiometricsAuthIcon extends StatelessWidget {
   /// The current state of biometric authentication.
   /// 
@@ -42,6 +45,9 @@ class BiometricsAuthIcon extends StatelessWidget {
   /// The color of the icon when the state is `BiometricAuthState.success`.
   final Color? successColor;
 
+  /// Creates a `BiometricsAuthIcon` instance.
+  /// 
+  /// {@macro biometrics_auth_icon}
   const BiometricsAuthIcon({
     super.key,
     required this.state,

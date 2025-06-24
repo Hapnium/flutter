@@ -9,11 +9,14 @@ const SafeAreaConfig _defaultSFConfig = SafeAreaConfig(
   top: false
 );
 
+/// {@template modal_bottom_sheet}
 /// A modal bottom sheet with a curved top for a more visually appealing design.
-
+/// 
 /// This widget displays a modal bottom sheet with rounded top corners.
 /// It provides options to customize the background color, padding,
 /// border radius, and height of the sheet.
+/// 
+/// {@endtemplate}
 class ModalBottomSheet extends StatelessWidget {
   /// The background color of the modal sheet. Defaults to the app's bottomAppBarTheme color.
   final Color? backgroundColor;
@@ -59,6 +62,8 @@ class ModalBottomSheet extends StatelessWidget {
   /// This widget displays a modal bottom sheet with rounded top corners.
   /// It provides options to customize the background color, padding,
   /// border radius, and height of the sheet.
+  /// 
+  /// {@macro modal_bottom_sheet}
   const ModalBottomSheet({
     super.key,
     this.backgroundColor,

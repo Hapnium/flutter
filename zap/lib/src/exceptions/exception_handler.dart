@@ -1,5 +1,6 @@
 part of 'controller_advice.dart';
 
+/// {@template exception_handler}
 /// A centralized exception handling configuration inspired by Spring Boot's `@ControllerAdvice`.
 ///
 /// The [ExceptionHandler] class allows developers to register specific exception
@@ -31,6 +32,8 @@ part of 'controller_advice.dart';
 /// In the example above, the registered handler for `ExceptionType.network`
 /// will be called. If an exception of another type is passed,
 /// the default handler (if set) will be invoked instead.
+/// 
+/// {@endtemplate}
 class ExceptionHandler {
   /// A map of registered handlers keyed by [ExceptionType].
   final Map<ExceptionType, Function(ZapException)> _handlers = {};
@@ -42,6 +45,8 @@ class ExceptionHandler {
   ///
   /// The optional [defaultHandler] provides fallback handling when a specific
   /// exception type is not registered via [registerHandler].
+  /// 
+  /// {@macro exception_handler}
   ExceptionHandler({Function(ZapException)? defaultHandler})
       : _defaultHandler = defaultHandler;
 

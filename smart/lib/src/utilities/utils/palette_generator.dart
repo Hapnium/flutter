@@ -2,9 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// TODO(goderbauer): Fix this warning for the classes in this file.
-// ignore_for_file: avoid_equals_and_hash_code_on_mutable_classes
-
 import 'dart:async';
 import 'dart:collection';
 import 'dart:math' as math;
@@ -15,11 +12,16 @@ import 'package:collection/collection.dart' show HeapPriorityQueue, PriorityQueu
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 
+/// {@template encoded_image}
 /// A description of an encoded image.
 ///
 /// Used in [PaletteGenerator.fromByteData].
+/// 
+/// {@endtemplate}
 class EncodedImage {
   /// Creates a description of an encoded image.
+  /// 
+  /// {@macro encoded_image}
   const EncodedImage(this.byteData, {
     required this.width,
     required this.height,
@@ -108,8 +110,6 @@ class PaletteGenerator with Diagnosticable {
     _sortSwatches();
     _selectSwatches();
   }
-
-  // TODO(gspencergoog): remove `dart:ui` paragraph from [fromByteData] method when https://github.com/flutter/flutter/issues/10647 is resolved
 
   /// Create a [PaletteGenerator] asynchronously from encoded image [ByteData],
   /// width, and height. These parameters are packed in [EncodedImage].

@@ -1,9 +1,11 @@
 import 'dart:convert' show json;
 
-import '../../utils/helpers.dart';
-import '../../utils/regexps.dart';
-import './iterable.dart';
-import './int.dart';
+import '../../utils/regex_utils.dart';
+
+import 'iterable.dart';
+import 'map.dart';
+import 'int.dart';
+import 'list.dart';
 
 /// credits to "ReCase" package.
 final RegExp _upperAlphaRegex = RegExp(r'[A-Z]');
@@ -95,7 +97,7 @@ extension StringExtensions on String {
   bool containsIgnoreCase(String value) => toLowerCase().contains(value.toLowerCase());
 
   /// Checks if string is a number type of `double` or `int`
-  bool get isNumeric => (isNotEmpty && (double.tryParse(this) != null || int.tryParse(this) != null)) || numericRegExp.hasMatch(this);
+  bool get isNumeric => (isNotEmpty && (double.tryParse(this) != null || int.tryParse(this) != null)) || RegexUtils.numeric.hasMatch(this);
 
   /// Returns "an" before the string if it starts with a vowel, otherwise "a".
   String get withAorAn => startsWith(RegExp('[aeiouAEIOU]')) ? "an ${toLowerCase()}" : "a ${toLowerCase()}";
@@ -138,14 +140,14 @@ extension StringExtensions on String {
 
   /// Checks if the string contains only emojis.
   bool get containsOnlyEmojis {
-    String textWithoutEmojis = replaceAll(emojiPattern, '');
+    String textWithoutEmojis = replaceAll(RegexUtils.emoji, '');
     return textWithoutEmojis.isEmpty;
   }
 
   /// Checks if the string contains only one emoji.
   bool get containsOnlyOneEmoji {
-    String textWithoutEmojis = replaceAll(onlyOneEmojiPattern, '');
-    return textWithoutEmojis.isEmpty && emojiPattern.allMatches(this).length == 1;
+    String textWithoutEmojis = replaceAll(RegexUtils.singleEmoji, '');
+    return textWithoutEmojis.isEmpty && RegexUtils.emoji.allMatches(this).length == 1;
   }
 
   /// Checks if string is int or double.
@@ -274,12 +276,12 @@ extension StringExtensions on String {
       'allow_underscores': false,
     };
 
-    options = merge(options, defaultUrlOptions);
+    options = options?.merge(defaultUrlOptions) ?? defaultUrlOptions;
 
     // check protocol
     var split = str.split('://');
     if (split.length > 1) {
-      final protocol = shift(split);
+      final protocol = split.shift();
       final protocols = options['protocols'] as List<String>;
       if (!protocols.contains(protocol)) {
         return false;
@@ -291,7 +293,7 @@ extension StringExtensions on String {
 
     // check hash
     split = str.split('#');
-    str = shift(split) ?? "";
+    str = split.shift() ?? "";
     final hash = split.join('#');
     if (hash.isNotEmpty && RegExp(r'\s').hasMatch(hash)) {
       return false;
@@ -299,7 +301,7 @@ extension StringExtensions on String {
 
     // check query params
     split = str.isNotEmpty ? str.split('?') : [];
-    str = shift(split) ?? "";
+    str = split.shift() ?? "";
     final query = split.join('?');
     if (query != "" && RegExp(r'\s').hasMatch(query)) {
       return false;
@@ -307,7 +309,7 @@ extension StringExtensions on String {
 
     // check path
     split = str.isNotEmpty ? str.split('/') : [];
-    str = shift(split) ?? "";
+    str = split.shift() ?? "";
     final path = split.join('/');
     if (path != "" && RegExp(r'\s').hasMatch(path)) {
       return false;
@@ -316,11 +318,11 @@ extension StringExtensions on String {
     // check auth type urls
     split = str.isNotEmpty ? str.split('@') : [];
     if (split.length > 1) {
-      final auth = shift(split);
+      final auth = split.shift();
       if (auth != null && auth.contains(':')) {
         // final auth = auth.split(':');
         final parts = auth.split(':');
-        final user = shift(parts);
+        final user = parts.shift();
         if (user == null || !RegExp(r'^\S+$').hasMatch(user)) {
           return false;
         }
@@ -334,7 +336,7 @@ extension StringExtensions on String {
     // check hostname
     final hostname = split.join('@');
     split = hostname.split(':');
-    final host = shift(split);
+    final host = split.shift();
     if (split.isNotEmpty) {
       final portStr = split.join(':');
       final port = int.tryParse(portStr, radix: 10);
@@ -361,14 +363,14 @@ extension StringExtensions on String {
     if (version == 'null') {
       return str.isIP(4) || this.isIP(6);
     } else if (version == '4') {
-      if (!ipv4MaybeRegExp.hasMatch(str)) {
+      if (!RegexUtils.ipv4.hasMatch(str)) {
         return false;
       }
       var parts = str.split('.');
       parts.sort((a, b) => int.parse(a) - int.parse(b));
       return int.parse(parts[3]) <= 255;
     }
-    return version == '6' && ipv6RegExp.hasMatch(str);
+    return version == '6' && RegexUtils.ipv6.hasMatch(str);
   }
 
   /// Check if the string is a fully qualified domain name (e.g. domain.com).
@@ -379,7 +381,7 @@ extension StringExtensions on String {
 
     final defaultFqdnOptions = {'require_tld': true, 'allow_underscores': false};
 
-    options = merge(options, defaultFqdnOptions);
+    options = options?.merge(defaultFqdnOptions) ?? defaultFqdnOptions;
     final parts = str.split('.');
     if (options['require_tld'] as bool) {
       var tld = parts.removeLast();
@@ -407,27 +409,27 @@ extension StringExtensions on String {
   }
 
   /// Check if the string contains only letters (a-zA-Z).
-  bool get isAlpha => alphaRegExp.hasMatch(this);
+  bool get isAlphabetic => RegexUtils.alphabetic.hasMatch(this);
 
   /// Check if the string contains only letters and numbers
-  bool get isAlphanumeric => alphanumericRegExp.hasMatch(this);
+  bool get isAlphanumeric => RegexUtils.alphanumeric.hasMatch(this);
 
   /// Check if a string is base64 encoded
-  bool get isBase64 => base64RegExp.hasMatch(this);
+  bool get isBase64 => RegexUtils.base64.hasMatch(this);
 
   /// Check if the string is an integer
-  bool get isInt => intRegExp.hasMatch(this);
+  bool get isInt => RegexUtils.integer.hasMatch(this);
 
   /// Check if the string is a float
-  bool get isFloat => floatRegExp.hasMatch(this);
+  bool get isFloat => RegexUtils.float.hasMatch(this);
 
   /// Check if the string is a hexadecimal number
   ///
   /// Example: HexColor => #12F
-  bool get isHexadecimal => hexadecimalRegExp.hasMatch(this) || matchesRegex(r'^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$');
+  bool get isHexadecimal => RegexUtils.hexadecimal.hasMatch(this) || matchesRegex(r'^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$');
 
   /// Check if the string is a hexadecimal color
-  bool get isHexColor => hexColorRegExp.hasMatch(this);
+  bool get isHexColor => RegexUtils.hexColor.hasMatch(this);
 
   /// Check if the string is lowercase
   bool get isLowercase => this == this.toLowerCase();
@@ -463,7 +465,7 @@ extension StringExtensions on String {
   bool isLength(int min, [int? max]) {
     var str = this;
 
-    final surrogatePairs = surrogatePairsRegExp.allMatches(str).toList();
+    final surrogatePairs = RegexUtils.surrogatePairs.allMatches(str).toList();
     int len = str.length - surrogatePairs.length;
     return len >= min && (max == null || len <= max);
   }
@@ -479,7 +481,7 @@ extension StringExtensions on String {
       version = version.toString();
     }
 
-    RegExp? pat = uuidRegExp[version];
+    RegExp? pat = RegexUtils.uuid[version];
     return (pat != null && pat.hasMatch(this.toUpperCase()));
   }
 
@@ -544,7 +546,7 @@ extension StringExtensions on String {
     var str = this;
 
     String sanitized = str.replaceAll(RegExp(r'[^0-9]+'), '');
-    if (!creditCardRegExp.hasMatch(sanitized)) {
+    if (!RegexUtils.creditCard.hasMatch(sanitized)) {
       return false;
     }
 
@@ -587,7 +589,7 @@ extension StringExtensions on String {
     int checksum = 0;
 
     if (version == '10') {
-      if (!isbn10MaybeRegExp.hasMatch(sanitized)) {
+      if (!RegexUtils.isbn10.hasMatch(sanitized)) {
         return false;
       }
       for (int i = 0; i < 9; i++) {
@@ -600,7 +602,7 @@ extension StringExtensions on String {
       }
       return (checksum % 11 == 0);
     } else if (version == '13') {
-      if (!isbn13MaybeRegExp.hasMatch(sanitized)) {
+      if (!RegexUtils.isbn13.hasMatch(sanitized)) {
         return false;
       }
       var factor = [1, 3];
@@ -624,22 +626,22 @@ extension StringExtensions on String {
   }
 
   /// Check if the string contains one or more multibyte chars
-  bool get isMultibyte => multibyteRegExp.hasMatch(this);
+  bool get isMultibyte => RegexUtils.multibyte.hasMatch(this);
 
   /// Check if the string contains ASCII chars only
-  bool get isAscii => asciiRegExp.hasMatch(this);
+  bool get isAscii => RegexUtils.ascii.hasMatch(this);
 
   /// Check if the string contains any full-width chars
-  bool get isFullWidth => fullWidthRegExp.hasMatch(this);
+  bool get isFullWidth => RegexUtils.fullWidth.hasMatch(this);
 
   /// Check if the string contains any half-width chars
-  bool get isHalfWidth => halfWidthRegExp.hasMatch(this);
+  bool get isHalfWidth => RegexUtils.halfWidth.hasMatch(this);
 
   /// Check if the string contains a mixture of full and half-width chars
   bool get isVariableWidth => this.isFullWidth && this.isHalfWidth;
 
   /// Check if the string contains any surrogate pairs chars
-  bool get isSurrogatePair => surrogatePairsRegExp.hasMatch(this);
+  bool get isSurrogatePair => RegexUtils.surrogatePairs.hasMatch(this);
 
   /// Check if the string is a valid hex-encoded representation of a MongoDB ObjectId
   bool get isMongoId => (this.isHexadecimal && this.length == 24);
@@ -1109,7 +1111,7 @@ extension StringExtensions on String {
   /// Canonicalizes an email address. Options include lowercase and specific provider rules.
   String normalizeEmail([Map<String, Object>? options]) {
     Map<String, Object> defaultNormalizeEmailOptions = {'lowercase': true};
-    options = merge(options, defaultNormalizeEmailOptions);
+    options = options?.merge(defaultNormalizeEmailOptions) ?? defaultNormalizeEmailOptions;
     if (isEmail == false) {
       return '';
     }

@@ -12,13 +12,26 @@ class _ZapLogger {
     bool needHeader = true,
     LogMode mode = LogMode.INFO,
   }) {
-    final timestamp = DateTime.now().toIso8601String();
-    final level = mode.toString().split('.').last;
-    final header = needHeader ? '[$level][$timestamp]' : '';
-    final source = from != null ? '[$from]' : '';
-    final formattedPrefix = prefix != null ? '[$prefix]' : '';
-    final output = '$header$source$formattedPrefix $message';
-    console.log(output);
+    switch(mode) {
+      case LogMode.TRACE:
+        console.trace(message, tag: from ?? prefix);
+        break;
+      case LogMode.DEBUG:
+        console.debug(message, tag: from ?? prefix);
+        break;
+      case LogMode.INFO:
+        console.info(message, tag: from ?? prefix);
+        break;
+      case LogMode.WARN:
+        console.warn(message, tag: from ?? prefix);
+        break;
+      case LogMode.ERROR:
+        console.error(message, tag: from ?? prefix);
+        break;
+      case LogMode.FATAL:
+        console.fatal(message, tag: from ?? prefix);
+        break;
+    }
   }
 }
 

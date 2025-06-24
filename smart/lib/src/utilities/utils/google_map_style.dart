@@ -1,9 +1,23 @@
 import 'package:hapnium/hapnium.dart';
 
+/// {@template google_map_style}
+/// A utility class for generating Google Map styles.
+///
+/// This class provides a static method [darkTheme] to generate a dark theme
+/// for Google Maps.
+/// 
+/// {@endtemplate}
 class GoogleMapStyle {
   GoogleMapStyle._();
+
+  /// Singleton instance of [GoogleMapStyle].
+  /// 
+  /// {@macro google_map_style}
   static final GoogleMapStyle instance = GoogleMapStyle._();
 
+  /// Returns a dark theme for Google Maps.
+  /// 
+  /// {@macro google_map_style}
   String get darkTheme {
     JsonMapCollection darkTheme = [
       {

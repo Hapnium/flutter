@@ -2,8 +2,12 @@ import 'package:flutter/material.dart' show BuildContext, StatelessWidget, Widge
 import 'package:flutter/foundation.dart' show nonVirtual;
 import 'package:smart/responsive.dart' show ResponsiveUtil, ResponsiveConfig;
 
+/// {@template smart_stateless}
 /// Base class for stateless widgets using [ResponsiveUtil].
+/// 
+/// {@endtemplate}
 abstract class SmartStateless extends StatelessWidget {
+  /// {@macro smart_stateless}
   const SmartStateless({super.key});
 
   /// Optional responsive settings that override [ResponsiveConfig]'s global settings.

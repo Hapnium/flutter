@@ -1,114 +1,223 @@
 import 'package:flutter/cupertino.dart';
 import 'package:multimedia/multimedia.dart';
 
-/// Configuration for customizing the [MultimediaGallery] widget.
+/// {@template multimedia_gallery_configuration}
+/// Configuration class for customizing the behavior and appearance of the
+/// [MultimediaGallery] widget.
+///
+/// This class allows developers to specify display options, layout configurations,
+/// permission handling, media filtering, and various UI customizations.
+///
+/// ### Example:
+/// ```dart
+/// final config = MultimediaGalleryConfiguration(
+///   title: "My Gallery",
+///   showOnlyVideo: false,
+///   showOnlyPhoto: true,
+///   allowMultipleSelection: true,
+///   maxSelection: 5,
+///   appBarElevation: 4.0,
+///   titleColor: Colors.black,
+///   titleWeight: FontWeight.bold,
+///   titleSize: 18.0,
+///   spacing: 8.0,
+///   showDivider: true,
+/// );
+/// ```
+/// {@endtemplate}
 class MultimediaGalleryConfiguration {
   /// Title shown in the gallery app bar.
+  ///
+  /// Defaults to an empty string.
   final String title;
 
-  /// Whether to show only videos.
+  /// Whether to show only videos in the gallery.
+  ///
+  /// Defaults to false.
   final bool showOnlyVideo;
 
-  /// Whether to show only photos.
+  /// Whether to show only photos in the gallery.
+  ///
+  /// Defaults to true.
   final bool showOnlyPhoto;
 
-  /// If true, allows multiple media selections.
+  /// If true, allows users to select multiple media items.
+  ///
+  /// Defaults to false.
   final bool allowMultipleSelection;
 
-  /// Callback triggered when media is selected.
+  /// Callback triggered when a list of selected media is returned.
+  ///
+  /// Defaults to null.
   final SelectedMediaListReceived? onMediaReceived;
 
-  /// Maximum number of selectable items (null = unlimited).
+  /// Maximum number of selectable media items.
+  ///
+  /// If null, the selection is unlimited.
   final int? maxSelection;
 
-  /// UI configuration for the gallery grid/list view.
+  /// Custom UI configuration for the gallery's grid or list layout.
+  ///
+  /// Defaults to null.
   final GalleryViewConfiguration? configuration;
 
-  /// Custom icons used in the gallery.
+  /// Custom icons used within the gallery.
+  ///
+  /// Defaults to null.
   final MultimediaIconConfiguration? iconConfiguration;
 
-  /// Custom layout options for gallery UI elements.
+  /// Layout customization for the multimedia interface elements.
+  ///
+  /// Defaults to null.
   final MultimediaLayoutConfiguration? layoutConfiguration;
 
-  /// Configuration to display when no media items are found.
+  /// Configuration for displaying UI when no media items are available.
+  ///
+  /// Defaults to null.
   final MultimediaNoItemConfiguration? noItemConfiguration;
 
-  /// Configuration to display when permissions are not granted.
+  /// Configuration for displaying UI when gallery permission is not granted.
+  ///
+  /// Defaults to null.
   final MultimediaNoPermissionConfiguration? noPermissionConfiguration;
 
-  /// Configuration for managing files from the gallery.
+  /// File manager configuration for handling gallery files.
+  ///
+  /// Defaults to null.
   final MultimediaFileManagerConfiguration? fileManagerConfiguration;
 
-  /// Elevation of the app bar.
+  /// Elevation value for the app bar.
+  ///
+  /// Defaults to null.
   final double? appBarElevation;
 
-  /// Color of the app bar title.
+  /// Color of the app bar title text.
+  ///
+  /// Defaults to null.
   final Color? titleColor;
 
-  /// Font weight of the app bar title.
+  /// Font weight of the app bar title text.
+  ///
+  /// Defaults to null.
   final FontWeight? titleWeight;
 
-  /// Font size of the app bar title.
+  /// Font size of the app bar title text.
+  ///
+  /// Defaults to null.
   final double? titleSize;
 
-  /// Custom widget to use instead of the default title.
+  /// A custom widget to replace the default app bar title.
+  ///
+  /// Defaults to null.
   final Widget? titleWidget;
 
-  /// Divider color used between sections.
+  /// Color of the divider between sections.
+  ///
+  /// Defaults to null.
   final Color? dividerColor;
 
-  /// Thickness of the divider.
+  /// Thickness of the divider line.
+  ///
+  /// Defaults to null.
   final double? dividerThickness;
 
-  /// Whether to show the header.
+  /// Determines whether the section header is displayed.
+  ///
+  /// Defaults to true.
   final bool showHeader;
 
-  /// Padding around the header.
+  /// Padding applied around the header section.
+  ///
+  /// Defaults to null.
   final EdgeInsets? headerPadding;
 
   /// Color of the header text.
+  ///
+  /// Defaults to null.
   final Color? headerColor;
 
   /// Font size of the header text.
+  ///
+  /// Defaults to null.
   final double? headerSize;
 
   /// Font weight of the header text.
+  ///
+  /// Defaults to null.
   final FontWeight? headerWeight;
 
-  /// Whether to show a divider.
+  /// Whether to show a divider between UI sections.
+  ///
+  /// Defaults to true.
   final bool showDivider;
 
-  /// Whether to show the media manager at the bottom.
+  /// Whether to show the media manager at the bottom of the UI.
+  ///
+  /// Defaults to true.
   final bool showManager;
 
-  /// Builder for the empty state widget.
+  /// Custom builder used when the gallery is empty.
+  ///
+  /// Defaults to null.
   final WidgetBuilder? emptyBuilder;
 
-  /// Builder for the no-permission widget.
+  /// Custom builder used when permission is denied.
+  ///
+  /// Defaults to null.
   final WidgetBuilder? noPermissionBuilder;
 
-  /// Spacing between grid/list items.
+  /// The spacing between media items in grid or list layout.
+  ///
+  /// Defaults to null.
   final double? spacing;
 
-  /// MainAxisAlignment of media items.
+  /// Controls how media items are aligned along the main axis.
+  ///
+  /// Defaults to null.
   final MainAxisAlignment? mainAxisAlignment;
 
-  /// MainAxisSize of media items.
+  /// Determines the size of the main axis for media items.
+  ///
+  /// Defaults to null.
   final MainAxisSize? mainAxisSize;
 
-  /// CrossAxisAlignment of media items.
+  /// Controls how media items are aligned along the cross axis.
+  ///
+  /// Defaults to null.
   final CrossAxisAlignment? crossAxisAlignment;
 
-  /// Callback when the layout is changed (e.g., grid to list).
+  /// Callback triggered when the layout is changed (e.g., from grid to list).
+  ///
+  /// Defaults to null.
   final OnMultimediaLayoutChanged? onLayoutChanged;
 
-  /// Optional permission check override.
+  /// Optional override to handle permission checks manually.
+  ///
+  /// Defaults to null.
   final Future<bool> Function()? hasPermission;
 
   /// If true, pops all previous routes when navigating back.
+  ///
+  /// Defaults to true.
   final bool popAllWhileGoingBack;
 
-  /// Creates a [MultimediaGalleryConfiguration] with optional customization.
+  /// Maximum file size (for file manager constraints) for displayed media.
+  ///
+  /// If targeting `gallery` constraints, use the `MultimediaGalleryAlbumConfiguration`
+  /// Items larger than this will be excluded.
+  ///
+  /// `null` by default.
+  final int? maxSize;
+
+  /// Minimum file size (for file manager constraints) for displayed media.
+  ///
+  /// If targeting `gallery` constraints, use the `MultimediaGalleryAlbumConfiguration`
+  /// Items smaller than this will be excluded.
+  ///
+  /// `null` by default.
+  final int? minSize;
+
+  /// {@macro multimedia_gallery_configuration}
   const MultimediaGalleryConfiguration({
     this.title = "",
     this.showOnlyVideo = false,
@@ -145,5 +254,7 @@ class MultimediaGalleryConfiguration {
     this.onLayoutChanged,
     this.hasPermission,
     this.popAllWhileGoingBack = true,
+    this.maxSize,
+    this.minSize
   });
 }

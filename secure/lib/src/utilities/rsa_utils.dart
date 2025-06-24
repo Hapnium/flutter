@@ -4,8 +4,41 @@ import 'package:pointycastle/export.dart';
 import '../enums/pem_mode.dart';
 import 'pem.dart';
 
-/// Utility class for handling RSA key encoding and decoding.
+
+/// {@template rsa_utils}
+/// A utility class for encoding and decoding RSA public and private keys
+/// to and from PEM (Privacy Enhanced Mail) format using ASN.1 structure.
+///
+/// This class simplifies the transformation of `RSAPublicKey` and
+/// `RSAPrivateKey` objects into PEM-encoded strings for secure storage
+/// and transmission, and vice versa.
+///
+/// Example usage:
+/// ```dart
+/// // Encode public key to PEM
+/// RSAPublicKey pubKey = RSAPublicKey(BigInt.parse('1234567'), BigInt.parse('65537'));
+/// String pemPub = RSAUtils.encodePublicKey(pubKey);
+///
+/// // Decode public key from PEM
+/// RSAPublicKey decodedPub = RSAUtils.decodePublicKey(pemPub);
+///
+/// // Encode private key to PEM
+/// RSAPrivateKey privKey = RSAPrivateKey(
+///   BigInt.parse('1234567'),
+///   BigInt.parse('1234567'),
+///   BigInt.parse('123'),
+///   BigInt.parse('456'),
+/// );
+/// String pemPriv = RSAUtils.encodePrivateKey(privKey);
+///
+/// // Decode private key from PEM
+/// RSAPrivateKey decodedPriv = RSAUtils.decodePrivateKey(pemPriv);
+/// ```
+/// {@endtemplate}
 class RSAUtils {
+  /// {@macro rsa_utils}
+  RSAUtils._();
+  
   /// Encodes an [RSAPublicKey] to PEM format.
   ///
   /// The [publicKey] parameter is the RSA public key to encode.

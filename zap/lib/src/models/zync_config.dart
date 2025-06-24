@@ -1,7 +1,10 @@
 import '../definitions.dart';
 import 'response/session_response.dart';
 
+/// {@template zync_config}
 /// Configuration class for Zync WebSocket connections with flexible authentication.
+/// 
+/// {@endtemplate}
 class ZyncConfig {
   /// The WebSocket endpoint URL.
   final String url;
@@ -80,6 +83,9 @@ class ZyncConfig {
   /// Delay between reconnection attempts.
   final Duration reconnectDelay;
 
+  /// Creates a new instance of [ZyncConfig].
+  /// 
+  /// {@macro zync_config}
   ZyncConfig({
     required this.url,
     this.subscription,
@@ -103,6 +109,9 @@ class ZyncConfig {
     this.reconnectDelay = const Duration(seconds: 3),
   });
 
+  /// Copies the current instance of [ZyncConfig] with new updates
+  /// 
+  /// {@macro zync_config}
   ZyncConfig copyWith({
     String? url,
     String? subscription,

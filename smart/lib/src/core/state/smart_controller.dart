@@ -18,7 +18,7 @@ abstract class SmartController extends ListNotifier with SmartLifecycle {
   /// Can take a List of [ids], that will only update the matching
   /// `GetBuilder( id: )`,
   /// [ids] can be reused among `GetBuilders` like group tags.
-  /// The update will only notify the Widgets, if [condition] is true.
+  /// The update will only tappy the Widgets, if [condition] is true.
   void update([List<Object>? ids, bool condition = true]) {
     if (!condition) {
       return;

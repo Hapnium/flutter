@@ -6,6 +6,7 @@ import 'package:tracing/tracing.dart' show console;
 
 import '../../export.dart';
 
+
 /// A controller for a paged widget.
 ///
 /// If you modify the [itemList], [error] or [nextPageKey] properties, the
@@ -117,7 +118,7 @@ class PagedController<PageKeyType, ItemType> extends ValueNotifier<Paged<PageKey
   @override
   set value(Paged<PageKeyType, ItemType> newValue) {
     if (value.status.notEquals(newValue.status)) {
-      notifyStatusListeners(newValue.status);
+      tappyStatusListeners(newValue.status);
     }
 
     super.value = newValue;
@@ -148,7 +149,7 @@ class PagedController<PageKeyType, ItemType> extends ValueNotifier<Paged<PageKey
   /// Resets [value] to its initial state.
   void refresh() {
     if(showLog) {
-      console.log("Refreshing paged controller.", from: logContext);
+      console.log("Refreshing paged controller.", tag: logContext);
     }
 
     value = Paged<PageKeyType, ItemType>(
@@ -176,7 +177,7 @@ class PagedController<PageKeyType, ItemType> extends ValueNotifier<Paged<PageKey
 
   /// Reloads the list, triggering a request for the first page.
   ///
-  /// This method reloads the list by notifying all page request listeners
+  /// This method reloads the list by tappying all page request listeners
   /// to fetch the first page of data. It should only be called if the list
   /// can be reloaded, as indicated by the [canReload] property.
   ///
@@ -186,7 +187,7 @@ class PagedController<PageKeyType, ItemType> extends ValueNotifier<Paged<PageKey
   ///
   /// **Behavior:**
   ///
-  /// * If [canReload] is `true`, it calls `notifyPageRequestListeners(firstPageKey)`
+  /// * If [canReload] is `true`, it calls `tappyPageRequestListeners(firstPageKey)`
   ///   to refresh the data.
   /// * If [canReload] is `false`, it does nothing.
   void reload() {
@@ -194,10 +195,10 @@ class PagedController<PageKeyType, ItemType> extends ValueNotifier<Paged<PageKey
 
     if(canReload && _hasListenerFired.isFalse) {
       if(showLog) {
-        console.log("Reloading paged controller.", from: logContext);
+        console.log("Reloading paged controller.", tag: logContext);
       }
 
-      notifyPageRequestListeners(firstPageKey);
+      tappyPageRequestListeners(firstPageKey);
     }
   }
 
@@ -208,7 +209,7 @@ class PagedController<PageKeyType, ItemType> extends ValueNotifier<Paged<PageKey
     assert(_debugAssertNotDisposed());
 
     if(showLog) {
-      console.log("Adding status listener ${listener.runtimeType}.", from: logContext);
+      console.log("Adding status listener ${listener.runtimeType}.", tag: logContext);
     }
 
     _statusListeners?.add(listener);
@@ -222,7 +223,7 @@ class PagedController<PageKeyType, ItemType> extends ValueNotifier<Paged<PageKey
     assert(_debugAssertNotDisposed());
 
     if(showLog) {
-      console.log("Removing status listener ${listener.runtimeType}.", from: logContext);
+      console.log("Removing status listener ${listener.runtimeType}.", tag: logContext);
     }
 
     _statusListeners?.remove(listener);
@@ -232,12 +233,12 @@ class PagedController<PageKeyType, ItemType> extends ValueNotifier<Paged<PageKey
   ///
   /// If listeners are added or removed during this function, the modifications
   /// will not change which listeners are called during this iteration.
-  void notifyStatusListeners(PagedStatus status) {
+  void tappyStatusListeners(PagedStatus status) {
     assert(_debugAssertNotDisposed());
 
     if (_statusListeners?.isEmpty ?? true) {
       if(showLog) {
-        console.log("No status listener has been registered yet.", from: logContext);
+        console.log("No status listener has been registered yet.", tag: logContext);
       }
 
       return;
@@ -246,7 +247,7 @@ class PagedController<PageKeyType, ItemType> extends ValueNotifier<Paged<PageKey
     List<PagedStatusListener> localListeners = List<PagedStatusListener>.from(_statusListeners!);
 
     if(showLog) {
-      console.log("There are ${localListeners.length} status listeners registered.", from: logContext);
+      console.log("There are ${localListeners.length} status listeners registered.", tag: logContext);
     }
 
     for (PagedStatusListener listener in localListeners) {
@@ -263,13 +264,13 @@ class PagedController<PageKeyType, ItemType> extends ValueNotifier<Paged<PageKey
     assert(_debugAssertNotDisposed());
 
     if(showLog) {
-      console.log("Registering page request listener ${listener.runtimeType}.", from: logContext);
+      console.log("Registering page request listener ${listener.runtimeType}.", tag: logContext);
     }
 
     _pageRequestListeners?.add(listener);
 
     if(showLog) {
-      console.log("Page request listener ${listener.runtimeType} registered.", from: logContext);
+      console.log("Page request listener ${listener.runtimeType} registered.", tag: logContext);
     }
   }
 
@@ -280,13 +281,13 @@ class PagedController<PageKeyType, ItemType> extends ValueNotifier<Paged<PageKey
     assert(_debugAssertNotDisposed());
 
     if(showLog) {
-      console.log("Removing page request listener ${listener.runtimeType}.", from: logContext);
+      console.log("Removing page request listener ${listener.runtimeType}.", tag: logContext);
     }
 
     _pageRequestListeners?.remove(listener);
 
     if(showLog) {
-      console.log("Page request listener ${listener.runtimeType} removed.", from: logContext);
+      console.log("Page request listener ${listener.runtimeType} removed.", tag: logContext);
     }
   }
 
@@ -294,12 +295,12 @@ class PagedController<PageKeyType, ItemType> extends ValueNotifier<Paged<PageKey
   ///
   /// If listeners are added or removed during this function, the modifications
   /// will not change which listeners are called during this iteration.
-  void notifyPageRequestListeners(PageKeyType pageKey) {
+  void tappyPageRequestListeners(PageKeyType pageKey) {
     assert(_debugAssertNotDisposed());
 
     if (_pageRequestListeners?.isEmpty ?? true) {
       if(showLog) {
-        console.log("No page request listener has been registered yet.", from: logContext);
+        console.log("No page request listener has been registered yet.", tag: logContext);
       }
       _hasListenerFired = false;
 
@@ -309,7 +310,7 @@ class PagedController<PageKeyType, ItemType> extends ValueNotifier<Paged<PageKey
     List<PagedRequestListener<PageKeyType>> localListeners = List<PagedRequestListener<PageKeyType>>.from(_pageRequestListeners!);
 
     if(showLog) {
-      console.log("There are ${localListeners.length} page request listeners registered.", from: logContext);
+      console.log("There are ${localListeners.length} page request listeners registered.", tag: logContext);
     }
 
     for (PagedRequestListener<PageKeyType> listener in localListeners) {
@@ -325,7 +326,7 @@ class PagedController<PageKeyType, ItemType> extends ValueNotifier<Paged<PageKey
     assert(_debugAssertNotDisposed());
 
     if(showLog) {
-      console.log("Disposing paged controller.", from: logContext);
+      console.log("Disposing paged controller.", tag: logContext);
     }
 
     _statusListeners = null;

@@ -4,11 +4,14 @@ import 'ec_secure_messaging.dart';
 import 'rsa_secure_messaging.dart';
 import '../secure_messaging_service.dart';
 
+/// {@template secure_messaging}
 /// Abstract class to provide a unified interface for secure messaging.
 ///
 /// This class acts as a facade, delegating secure messaging operations to the
 /// appropriate implementation ([RSASecureMessaging] or [ECSecureMessaging])
 /// based on the provided [PemStyle].
+/// 
+/// {@endtemplate}
 abstract class SecureMessaging implements SecureMessagingService {
   /// Specifies the style of key (RSA or EC) to use.
   final PemStyle style;
@@ -16,6 +19,8 @@ abstract class SecureMessaging implements SecureMessagingService {
   /// Private constructor to prevent direct instantiation.
   ///
   /// This constructor is intended to be used by subclasses and factory constructors.
+  /// 
+  /// {@macro secure_messaging}
   SecureMessaging(this.style);
 
   /// Factory method to dynamically resolve the appropriate implementation.
@@ -31,6 +36,8 @@ abstract class SecureMessaging implements SecureMessagingService {
   ///
   /// An instance of either [RSASecureMessaging] or [ECSecureMessaging] based
   /// on the provided [PemStyle].
+  /// 
+  /// {@macro secure_messaging}
   @deprecated
   static SecureMessaging resolve(PemStyle style) {
     if (style == PemStyle.RSA) {
@@ -48,6 +55,8 @@ abstract class SecureMessaging implements SecureMessagingService {
   /// **Returns:**
   ///
   /// An instance of [ECSecureMessaging].
+  /// 
+  /// {@macro ec_secure_messaging}
   factory SecureMessaging.ec() {
     return ECSecureMessaging();
   }
@@ -60,6 +69,8 @@ abstract class SecureMessaging implements SecureMessagingService {
   /// **Returns:**
   ///
   /// An instance of [RSASecureMessaging].
+  /// 
+  /// {@macro rsa_secure_messaging}
   factory SecureMessaging.rsa() {
     return RSASecureMessaging();
   }

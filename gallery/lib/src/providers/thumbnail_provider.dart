@@ -1,8 +1,52 @@
 part of '../gallery.dart';
 
-/// Fetches the given medium thumbnail from the gallery.
+
+/// {@template thumbnail_provider}
+/// An [ImageProvider] that asynchronously loads a thumbnail image
+/// for a medium (photo or video) stored in the native gallery.
+///
+/// Useful for rendering previews in grid views or media pickers.
+///
+/// ### Example usage:
+/// ```dart
+/// Image(
+///   image: ThumbnailProvider(
+///     mediumId: '12345',
+///     mediumType: MediumType.image,
+///     width: 200,
+///     height: 200,
+///     highQuality: true,
+///   ),
+/// )
+/// ```
+/// {@endtemplate}
 class ThumbnailProvider extends ImageProvider<ThumbnailProvider> {
-  /// ImageProvider of medium thumbnail
+  /// The unique ID of the media item in the gallery.
+  ///
+  /// Used to fetch the correct thumbnail.
+  final String mediumId;
+
+  /// The type of medium (image or video).
+  ///
+  /// Default: `null`
+  final MediumType? mediumType;
+
+  /// Desired height of the thumbnail in pixels.
+  ///
+  /// Default: `null`
+  final int? height;
+
+  /// Desired width of the thumbnail in pixels.
+  ///
+  /// Default: `null`
+  final int? width;
+
+  /// Whether to load a higher quality thumbnail.
+  ///
+  /// Default: `false`
+  final bool? highQuality;
+
+  /// {@macro thumbnail_provider}
   const ThumbnailProvider({
     required this.mediumId,
     this.mediumType,
@@ -10,21 +54,6 @@ class ThumbnailProvider extends ImageProvider<ThumbnailProvider> {
     this.width,
     this.highQuality = false,
   });
-
-  /// Medium id
-  final String mediumId;
-
-  /// Medium type
-  final MediumType? mediumType;
-
-  /// Height of medium thumbnail
-  final int? height;
-
-  /// Width of medium thumbnail
-  final int? width;
-
-  /// Whether using high quality of medium thumbnail
-  final bool? highQuality;
 
   @override
   ImageStreamCompleter loadImage(key, decode) {

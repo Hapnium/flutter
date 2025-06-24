@@ -1,3 +1,4 @@
+/// {@template secure_exception}
 /// A custom exception class to handle various error scenarios in the app,
 /// providing information such as error messages, status codes, and specific
 /// error flags for rerouting or handling specific conditions.
@@ -5,6 +6,8 @@
 /// This exception is used to manage application errors, such as session expiration,
 /// platform incompatibility, or account lock status, and facilitates rerouting when
 /// these errors occur.
+/// 
+/// {@endtemplate}
 class SecureException implements Exception {
   /// A descriptive message that explains the cause of the exception.
   String message;
@@ -23,12 +26,16 @@ class SecureException implements Exception {
   ///   isSessionExpired: true
   /// );
   /// ```
+  /// 
+  /// {@macro secure_exception}
   SecureException(this.message, {
     this.code,
   });
 
+  /// Tells if the exception demands the user to use [RSA] service
   bool get useRSA => code == 0;
 
+  /// Tells if the exception demands the user to use [EC] service
   bool get useEC => code == 1;
 
   /// Returns a string representation of the exception, including the [message] and

@@ -10,6 +10,7 @@ part 'exception_handler.dart';
 /// categories of exceptions encountered in ZapClient.
 typedef OnException = void Function(ZapException exception);
 
+/// {@template controller_advice}
 /// Configuration class for registering exception handlers.
 ///
 /// Inspired by Spring Boot's `@ControllerAdvice`, this class allows
@@ -25,50 +26,80 @@ typedef OnException = void Function(ZapException exception);
 ///
 /// final handler = config.handler;
 /// ```
+/// 
+/// {@endtemplate}
 class ControllerAdvice {
   /// Optional custom handler for timeout exceptions.
+  /// 
+  /// {@macro controller_advice}
   final OnException? onTimeout;
 
   /// Optional custom handler for network exceptions.
+  /// 
+  /// {@macro controller_advice}
   final OnException? onNetwork;
 
   /// Optional custom handler for server exceptions (5xx).
+  /// 
+  /// {@macro controller_advice}
   final OnException? onServer;
 
   /// Optional custom handler for client exceptions (4xx).
+  /// 
+  /// {@macro controller_advice}
   final OnException? onClient;
 
   /// Optional custom handler for authentication errors.
+  /// 
+  /// {@macro controller_advice}
   final OnException? onAuth;
 
   /// Optional custom handler for SSL/certificate errors.
+  /// 
+  /// {@macro controller_advice}
   final OnException? onSSL;
 
   /// Optional custom handler for TCP connection errors.
+  /// 
+  /// {@macro controller_advice}
   final OnException? onConnection;
 
   /// Optional custom handler for DNS resolution errors.
+  /// 
+  /// {@macro controller_advice}
   final OnException? onDNS;
 
   /// Optional custom handler for data parsing/format errors.
+  /// 
+  /// {@macro controller_advice}
   final OnException? onParsing;
 
   /// Optional custom handler for cancelled operations.
+  /// 
+  /// {@macro controller_advice}
   final OnException? onCancelled;
 
   /// Optional fallback handler for unclassified errors.
+  /// 
+  /// {@macro controller_advice}
   final OnException? onUnknown;
 
   /// Whether to enable default console logging for all exception types.
+  /// 
+  /// {@macro controller_advice}
   final bool enableLogging;
 
   /// The internal [ExceptionHandler] instance configured using provided callbacks.
+  /// 
+  /// {@macro controller_advice}
   late final ExceptionHandler handler;
 
   /// Constructs the exception config and registers all handlers.
   ///
   /// Any omitted handler types can be automatically registered with default
   /// console loggers by setting [enableLogging] to `true`.
+  /// 
+  /// {@macro controller_advice}
   ControllerAdvice({
     this.onTimeout,
     this.onNetwork,

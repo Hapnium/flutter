@@ -5,6 +5,7 @@ import 'package:smart/utilities.dart';
 
 import '../../button/info_button.dart';
 
+/// {@template modal_bottom_sheet_indicator}
 /// A visual indicator for a modal bottom sheet.
 /// 
 /// This widget provides a customizable indicator that can be used to 
@@ -23,6 +24,8 @@ import '../../button/info_button.dart';
 /// * **margin:** The margin of the indicator.
 /// * **radius:** The border radius of the indicator.
 /// * **showButton:** Whether to display an `InfoButton` within the indicator.
+/// 
+/// {@endtemplate}
 class ModalBottomSheetIndicator extends StatelessWidget {
   /// The callback function to be executed when the indicator is tapped.
   final VoidCallback? onTap;
@@ -54,6 +57,9 @@ class ModalBottomSheetIndicator extends StatelessWidget {
   /// Whether to display an `InfoButton` within the indicator.
   final bool showButton;
 
+  /// Creates a [ModalBottomSheetIndicator] widget.
+  /// 
+  /// {@macro modal_bottom_sheet_indicator}
   const ModalBottomSheetIndicator({
     super.key,
     this.onTap,

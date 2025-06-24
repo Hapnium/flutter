@@ -1,4 +1,10 @@
+/// {@template sizing}
+/// A utility class for calculating margins, paddings, and font sizes based on the screen width.
+/// 
+/// {@endtemplate}
 class Sizing {
+  Sizing._();
+  
   /// Calculate margins and paddings  * width / 360.0
   static double _space(double base) => base;
 

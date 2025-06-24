@@ -10,6 +10,7 @@ import '../../export.dart';
 
 part 'preference_selector_state.dart';
 
+/// {@template preference_selector}
 /// A modal bottom sheet for selecting preferences.
 /// 
 /// This widget provides a user-friendly interface for selecting preferences 
@@ -56,6 +57,8 @@ part 'preference_selector_state.dart';
 /// * **itemBorderRadius:** The border radius of the option items.
 /// * **selectedItemColor:** The background color of the selected option.
 /// * **staleItemColor:** The background color of stale options (if applicable).
+/// 
+/// {@endtemplate}
 class PreferenceSelector extends StatefulWidget {
   /// The type of preference to select.
   /// 
@@ -151,6 +154,9 @@ class PreferenceSelector extends StatefulWidget {
   /// The background color of stale options (if applicable).
   final Color? staleItemColor;
 
+  /// Creates a [PreferenceSelector] widget.
+  /// 
+  /// {@macro preference_selector}
   const PreferenceSelector({
     super.key,
     required this.type,

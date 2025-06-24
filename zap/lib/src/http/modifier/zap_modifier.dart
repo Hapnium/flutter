@@ -9,6 +9,7 @@ typedef RequestModifier<T> = FutureOr<Request<T>> Function(Request<T?> request);
 /// A response modifier is a function that will be called after the response is received
 typedef ResponseModifier<T> = FutureOr Function(Request<T?> request, Response<T?> response);
 
+/// {@template zap_modifier}
 /// A class to modify the request and response
 /// 
 /// Args:
@@ -21,12 +22,17 @@ typedef ResponseModifier<T> = FutureOr Function(Request<T?> request, Response<T?
 ///   return request.copyWith(headers: {'Authorization': 'Bearer token'});
 /// });
 /// ```
+/// 
+/// {@endtemplate}
 class ZapModifier<S> {
   final _requestModifiers = <RequestModifier>[];
   final _responseModifiers = <ResponseModifier>[];
 
   /// The authenticator is a request modifier that will be called to authenticate the request
   RequestModifier? authenticator;
+
+  /// {@macro zap_modifier}
+  ZapModifier();
 
   /// Add a request modifier to the modifier
   /// 

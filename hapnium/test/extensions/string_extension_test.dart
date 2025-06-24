@@ -93,7 +93,7 @@ void main() {
     });
 
     test('isAlpha and isAlphanumeric', () {
-      expect('abc'.isAlpha, isTrue);
+      expect('abc'.isAlphabetic, isTrue);
       expect('abc123'.isAlphanumeric, isTrue);
       expect('abc-123'.isAlphanumeric, isFalse);
     });

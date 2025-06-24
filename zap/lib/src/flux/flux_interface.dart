@@ -3,10 +3,13 @@ import '../models/response/api_response.dart';
 import '../models/cancel_token.dart';
 import '../http/response/response.dart';
 
+/// {@template flux_interface}
 /// Interface defining the contract for Flux HTTP operations.
 /// 
 /// This interface ensures consistent method signatures across different
 /// implementations of the Flux client.
+/// 
+/// {@endtemplate}
 abstract class FluxInterface {
   /// Performs a GET request.
   /// 

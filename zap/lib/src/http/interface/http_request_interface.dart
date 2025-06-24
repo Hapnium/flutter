@@ -2,8 +2,12 @@ import '../request/request.dart';
 import '../response/response.dart';
 
 /// Abstract interface of [HttpRequestImplementation].
+/// 
+/// This class is used to send an HTTP [Request] and returns a [Response].
 abstract class HttpRequestInterface {
   /// Sends an HTTP [Request].
+  /// 
+  /// This method sends an HTTP [Request] and returns a [Response].
   Future<Response<T>> send<T>(Request<T> request);
 
   /// Closes the [Request] and cleans up any resources associated with it.

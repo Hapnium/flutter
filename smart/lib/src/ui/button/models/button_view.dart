@@ -4,7 +4,10 @@ import 'package:hapnium/hapnium.dart';
 
 import '../../typedefs.dart';
 
+/// {@template button_view}
 /// Represents a customizable button with an icon and additional properties.
+/// 
+/// {@endtemplate}
 class ButtonView {
   /// The button icon.
   final IconData icon;
@@ -43,6 +46,8 @@ class ButtonView {
   final Widget? imageWidget;
 
   /// Creates a `ButtonView` instance.
+  /// 
+  /// {@macro button_view}
   ButtonView({
     this.icon = Icons.copy,
     this.index = 0,

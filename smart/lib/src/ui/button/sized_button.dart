@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:smart/smart.dart' show TextBuilder, ButtonView, Sizing;
 
+/// {@template sized_button}
 /// A customizable button widget with an icon and text, allowing for various sizing and styling options.
 ///
 /// This widget combines an icon and text into a button-like component, providing
 /// flexibility in terms of size, appearance, and behavior. It's designed to be
 /// easily customizable to fit different UI requirements.
+/// 
+/// {@endtemplate}
 class SizedButton extends StatelessWidget {
   /// The [ButtonView] object containing the icon and text for the button.
   final ButtonView option;
@@ -97,6 +100,8 @@ class SizedButton extends StatelessWidget {
   final TextOverflow? textOverflow;
 
   /// Creates a [SizedButton] widget.
+  /// 
+  /// {@macro sized_button}
   const SizedButton({
     super.key,
     required this.option,

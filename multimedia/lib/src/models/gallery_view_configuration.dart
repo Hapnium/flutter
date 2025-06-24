@@ -1,109 +1,200 @@
 import 'package:flutter/cupertino.dart';
 import 'package:multimedia/multimedia.dart' show AlbumItemBuilder, MultimediaGalleryAlbumConfiguration;
 
+/// {@template gallery_view_configuration}
+/// Configuration class for customizing the layout, appearance, and behavior of a media gallery view.
+///
+/// This class is intended for defining how album collections (e.g., folders or groupings of media)
+/// are presented in a grid-style interface. It supports customization of image dimensions,
+/// padding, typography, spacing, scroll behavior, and routing when an album is selected.
+///
+/// ### Example:
+/// ```dart
+/// final config = GalleryViewConfiguration(
+///   displayCount: 3,
+///   ratio: 1.0,
+///   imageFit: BoxFit.cover,
+///   nameSize: 16,
+///   nameWeight: FontWeight.bold,
+///   countSize: 12,
+///   contentSpacing: 6,
+///   route: '/albumDetails',
+/// );
+/// ```
+/// {@endtemplate}
 class GalleryViewConfiguration {
-  /// Optional limit on how many media items can be selected.
+  /// Optional limit on the total number of media items that can be selected across albums.
+  ///
+  /// Defaults to null (unlimited).
   final int? maxSelection;
 
-  /// How many albums should be displayed in a row.
+  /// Number of album items shown per row in the grid.
+  ///
+  /// Defaults to null.
   final int? displayCount;
 
-  /// The aspect ratio of the grid items.
+  /// Aspect ratio for each album item (width / height).
+  ///
+  /// Defaults to null.
   final double? ratio;
 
-  /// The width of the grid items.
+  /// Fixed width of each album item.
+  ///
+  /// Defaults to null.
   final double? width;
 
-  /// The padding of the grid items.
+  /// Padding applied around each grid item.
+  ///
+  /// Defaults to null.
   final EdgeInsetsGeometry? padding;
 
-  /// The thickness of the scrollbar.
+  /// Thickness of the scrollbar, if shown.
+  ///
+  /// Defaults to null (uses system default).
   final double? scrollThickness;
 
-  /// The spacing between grid items.
+  /// Vertical spacing between rows of albums in the grid.
+  ///
+  /// Defaults to null.
   final double? mainAxisSpacing;
 
-  /// The spacing between grid items.
+  /// Horizontal spacing between albums in the same row.
+  ///
+  /// Defaults to null.
   final double? crossAxisSpacing;
 
-  /// The border radius of the grid items.
+  /// Radius for rounding the corners of the album thumbnail.
+  ///
+  /// Defaults to null.
   final BorderRadiusGeometry? borderRadius;
 
-  /// How the image should be inscribed into the space.
+  /// Defines how the album image fits inside its container.
+  ///
+  /// Defaults to null.
   final BoxFit? imageFit;
 
-  /// The background color of the image.
+  /// Background color rendered behind the album image.
+  ///
+  /// Defaults to null.
   final Color? imageBackgroundColor;
 
-  /// The padding of the content.
+  /// Padding applied around the internal content of each album item.
+  ///
+  /// Defaults to null.
   final EdgeInsetsGeometry? contentPadding;
 
-  /// The spacing between the content.
+  /// Spacing between the album image and its textual content (e.g., name, count).
+  ///
+  /// Defaults to null.
   final double? contentSpacing;
 
-  /// The main axis alignment of the content.
+  /// Main axis alignment for the column layout of album content.
+  ///
+  /// Defaults to null.
   final MainAxisAlignment? contentMainAxisAlignment;
 
-  /// The cross axis alignment of the content.
+  /// Cross axis alignment for the column layout of album content.
+  ///
+  /// Defaults to null.
   final CrossAxisAlignment? contentCrossAxisAlignment;
 
-  /// The size of the album name.
+  /// Font size used for the album name.
+  ///
+  /// Defaults to null.
   final double? nameSize;
 
-  /// The weight of the album name.
+  /// Font weight for the album name text.
+  ///
+  /// Defaults to null.
   final FontWeight? nameWeight;
 
-  /// The color of the album name.
+  /// Color of the album name text.
+  ///
+  /// Defaults to null.
   final Color? nameColor;
 
-  /// The overflow of the album name.
+  /// Overflow behavior for the album name text (e.g., ellipsis).
+  ///
+  /// Defaults to null.
   final TextOverflow? nameOverflow;
 
-  /// The size of the album count.
+  /// Font size used for displaying the number of media items in the album.
+  ///
+  /// Defaults to null.
   final double? countSize;
 
-  /// The color of the album count.
+  /// Color used for the media count text.
+  ///
+  /// Defaults to null.
   final Color? countColor;
 
-  /// The overflow of the album count.
+  /// Overflow behavior for the album count text.
+  ///
+  /// Defaults to null.
   final TextOverflow? countOverflow;
 
-  /// The color of the newest album.
+  /// Highlight color applied to the newest album, if such logic is implemented.
+  ///
+  /// Defaults to null.
   final Color? newestColor;
 
-  /// The color of the oldest album.
+  /// Highlight color applied to the oldest album.
+  ///
+  /// Defaults to null.
   final Color? oldestColor;
 
-  /// The color of the album info.
+  /// Color used for extra metadata or info text in the album card.
+  ///
+  /// Defaults to null.
   final Color? infoColor;
 
-  /// The size of the album info.
+  /// Font size for album metadata/info text.
+  ///
+  /// Defaults to null.
   final double? infoSize;
 
-  /// The padding of the album info.
+  /// Padding around the album info section.
+  ///
+  /// Defaults to null.
   final EdgeInsetsGeometry? infoPadding;
 
-  /// The border radius of the album info.
+  /// Border radius applied to the album info section container.
+  ///
+  /// Defaults to null.
   final BorderRadiusGeometry? infoRadius;
 
-  /// A custom widget builder for each album.
+  /// Custom widget builder for rendering an album item.
+  ///
+  /// Use this to override the default layout and visuals.
+  /// Defaults to null.
   final AlbumItemBuilder? albumItemBuilder;
 
-  /// The route to navigate to when a album is tapped.
+  /// Named route to navigate to when an album is tapped.
+  ///
+  /// Defaults to null (no navigation).
   final String? route;
 
-  /// Widget shown between list items.
+  /// Widget displayed between album items (e.g., a `Divider`, `SizedBox`).
+  ///
+  /// Only used in list or custom layouts.
   final Widget? separator;
 
-  /// Controls the size of the album thumbnail.
+  /// Height of the album image/thumbnail.
+  ///
+  /// Defaults to null.
   final double? imageHeight;
 
-  /// Controls the size of the album thumbnail.
+  /// Width of the album image/thumbnail.
+  ///
+  /// Defaults to null.
   final double? imageWidth;
 
-  /// The album configuration
+  /// Album-level configuration used inside the gallery view.
+  ///
+  /// Defaults to a const [MultimediaGalleryAlbumConfiguration] instance.
   final MultimediaGalleryAlbumConfiguration albumConfiguration;
 
+  /// {@macro gallery_view_configuration}
   const GalleryViewConfiguration({
     this.maxSelection,
     this.scrollThickness,

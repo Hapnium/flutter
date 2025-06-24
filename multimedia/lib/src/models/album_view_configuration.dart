@@ -1,143 +1,257 @@
 import 'package:flutter/material.dart';
 import 'package:multimedia/multimedia.dart';
 
+/// {@template album_view_configuration}
+/// Configuration for customizing the layout and appearance of a media album view,
+/// supporting both grid and list-based layouts.
+///
+/// This class enables precise control over how media items are rendered, including
+/// their dimensions, visual styling, icon usage, selection indicators, and layout 
+/// alignment. It is intended for use within album or gallery UIs that display media files.
+///
+/// ### Example:
+/// ```dart
+/// final config = AlbumViewConfiguration(
+///   width: 120,
+///   ratio: 1.0,
+///   imageFit: BoxFit.cover,
+///   itemSpacing: 8.0,
+///   mainAxisSpacing: 10.0,
+///   crossAxisSpacing: 10.0,
+///   showIcon: true,
+///   titleSize: 14,
+///   titleColor: Colors.black,
+/// );
+/// ```
+/// {@endtemplate}
 class AlbumViewConfiguration {
-  /// Fixed width of grid item.
+  /// Fixed width of a grid or list item.
+  ///
+  /// Defaults to null.
   final double? width;
 
-  /// Aspect ratio of each grid item.
+  /// Aspect ratio of each media item (width / height).
+  ///
+  /// Defaults to null.
   final double? ratio;
 
-  /// Optional custom widget builder for a media item.
+  /// Optional custom widget builder for each media item.
+  ///
+  /// Useful for fully custom item layouts. Defaults to null.
   final MediumItemBuilder? mediumItemBuilder;
 
-  /// Optional overlay widget to indicate selected state.
+  /// Widget overlay for visually indicating selection (e.g., checkmark or highlight).
+  ///
+  /// Defaults to null.
   final SelectedIndicator? selectedIndicator;
 
-  /// Scrollbar thickness.
+  /// Thickness of the scrollbar.
+  ///
+  /// If null, default system thickness is used.
   final double? scrollThickness;
 
-  /// Padding around the list.
+  /// Padding around the entire list or grid.
+  ///
+  /// Defaults to null.
   final EdgeInsetsGeometry? padding;
 
-  /// Widget to show between list items.
+  /// Optional separator widget between list items (used in list layout).
+  ///
+  /// Defaults to null.
   final Widget? separator;
 
-  /// Height of each list item.
+  /// Fixed height of a list item (applies to vertical list layout).
+  ///
+  /// Defaults to null.
   final double? itemHeight;
 
-  /// Height of media image.
+  /// Height of the image or media thumbnail inside the item.
+  ///
+  /// Defaults to null.
   final double? imageHeight;
 
-  /// Width of media image.
+  /// Width of the image or media thumbnail inside the item.
+  ///
+  /// Defaults to null.
   final double? imageWidth;
 
-  /// BoxFit for media image.
+  /// BoxFit configuration for media thumbnail (e.g., cover, contain).
+  ///
+  /// Defaults to null.
   final BoxFit? imageFit;
 
-  /// Icon for video media type.
+  /// Icon to show for video files.
+  ///
+  /// Defaults to null.
   final IconData? videoIcon;
 
-  /// Icon for image media type.
+  /// Icon to show for image files.
+  ///
+  /// Defaults to null.
   final IconData? imageIcon;
 
-  /// Icon for unknown/default media type.
+  /// Icon to show for unknown or unsupported media types.
+  ///
+  /// Defaults to null.
   final IconData? defaultIcon;
 
-  /// Rounded corners for media item.
+  /// Border radius for rounding corners of media items.
+  ///
+  /// Defaults to null.
   final BorderRadiusGeometry? itemBorderRadius;
 
-  /// Shape for unselected media item.
+  /// Shape of an unselected item (e.g., rectangle, circle).
+  ///
+  /// Defaults to null.
   final ShapeBorder? unselectedShape;
 
-  /// Shape for selected media item.
+  /// Shape of a selected item, allowing visual distinction.
+  ///
+  /// Defaults to null.
   final ShapeBorder? selectedShape;
 
-  /// Spacing between list items.
+  /// Spacing between adjacent media items.
+  ///
+  /// Defaults to null.
   final double? itemSpacing;
 
-  /// MainAxisSize for the item column.
+  /// Main axis size for the internal layout (column) of each item.
+  ///
+  /// Defaults to null.
   final MainAxisSize? itemMainAxisSize;
 
-  /// MainAxisAlignment for the item column.
+  /// Main axis alignment for the item’s internal layout.
+  ///
+  /// Defaults to null.
   final MainAxisAlignment? itemMainAxisAlignment;
 
-  /// CrossAxisAlignment for the item column.
+  /// Cross axis alignment for the item’s internal layout.
+  ///
+  /// Defaults to null.
   final CrossAxisAlignment? itemCrossAxisAlignment;
 
-  /// Fixed width for each item.
+  /// Fixed width for an individual item (especially for horizontal lists).
+  ///
+  /// Defaults to null.
   final double? itemWidth;
 
-  /// Background color of the item container.
+  /// Background color for each media item container.
+  ///
+  /// Defaults to null.
   final Color? itemBackgroundColor;
 
-  /// Padding inside the text column.
+  /// Padding around the text section inside each media item.
+  ///
+  /// Defaults to null.
   final EdgeInsetsGeometry? textPadding;
 
-  /// Spacing between text elements.
+  /// Spacing between title, file size, and other text elements.
+  ///
+  /// Defaults to null.
   final double? textSpacing;
 
-  /// MainAxisSize for the text column.
+  /// Main axis size for the text column.
+  ///
+  /// Defaults to null.
   final MainAxisSize? textMainAxisSize;
 
-  /// MainAxisAlignment for the text column.
+  /// Main axis alignment for the text column.
+  ///
+  /// Defaults to null.
   final MainAxisAlignment? textMainAxisAlignment;
 
-  /// CrossAxisAlignment for the text column.
+  /// Cross axis alignment for the text column.
+  ///
+  /// Defaults to null.
   final CrossAxisAlignment? textCrossAxisAlignment;
 
-  /// Font size of the title.
+  /// Font size for the title (usually the file name).
+  ///
+  /// Defaults to null.
   final double? titleSize;
 
-  /// Font weight of the title.
+  /// Font weight for the title text.
+  ///
+  /// Defaults to null.
   final FontWeight? titleWeight;
 
   /// Color of the title text.
+  ///
+  /// Defaults to null.
   final Color? titleColor;
 
-  /// Text overflow behavior of the title.
+  /// Overflow behavior for the title (e.g., ellipsis).
+  ///
+  /// Defaults to null.
   final TextOverflow? titleFlow;
 
-  /// Font size of the file size text.
+  /// Font size for the file size text.
+  ///
+  /// Defaults to null.
   final double? fileSize;
 
   /// Color of the file size text.
+  ///
+  /// Defaults to null.
   final Color? fileSizeColor;
 
-  /// Spacing around the file size row.
+  /// Spacing between the file size and other elements.
+  ///
+  /// Defaults to null.
   final double? fileSizeSpacing;
 
-  /// MainAxisSize for the file size row.
+  /// Main axis size for the file size row.
+  ///
+  /// Defaults to null.
   final MainAxisSize? fileSizeMainAxisSize;
 
-  /// MainAxisAlignment for the file size row.
+  /// Main axis alignment for the file size row.
+  ///
+  /// Defaults to null.
   final MainAxisAlignment? fileSizeMainAxisAlignment;
 
-  /// CrossAxisAlignment for the file size row.
+  /// Cross axis alignment for the file size row.
+  ///
+  /// Defaults to null.
   final CrossAxisAlignment? fileSizeCrossAxisAlignment;
 
-  /// Text overflow behavior of the file size.
+  /// Overflow behavior for the file size text.
+  ///
+  /// Defaults to null.
   final TextOverflow? fileSizeFlow;
 
-  /// Size of the media type icon.
+  /// Size of the icon representing the media type (image/video).
+  ///
+  /// Defaults to null.
   final double? iconSize;
 
-  /// Color for unselected items.
+  /// Tint color for unselected items.
+  ///
+  /// Defaults to null.
   final Color? unselectedColor;
 
-  /// Color for selected items.
+  /// Tint color for selected items.
+  ///
+  /// Defaults to null.
   final Color? selectedColor;
 
-  /// Vertical spacing between grid rows.
+  /// Vertical spacing between rows in a grid layout.
+  ///
+  /// Defaults to null.
   final double? mainAxisSpacing;
 
-  /// Horizontal spacing between grid items.
+  /// Horizontal spacing between items in a row.
+  ///
+  /// Defaults to null.
   final double? crossAxisSpacing;
 
-  /// Whether to show the media type icon.
+  /// Whether to display the media type icon on each item.
+  ///
+  /// Defaults to true.
   final bool showIcon;
 
-  AlbumViewConfiguration({
+  /// {@macro album_view_configuration}
+  const AlbumViewConfiguration({
     this.width,
     this.ratio,
     this.mediumItemBuilder,

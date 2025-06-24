@@ -1,3 +1,4 @@
+/// {@template socket_close}
 /// Wrapper class to encapsulate information about a socket close event.
 ///
 /// This class is used by [SocketNotifier] to provide structured information
@@ -12,6 +13,8 @@
 ///   print(close); // e.g., Closed by server [1000 => Normal Closure]!
 /// });
 /// ```
+/// 
+/// {@endtemplate}
 class SocketClose {
   /// A textual explanation of the reason for the socket closure.
   ///
@@ -26,6 +29,8 @@ class SocketClose {
   final int? reason;
 
   /// Constructs a [SocketClose] object with a [message] and [reason].
+  /// 
+  /// {@macro socket_close}
   SocketClose(this.message, this.reason);
 
   @override

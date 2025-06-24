@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
+/// {@template smart_wave}
 /// A customizable audio wave widget that can display static or animated bars.
 ///
 /// Use [isAnimated] to toggle animation, and configure appearance with
@@ -14,6 +15,8 @@ import 'package:flutter/material.dart';
 ///   color: Colors.deepOrange,
 /// )
 /// ```
+/// 
+/// {@endtemplate}
 class SmartWave extends StatefulWidget {
   /// The number of wave bars (will be mirrored symmetrically).
   final int count;
@@ -45,6 +48,9 @@ class SmartWave extends StatefulWidget {
   /// Optional custom animation builder (for advanced use).
   final double Function(int index, double animationValue)? customHeightBuilder;
 
+  /// Creates a [SmartWave] widget.
+  /// 
+  /// {@macro smart_wave}
   const SmartWave({
     super.key,
     this.count = 13,

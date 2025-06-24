@@ -1,4 +1,7 @@
+/// {@template zync_error_response}
 /// Represents an error response from the WebSocket connection.
+/// 
+/// {@endtemplate}
 class ZyncErrorResponse {
   /// Where the error occurred (e.g., "Connection Error", "Send Error").
   final String where;
@@ -9,6 +12,9 @@ class ZyncErrorResponse {
   /// Timestamp when the error occurred.
   final DateTime timestamp;
 
+  /// Creates a new instance of [ZyncErrorResponse].
+  /// 
+  /// {@macro zync_error_response}
   ZyncErrorResponse({
     required this.where,
     required this.error,

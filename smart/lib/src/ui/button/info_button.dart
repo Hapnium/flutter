@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:smart/src/styles/colors/common_colors.dart';
 import 'package:smart/utilities.dart';
 
+/// {@template info_button}
 /// A custom IconButton designed to display information.
-
+/// 
 /// **Parameters:**
-
 /// * **onPressed:** The callback function to be executed when the button is pressed.
 /// * **icon:** The custom icon to display on the button.
 /// * **tip:** The tooltip text to display when hovering over the button.
@@ -38,6 +38,8 @@ import 'package:smart/utilities.dart';
 /// * **splashFactory:** The splash factory used to create the button's splash effect.
 /// * **backgroundBuilder:** A builder function for the button's background.
 /// * **foregroundBuilder:** A builder function for the button's foreground. 
+/// 
+/// {@endtemplate}
 class InfoButton extends StatelessWidget {
   /// The callback function to be executed when the button is pressed.
   final VoidCallback onPressed;
@@ -134,6 +136,9 @@ class InfoButton extends StatelessWidget {
   /// A builder function for the button's foreground. 
   final Widget Function(BuildContext, Set<WidgetState>, Widget?)? foregroundBuilder;
 
+  /// Creates a [InfoButton] widget.
+  /// 
+  /// {@macro info_button}
   const InfoButton({
     super.key,
     required this.onPressed,

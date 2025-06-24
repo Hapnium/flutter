@@ -8,15 +8,20 @@ import 'package:smart/ui.dart';
 
 import './domain_app_link.dart';
 
+/// {@template link_utils}
 /// A collection of links relevant to the Hapnium platform.
 ///
 /// This class provides access to various URLs, including the base URL for the
 /// platform, links to legal documents, and links to the Hapnium apps for
 /// different user types (Nearby, User, Provider, Business).
+/// 
+/// {@endtemplate}
 class LinkUtils {
   LinkUtils._();
 
   /// Singleton instance of [LinkUtils].
+  /// 
+  /// {@macro link_utils}
   static final LinkUtils instance = LinkUtils._();
 
   /// The domain used for building Hapnium URLs.
@@ -90,6 +95,8 @@ class LinkUtils {
   String get nearbyCategory => "$baseUrl/nearby";
 
   /// Links to the Hapnium Nearby app for different platforms.
+  /// 
+  /// {@macro domain_app_link}
   DomainAppLink get nearby => DomainAppLink(
     web: _urlBuilder("nearby"),
     android: _playStoreBaseUrl('drive'),
@@ -97,6 +104,8 @@ class LinkUtils {
   );
 
   /// Links to the Hapnium User app for different platforms.
+  /// 
+  /// {@macro domain_app_link}
   DomainAppLink get user => DomainAppLink(
     web: _urlBuilder('user'),
     android: _playStoreBaseUrl('user'),
@@ -104,6 +113,8 @@ class LinkUtils {
   );
 
   /// Links to the Hapnium Provider app for different platforms.
+  /// 
+  /// {@macro domain_app_link}
   DomainAppLink get provider => DomainAppLink(
     web: _urlBuilder('provider'),
     android: _playStoreBaseUrl('partner'),
@@ -111,6 +122,8 @@ class LinkUtils {
   );
 
   /// Links to the Hapnium Business app for different platforms.
+  /// 
+  /// {@macro domain_app_link}
   DomainAppLink get business => DomainAppLink(
     web: _urlBuilder('business'),
     android: _playStoreBaseUrl('enterprise'),

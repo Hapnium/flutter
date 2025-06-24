@@ -8,6 +8,7 @@ import 'package:tracing/tracing.dart';
 import '../exceptions/secure_database_exception.dart';
 import 'repository_service.dart';
 
+/// {@template base_repository}
 /// An abstract repository class providing CRUD (Create, Read, Update, Delete) operations
 /// for data of type [Result].
 ///
@@ -26,6 +27,8 @@ import 'repository_service.dart';
 ///
 /// Subclasses *must* implement the [toStore] and [fromStore] methods to handle
 /// the conversion between [Result] and [Insert].
+/// 
+/// {@endtemplate}
 abstract class BaseRepository<Result, Insert> implements RepositoryService<Result> {
   /// The Hive box used for storing the data.
   late Box<dynamic> _box;
@@ -67,6 +70,8 @@ abstract class BaseRepository<Result, Insert> implements RepositoryService<Resul
   ///
   /// The [boxName] parameter is the name of the Hive box to use.  It will be
   /// combined with the prefix, device, and platform to create the final box name.
+  /// 
+  /// {@macro base_repository}
   BaseRepository(String boxName) {
     _name = "$boxName-database";
   }
@@ -113,14 +118,14 @@ abstract class BaseRepository<Result, Insert> implements RepositoryService<Resul
     _key += ":$_name";
 
     if (_showLogs) {
-      console.log("Opening $_name local storage box", from: _from);
+      console.log("Opening $_name local storage box", tag: _from);
     }
 
     _box = await Hive.openBox<dynamic>(_name);
     _isInitialized = true;
 
     if(_showLogs) {
-      console.log("$_name local storage box is now open and initialized with key set as $_key", from: _from);
+      console.log("$_name local storage box is now open and initialized with key set as $_key", tag: _from);
     }
 
     _startListening();
@@ -132,17 +137,17 @@ abstract class BaseRepository<Result, Insert> implements RepositoryService<Resul
   /// that emits the current data and any subsequent changes to the data in the
   /// Hive box.
   void _startListening() {
-    _notifyListeners(get()); // Emit the current data
+    _tappyListeners(get()); // Emit the current data
 
     _subscription = _box.watch(key: _key).listen((event) {
       if (event.deleted) {
         if(_defaultValue != null) {
-          _notifyListeners(_defaultValue!);
+          _tappyListeners(_defaultValue!);
         } else {
-          _notifyListeners(fromStore(null));
+          _tappyListeners(fromStore(null));
         }
       } else {
-        _notifyListeners(fromStore(event.value)); // Emit the new value
+        _tappyListeners(fromStore(event.value)); // Emit the new value
       }
     });
   }
@@ -151,7 +156,7 @@ abstract class BaseRepository<Result, Insert> implements RepositoryService<Resul
   /// 
   /// This method emits the given [result] to the stream controller, which
   /// notifies any listeners of the change.
-  void _notifyListeners(Result result) {
+  void _tappyListeners(Result result) {
     _controller.add(result);
   }
 
@@ -206,7 +211,7 @@ abstract class BaseRepository<Result, Insert> implements RepositoryService<Resul
       result = item;
     }
 
-    _notifyListeners(result);
+    _tappyListeners(result);
     return result;
   }
 
@@ -570,7 +575,7 @@ abstract class BaseRepository<Result, Insert> implements RepositoryService<Resul
 
       return true;
     } catch (e) {
-      console.error("$_exPrefix - Error closing repository: $e", from: _from);
+      console.error("$_exPrefix - Error closing repository: $e", tag: _from);
 
       return false;
     }
@@ -582,7 +587,7 @@ abstract class BaseRepository<Result, Insert> implements RepositoryService<Resul
     _throwIfNotInitialized();
     
     await _box.delete(_key);
-    _notifyListeners(fromStore(null));
+    _tappyListeners(fromStore(null));
 
     runDelete();
     return Optional.empty<Result>();

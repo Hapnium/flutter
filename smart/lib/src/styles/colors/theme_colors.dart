@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// {@template theme_colors}
 /// A base class for defining a set of constant colors used for the UI layout of the app.
 ///
 /// This class provides both light and dark theme colors, as well as additional colors
@@ -23,6 +24,8 @@ import 'package:flutter/material.dart';
 ///   print(colors.lightTheme2); // Prints the overridden color value
 /// }
 /// ```
+/// 
+/// {@endtemplate}
 abstract class ThemeColors {
   /// Primary light theme background color.
   Color lightTheme = const Color(0xffFFFFFF);

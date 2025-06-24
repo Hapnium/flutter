@@ -6,9 +6,18 @@ import 'package:smart/ui.dart';
 import 'country.dart';
 import 'country_data.dart';
 
+/// {@template country_util}
+/// Utility class for country-related operations.
+/// 
+/// This class is **not meant to be instantiated** and should be accessed statically.
+/// 
+/// {@endtemplate}
 class CountryUtil {
   CountryUtil._internal();
 
+  /// The singleton instance of [CountryUtil].
+  /// 
+  /// {@macro country_util}
   static CountryUtil instance = CountryUtil._internal();
 
   List<Country> _list = [];

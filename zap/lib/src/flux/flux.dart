@@ -9,6 +9,7 @@ import 'flux_interface.dart';
 import 'extension.dart';
 import 'client.dart';
 
+/// {@template flux}
 /// Flux is a high-level HTTP client wrapper that provides authentication,
 /// session management, and standardized API response handling.
 /// 
@@ -60,6 +61,8 @@ import 'client.dart';
 ///   },
 /// );
 /// ```
+/// 
+/// {@endtemplate}
 final class Flux implements FluxInterface {
   /// Configuration object containing all settings for the Flux client.
   /// 
@@ -69,6 +72,8 @@ final class Flux implements FluxInterface {
   final FluxConfig config;
 
   /// Private constructor to enforce singleton pattern
+  /// 
+  /// {@macro flux}
   Flux._internal({required this.config});
 
   /// Static instance holder for singleton pattern
@@ -78,6 +83,8 @@ final class Flux implements FluxInterface {
   /// 
   /// Throws [ZapException] if an instance already exists with different configuration.
   /// This ensures that only one Flux instance exists throughout the application.
+  /// 
+  /// {@macro flux}
   factory Flux({required FluxConfig config}) {
     if (_instance != null) {
       throw ZapException(
@@ -93,6 +100,8 @@ final class Flux implements FluxInterface {
   /// Gets the current singleton instance.
   /// 
   /// Throws [ZapException] if no instance has been created yet.
+  /// 
+  /// {@macro flux}
   static Flux get instance {
     if (_instance == null) {
       throw ZapException("No Flux instance found. Create an instance first using Flux(config: config).");
@@ -115,6 +124,8 @@ final class Flux implements FluxInterface {
   }
 
   /// Gets the underlying Zap HTTP client
+  /// 
+  /// {@macro zap_interface}
   ZapInterface _client([bool useAuth = false]) => fluxClient(config, useAuth);
 
   @override

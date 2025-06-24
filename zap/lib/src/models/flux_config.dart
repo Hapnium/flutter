@@ -2,11 +2,14 @@ import '../definitions.dart';
 import '../exceptions/controller_advice.dart';
 import 'zap_config.dart';
 
+/// {@template flux_config}
 /// The [FluxConfig] class holds configuration options for the Flux platform,
 /// allowing customization of various behaviors such as token usage, logging, and error handling.
 ///
 /// This class provides flexible options that control how Flux interacts with different
 /// environments (like development or production) and handles sessions and failures.
+/// 
+/// {@endtemplate}
 class FluxConfig {
   /// - **useSingleInstance**: Determines if a single instance of [Zap] should be used. Default is `true`.
   final bool useSingleInstance;
@@ -79,6 +82,7 @@ class FluxConfig {
   /// ```
   final HeaderBuilder? authHeaderBuilder;
 
+  /// {@macro flux_config}
   FluxConfig({
     this.disposeOnCompleted = false,
     this.useSingleInstance = true,
@@ -100,6 +104,8 @@ class FluxConfig {
 
   /// Creates a new [FluxConfig] instance by copying existing values and
   /// overriding specific fields with new values, if provided.
+  /// 
+  /// {@macro flux_config}
   FluxConfig copyWith({
     bool? disposeOnCompleted,
     bool? useSingleInstance,

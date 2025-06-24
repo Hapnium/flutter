@@ -1,167 +1,189 @@
 import 'package:sedat/sedat.dart';
 import 'package:hapnium/hapnium.dart';
 
-/// A repository class specialized for storing data as `JsonMap` objects.
+/// {@template json_repository}
+/// A generic repository for storing domain model data as JSON-compatible map structures (`JsonMap`).
 ///
-/// This abstract class extends [Repository] and simplifies the creation
-/// of repositories that store data in the form of `JsonMap` objects.
+/// Designed for models that serialize to and from `Map<String, dynamic>`.
 ///
-/// Type parameter:
-///
-/// * [Data]: The type of the domain model data.
+/// ## Example
+/// ```dart
+/// class UserRepository extends JsonRepository<User> {
+///   UserRepository() : super('userBox');
+/// }
+/// ```
+/// {@endtemplate}
 abstract class JsonRepository<Data> extends Repository<Data, JsonMap> {
-  /// Creates a new [JsonRepository] instance.
-  ///
-  /// The [boxName] parameter is the name of the Hive box to use.
+  /// {@macro json_repository}
   JsonRepository(super.boxName);
 }
 
-/// A repository class specialized for storing data as `JsonMapCollection` objects.
+/// {@template collection_repository}
+/// A generic repository for storing domain model data as collections of maps (`JsonMapCollection`).
 ///
-/// This abstract class extends [Repository] and simplifies the creation
-/// of repositories that store data in the form of `JsonMapCollection` objects.
+/// Useful when the model represents multiple grouped items or structured JSON arrays.
 ///
-/// Type parameter:
-///
-/// * [Data]: The type of the domain model data.
+/// ## Example
+/// ```dart
+/// class OrderRepository extends CollectionRepository<Order> {
+///   OrderRepository() : super('orderBox');
+/// }
+/// ```
+/// {@endtemplate}
 abstract class CollectionRepository<Data> extends Repository<Data, JsonMapCollection> {
-  /// Creates a new [CollectionRepository] instance.
-  ///
-  /// The [boxName] parameter is the name of the Hive box to use.
+  /// {@macro collection_repository}
   CollectionRepository(super.boxName);
 }
 
-/// A repository class specialized for storing data as `String` objects.
+/// {@template string_repository}
+/// A generic repository for storing domain model data as raw `String` values.
 ///
-/// This abstract class extends [Repository] and simplifies the creation
-/// of repositories that store data in the form of `String` objects.
+/// Ideal for storing data like tokens, messages, and serialized strings.
 ///
-/// Type parameter:
-///
-/// * [Data]: The type of the domain model data.
+/// ## Example
+/// ```dart
+/// class TokenRepository extends StringRepository<String> {
+///   TokenRepository() : super('tokenBox');
+/// }
+/// ```
+/// {@endtemplate}
 abstract class StringRepository<Data> extends Repository<Data, String> {
-  /// Creates a new [StringRepository] instance.
-  ///
-  /// The [boxName] parameter is the name of the Hive box to use.
+  /// {@macro string_repository}
   StringRepository(super.boxName);
 }
 
-/// A repository class specialized for storing data as `int` objects.
+/// {@template int_repository}
+/// A generic repository for storing domain model data as `int` values.
 ///
-/// This abstract class extends [Repository] and simplifies the creation
-/// of repositories that store data in the form of `int` objects.
+/// Useful for counters, timestamps, and other numeric representations.
 ///
-/// Type parameter:
-///
-/// * [Data]: The type of the domain model data.
+/// ## Example
+/// ```dart
+/// class ScoreRepository extends IntRepository<int> {
+///   ScoreRepository() : super('scoreBox');
+/// }
+/// ```
+/// {@endtemplate}
 abstract class IntRepository<Data> extends Repository<Data, int> {
-  /// Creates a new [IntRepository] instance.
-  ///
-  /// The [boxName] parameter is the name of the Hive box to use.
+  /// {@macro int_repository}
   IntRepository(super.boxName);
 }
 
-/// A repository class specialized for storing data as `double` objects.
+/// {@template double_repository}
+/// A generic repository for storing domain model data as `double` values.
 ///
-/// This abstract class extends [Repository] and simplifies the creation
-/// of repositories that store data in the form of `double` objects.
+/// Useful for floating-point values like prices, percentages, or ratings.
 ///
-/// Type parameter:
-///
-/// * [Data]: The type of the domain model data.
+/// ## Example
+/// ```dart
+/// class RatingRepository extends DoubleRepository<double> {
+///   RatingRepository() : super('ratingBox');
+/// }
+/// ```
+/// {@endtemplate}
 abstract class DoubleRepository<Data> extends Repository<Data, double> {
-  /// Creates a new [DoubleRepository] instance.
-  ///
-  /// The [boxName] parameter is the name of the Hive box to use.
+  /// {@macro double_repository}
   DoubleRepository(super.boxName);
 }
 
-/// A repository class specialized for storing data as `bool` objects.
+/// {@template bool_repository}
+/// A generic repository for storing domain model data as `bool` values.
 ///
-/// This abstract class extends [Repository] and simplifies the creation
-/// of repositories that store data in the form of `bool` objects.
+/// Ideal for toggle states, flags, and conditions.
 ///
-/// Type parameter:
-///
-/// * [Data]: The type of the domain model data.
+/// ## Example
+/// ```dart
+/// class PreferenceRepository extends BoolRepository<bool> {
+///   PreferenceRepository() : super('prefsBox');
+/// }
+/// ```
+/// {@endtemplate}
 abstract class BoolRepository<Data> extends Repository<Data, bool> {
-  /// Creates a new [BoolRepository] instance.
-  ///
-  /// The [boxName] parameter is the name of the Hive box to use.
+  /// {@macro bool_repository}
   BoolRepository(super.boxName);
 }
 
-/// A repository class specialized for storing data as `DateTime` objects.
+/// {@template datetime_repository}
+/// A generic repository for storing domain model data as `DateTime` values.
 ///
-/// This abstract class extends [Repository] and simplifies the creation
-/// of repositories that store data in the form of `DateTime` objects.
+/// Suitable for timestamps, scheduling, or temporal logs.
 ///
-/// Type parameter:
-///
-/// * [Data]: The type of the domain model data.
+/// ## Example
+/// ```dart
+/// class LogRepository extends DateTimeRepository<DateTime> {
+///   LogRepository() : super('logBox');
+/// }
+/// ```
+/// {@endtemplate}
 abstract class DateTimeRepository<Data> extends Repository<Data, DateTime> {
-  /// Creates a new [DateTimeRepository] instance.
-  ///
-  /// The [boxName] parameter is the name of the Hive box to use.
+  /// {@macro datetime_repository}
   DateTimeRepository(super.boxName);
 }
 
-/// A repository class specialized for storing data as `Duration` objects.
+/// {@template duration_repository}
+/// A generic repository for storing domain model data as `Duration` values.
 ///
-/// This abstract class extends [Repository] and simplifies the creation
-/// of repositories that store data in the form of `Duration` objects.
+/// Ideal for timers, delays, or performance benchmarks.
 ///
-/// Type parameter:
-///
-/// * [Data]: The type of the domain model data.
+/// ## Example
+/// ```dart
+/// class TimerRepository extends DurationRepository<Duration> {
+///   TimerRepository() : super('timerBox');
+/// }
+/// ```
+/// {@endtemplate}
 abstract class DurationRepository<Data> extends Repository<Data, Duration> {
-  /// Creates a new [DurationRepository] instance.
-  ///
-  /// The [boxName] parameter is the name of the Hive box to use.
+  /// {@macro duration_repository}
   DurationRepository(super.boxName);
 }
 
-/// A repository class specialized for storing data as `List<dynamic>` objects.
+/// {@template list_repository}
+/// A generic repository for storing domain model data as `List<dynamic>` values.
 ///
-/// This abstract class extends [Repository] and simplifies the creation
-/// of repositories that store data in the form of `List<dynamic>` objects.
+/// Commonly used for caching, logs, or history tracking.
 ///
-/// Type parameter:
-///
-/// * [Data]: The type of the domain model data.
+/// ## Example
+/// ```dart
+/// class HistoryRepository extends ListRepository<List<dynamic>> {
+///   HistoryRepository() : super('historyBox');
+/// }
+/// ```
+/// {@endtemplate}
 abstract class ListRepository<Data> extends Repository<Data, List<dynamic>> {
-  /// Creates a new [ListRepository] instance.
-  ///
-  /// The [boxName] parameter is the name of the Hive box to use.
+  /// {@macro list_repository}
   ListRepository(super.boxName);
 }
 
-/// A repository class specialized for storing data as `Set<dynamic>` objects.
+/// {@template set_repository}
+/// A generic repository for storing domain model data as `Set<dynamic>` values.
 ///
-/// This abstract class extends [Repository] and simplifies the creation
-/// of repositories that store data in the form of `Set<dynamic>` objects.
+/// Useful for managing collections without duplicates.
 ///
-/// Type parameter:
-///
-/// * [Data]: The type of the domain model data.
+/// ## Example
+/// ```dart
+/// class TagRepository extends SetRepository<Set<dynamic>> {
+///   TagRepository() : super('tagBox');
+/// }
+/// ```
+/// {@endtemplate}
 abstract class SetRepository<Data> extends Repository<Data, Set<dynamic>> {
-  /// Creates a new [SetRepository] instance.
-  ///
-  /// The [boxName] parameter is the name of the Hive box to use.
+  /// {@macro set_repository}
   SetRepository(super.boxName);
 }
 
-/// A repository class specialized for storing data as `Map<dynamic, dynamic>` objects.
+/// {@template dynamic_map_repository}
+/// A generic repository for storing domain model data as `Map<dynamic, dynamic>` values.
 ///
-/// This abstract class extends [Repository] and simplifies the creation
-/// of repositories that store data in the form of `Map<dynamic, dynamic>` objects.
+/// Useful when the value and key types are not strictly defined and can vary dynamically.
 ///
-/// Type parameter:
-///
-/// * [Data]: The type of the domain model data.
+/// ## Example
+/// ```dart
+/// class CacheRepository extends DynamicMapRepository<Map<dynamic, dynamic>> {
+///   CacheRepository() : super('cacheBox');
+/// }
+/// ```
+/// {@endtemplate}
 abstract class DynamicMapRepository<Data> extends Repository<Data, Map<dynamic, dynamic>> {
-  /// Creates a new [DynamicMapRepository] instance.
-  ///
-  /// The [boxName] parameter is the name of the Hive box to use.
+  /// {@macro dynamic_map_repository}
   DynamicMapRepository(super.boxName);
 }

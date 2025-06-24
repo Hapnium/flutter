@@ -14,11 +14,20 @@ import '../utils/body_decoder.dart';
 import '../utils/http_status.dart';
 import 'io_http_response.dart';
 
+/// {@template io_http_request}
 /// A `dart:io` implementation of [HttpRequestInterface] with comprehensive error handling.
+/// 
+/// This class is used to send an HTTP [Request] and returns a [Response].
+/// 
+/// {@endtemplate}
 class HttpRequestImplementation extends HttpRequestInterface {
+  /// The HTTP client.
   io.HttpClient? _httpClient;
+
+  /// The security context.
   io.SecurityContext? _securityContext;
 
+  /// {@macro io_http_request}
   HttpRequestImplementation({
     bool allowAutoSignedCert = true,
     List<ZapTrustedCertificate>? trustedCertificates,

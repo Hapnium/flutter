@@ -3,10 +3,13 @@ import 'package:tracing/tracing.dart';
 import 'package:smart/smart.dart';
 import 'package:hapnium/hapnium.dart';
 
+/// {@template swiper}
 /// Swiper is a wrapper widget to other Widget that we can swipe horizontally
 /// to initiate a callback when animation gets end.
 /// It is useful to develop and What's App kind of replay animation for a
 /// component of ongoing chat.
+/// 
+/// {@endtemplate}
 class Swiper extends StatefulWidget {
   /// Child widget for which you want to have horizontal swipe action
   /// @required parameter
@@ -52,6 +55,9 @@ class Swiper extends StatefulWidget {
   /// if not passed swipe to left will be not available
   final GestureDragUpdateCallback? onLeftSwipe;
 
+  /// Creates a [Swiper] widget.
+  /// 
+  /// {@macro swiper}
   const Swiper({
     super.key,
     required this.child,

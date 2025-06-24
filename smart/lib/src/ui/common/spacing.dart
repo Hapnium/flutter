@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:hapnium/hapnium.dart';
 
+/// {@template spacing}
 /// A widget that provides spacing in layouts using flexible (`Spacer`) or fixed (`SizedBox`) spacing.
 ///
 /// This widget allows you to create horizontal or vertical spaces within layouts, either by using a `Spacer`
@@ -10,6 +11,8 @@ import 'package:hapnium/hapnium.dart';
 /// - `Spacing.flexible()` - Uses `Spacer` to create a flexible space.
 /// - `Spacing.vertical(10)` - Creates a fixed vertical space of `10` pixels.
 /// - `Spacing.horizontal(10)` - Creates a fixed horizontal space of `10` pixels.
+/// 
+/// {@endtemplate}
 class Spacing extends StatelessWidget {
   /// The height of the space (used for vertical spacing).
   final Double? height;
@@ -37,6 +40,8 @@ class Spacing extends StatelessWidget {
   ///   ],
   /// )
   /// ```
+  /// 
+  /// {@macro spacing}
   const Spacing.flexible([this.flex = 1])
       : height = null,
         width = null,
@@ -54,6 +59,8 @@ class Spacing extends StatelessWidget {
   ///   ],
   /// )
   /// ```
+  /// 
+  /// {@macro spacing}
   const Spacing.vertical(this.height)
       : width = null,
         flex = null,
@@ -71,6 +78,8 @@ class Spacing extends StatelessWidget {
   ///   ],
   /// )
   /// ```
+  /// 
+  /// {@macro spacing}
   const Spacing.horizontal(this.width)
       : height = null,
         flex = null,
@@ -79,6 +88,8 @@ class Spacing extends StatelessWidget {
   /// Creates an empty space.
   ///
   /// This constructor creates an empty `SizedBox.shrink()`.
+  /// 
+  /// {@macro spacing}
   const Spacing() : height = null, width = null, _spaced = false, flex = null;
 
   @override

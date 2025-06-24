@@ -71,9 +71,6 @@ class _MultimediaCameraState extends State<MultimediaCamera> with WidgetsBinding
   ///
   Timer? _timer;
 
-  ///
-  final int _maxDuration = 30;
-
   /// Whether to show video
   late bool _showVideo;
 
@@ -365,7 +362,6 @@ class _MultimediaCameraState extends State<MultimediaCamera> with WidgetsBinding
 
   @override
   void didUpdateWidget(covariant MultimediaCamera oldWidget) {
-    // TODO: implement didUpdateWidget
     super.didUpdateWidget(oldWidget);
   }
 
@@ -472,7 +468,7 @@ class _MultimediaCameraState extends State<MultimediaCamera> with WidgetsBinding
         _videoDuration = "$minutes : $seconds";
       });
 
-      if(_recordDuration.equals(_maxDuration)) {
+      if(_recordDuration.equals(parent.maxDuration)) {
         _stopRecording();
       }
     });
@@ -508,6 +504,11 @@ class _MultimediaCameraState extends State<MultimediaCamera> with WidgetsBinding
   }
 
   void _stopRecording() async {
+    if(parent.minDuration > _recordDuration) {
+      _error("Cannot stop video recording until it exceeds min duration");
+      return;
+    }
+
     _timer?.cancel();
 
     setState(() {
@@ -1317,7 +1318,7 @@ class _MultimediaCameraState extends State<MultimediaCamera> with WidgetsBinding
         CircularProgressIndicator(
           backgroundColor: progressBackgroundColor,
           valueColor: progressValueColor,
-          value: _recordDuration.divideBy(_maxDuration),
+          value: _recordDuration.divideBy(parent.maxDuration),
           color: progressColor,
           strokeCap: progressStrokeCap,
           strokeWidth: progressStrokeWidth,
@@ -1366,7 +1367,7 @@ class _MultimediaCameraState extends State<MultimediaCamera> with WidgetsBinding
         CircularProgressIndicator(
           backgroundColor: progressBackgroundColor,
           valueColor: progressValueColor,
-          value: _recordDuration.divideBy(_maxDuration),
+          value: _recordDuration.divideBy(parent.maxDuration),
           color: progressColor,
           strokeCap: progressStrokeCap,
           strokeWidth: progressStrokeWidth,

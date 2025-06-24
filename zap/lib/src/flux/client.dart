@@ -22,15 +22,19 @@ ZapInterface fluxClient(FluxConfig config, [bool useAuth = false]) {
   }
 }
 
+/// {@template connect}
 /// [_Connect] is a private class that extends [Zap] and implements the [ZapInterface].
 /// 
 /// It uses the design system of [Zap] to provide a more robust and flexible HTTP client.
 /// 
 /// It is used internally by [Flux] to provide a more robust and flexible HTTP client.
+/// 
+/// {@endtemplate}
 class _Connect extends Zap {
   final bool useAuth;
   final FluxConfig fx;
 
+  /// {@macro connect}
   _Connect(this.fx, this.useAuth) : super(zapConfig: fx.zapConfig);
 
   @override

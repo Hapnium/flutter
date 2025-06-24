@@ -9,17 +9,22 @@ import '../../../utilities/pem_delimiter.dart';
 import '../../../utilities/secure_utils.dart';
 import '../secure_messaging_service.dart';
 
+/// {@template ec_secure_messaging}
 /// EC (Elliptic Curve) implementation of the [SecureMessagingService].
 ///
 /// This class provides EC-based encryption and decryption functionalities
 /// for secure messaging. It extends the [SecureMessaging] class and implements
 /// the [SecureMessagingService] interface.
+/// 
+/// {@endtemplate}
 class ECSecureMessaging extends SecureMessaging implements SecureMessagingService {
   /// EC (Elliptic Curve) implementation of the [SecureMessagingService].
   ///
   /// This class provides EC-based encryption and decryption functionalities
   /// for secure messaging. It extends the [SecureMessaging] class and implements
   /// the [SecureMessagingService] interface.
+  /// 
+  /// {@macro ec_secure_messaging}
   ECSecureMessaging() : super(PemStyle.EC);
 
   final int macSize = 128;

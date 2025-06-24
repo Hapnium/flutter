@@ -5,8 +5,20 @@ import 'package:secure/src/enums/pem_mode.dart';
 import 'package:secure/src/enums/pem_style.dart';
 import 'package:secure/src/utilities/pem_utils.dart';
 
-/// Utility class for handling PEM encoding and decoding.
+/// {@template pem}
+/// A utility class for encoding and decoding keys in PEM format.
+///
+/// This class handles conversion between `Uint8List` binary keys and
+/// PEM-formatted `String`s, using the [PemMode] to determine key type:
+/// - RSA or EC
+/// - Public or Private
+///
+/// Internally delegates to [PemUtils] for formatting and parsing logic.
+/// {@endtemplate}
 class Pem {
+  /// {@macro pem}
+  Pem._();
+
   /// Encodes a given key into PEM format based on the provided [PemMode].
   ///
   /// The [key] is a `Uint8List` representation of the key.

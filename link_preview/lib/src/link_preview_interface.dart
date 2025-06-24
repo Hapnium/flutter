@@ -2,24 +2,53 @@ import '../link_preview.dart';
 import 'v1/core_v1.dart';
 import 'v2/core_v2.dart';
 
-/// Abstract interface for link preview services.
+/// {@template link_preview_interface}
+/// Abstract interface for fetching link preview metadata.
+///
+/// This interface is designed to support both legacy and modern metadata retrieval methods
+/// (e.g., `v1` for legacy parsing and `v2` for structured extraction and fallback logic).
+/// The `get()` method is the main entry point and will attempt `v1` first, then fall back to `v2`
+/// if needed. It also supports optional customization through proxy configuration, request timeout,
+/// user agent specification, and cache duration.
+///
+/// This is useful for scenarios like social previews, content sharing widgets, or media cards.
+///
+/// ## Example usage:
+/// ```dart
+/// final data = await MyCustomPreviewService().get('https://example.com');
+/// if (data != null && data.hasAnyData) {
+///   print('Title: ${data.title}');
+/// }
+/// ```
+/// {@endtemplate}
 abstract class LinkPreviewInterface {
-  /// Fetches preview metadata for the provided [link] (URL or string with URL).
+  /// Fetches preview metadata for the provided [link] (URL or a string containing a URL).
   ///
-  /// Optional parameters allow for customizing CORS proxy, timeout, and user agent headers.
+  /// Internally, it first attempts to fetch metadata using legacy `v1` logic. If that fails,
+  /// and the link is considered valid, it tries again using modern parsing from `v2`, optionally
+  /// prepending a CORS proxy (if provided).
+  ///
+  /// Returns a [LinkPreviewData] object if successful, or `null` on failure.
+  ///
+  /// - [link]: The target URL to extract metadata from.
+  ///
+  /// Optional named parameters:
+  ///
+  /// - [proxy]: Optional CORS proxy to prepend to the request URL.
+  ///   Useful for bypassing CORS restrictions in Flutter Web.
+  ///
+  /// - [cacheDuration]: How long the preview metadata should be cached.
+  ///   Prevents refetching during the specified period. Default is handled internally.
+  ///
+  /// - [requestTimeout]: Maximum duration to wait for the response (applies to v1 only).
+  ///   Helps avoid UI hangs from long network calls. Defaults to 5 seconds.
+  ///
+  /// - [userAgent]: Custom `User-Agent` header for the HTTP request.
+  ///   Can be used to simulate browsers or crawlers.
   Future<LinkPreviewData?> get(String link, {
-    /// Optional CORS proxy for web use. Not guaranteed to work in all cases.
     String? proxy,
-
-    /// The duration for which the preview data should be cached.
     Duration? cacheDuration,
-
-    /// Maximum time to wait for a preview request before timing out.
-    ///
-    /// Mostly used in version 1. Defaults to 5 seconds.
     Duration? requestTimeout,
-
-    /// User-Agent to be used in the HTTP request to the link
     String? userAgent
   }) async {
     LinkPreviewData? v1 = await runV1(link, proxy: proxy, cache: cacheDuration, requestTimeout: requestTimeout, userAgent: userAgent);
@@ -36,6 +65,16 @@ abstract class LinkPreviewInterface {
   }
 }
 
+/// Internal helper that fetches metadata using V2 logic with optional CORS and client-side fallback.
+///
+/// This method:
+/// - Validates the proxy (if any)
+/// - Constructs the final URL to fetch (applying the proxy if needed)
+/// - Tries to get metadata via [runV2]
+/// - Falls back to [runV2ClientSide] if the response is null or lacks usable data
+/// - Post-processes the image URL to resolve it against the proxy if applicable
+///
+/// Returns a [LinkPreviewData] object or `null` if metadata cannot be fetched.
 Future<LinkPreviewData?> _getMetadata(String link, {
   Duration? cache = const Duration(days: 1),
   Map<String, String>? headers,

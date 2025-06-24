@@ -1,10 +1,13 @@
 import 'dart:convert';
 
+/// {@template messaging_metadata}
 /// Represents metadata associated with a secure message.
 ///
 /// This class contains key details about the encryption, signature,
 /// and type of the message. It provides methods to serialize and
 /// deserialize the metadata to and from JSON and base64-encoded strings.
+/// 
+/// {@endtemplate}
 class MessagingMetadata {
   /// The encryption scheme or related data.
   final String enc;
@@ -20,6 +23,8 @@ class MessagingMetadata {
   /// - [enc]: Encryption-related information.
   /// - [sign]: Signature or identifier for validation.
   /// - [type]: The type of the message.
+  /// 
+  /// {@macro messaging_metadata}
   MessagingMetadata({
     required this.enc,
     required this.sign,

@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 import 'package:sedat/sedat.dart';
 import 'package:hapnium/hapnium.dart';
 
+/// {@template repository}
 /// A simplified repository class that uses type adapters for data conversion.
 ///
 /// This abstract class extends [BaseRepository] and provides a simplified way to
@@ -13,10 +14,14 @@ import 'package:hapnium/hapnium.dart';
 ///
 /// * [Result]: The type of the domain model data.
 /// * [Insert]: The type of the data as stored in the database.
+/// 
+/// {@endtemplate}
 abstract class Repository<Result, Insert> extends BaseRepository<Result, Insert> {
   /// Creates a new [Repository] instance.
   ///
   /// The [boxName] parameter is the name of the Hive box to use.
+  /// 
+  /// {@macro repository}
   Repository(super.boxName);
 
   /// The adapter function for decoding data from [Insert] to [Result].

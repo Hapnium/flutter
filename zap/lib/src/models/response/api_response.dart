@@ -1,9 +1,12 @@
+/// {@template api_response}
 /// A generic class to handle API responses. This class encapsulates the
 /// structure of a standard API response, including a status, code, message,
 /// and optional data of type [T].
 ///
 /// This class can be used for both successful and error responses, and it
 /// includes utility methods for checking response status and parsing JSON data.
+/// 
+/// {@endtemplate}
 class ApiResponse {
   /// The status of the API response, typically a string that describes the
   /// outcome (e.g., "success", "error").
@@ -22,6 +25,8 @@ class ApiResponse {
 
   /// Constructor for creating an [ApiResponse] instance with the provided
   /// [status], [code], [message], and optional [data].
+  /// 
+  /// {@macro api_response}
   ApiResponse({
     required this.status,
     required this.code,
@@ -42,6 +47,8 @@ class ApiResponse {
   /// `message`, and optionally `data`.
   ///
   /// Returns an [ApiResponse] instance with parsed fields from the map.
+  /// 
+  /// {@macro api_response}
   factory ApiResponse.fromJson(Map<String, dynamic> json) {
     return ApiResponse(
       status: json['status'] ?? "",
@@ -57,6 +64,8 @@ class ApiResponse {
   /// without altering the original instance.
   ///
   /// Returns a new [ApiResponse] instance with updated fields where provided.
+  /// 
+  /// {@macro api_response}
   ApiResponse copyWith({
     String? status,
     int? code,
@@ -76,6 +85,8 @@ class ApiResponse {
   /// This is a convenience factory for quickly returning a generic error response.
   ///
   /// - [message]: A description of the error.
+  /// 
+  /// {@macro api_response}
   factory ApiResponse.error(String message) =>
       ApiResponse(status: "error", code: 400, message: message);
 
@@ -84,6 +95,8 @@ class ApiResponse {
   /// This is a convenience factory for returning an unauthorized error response (HTTP 401).
   ///
   /// - [message]: A message indicating the unauthorized access.
+  /// 
+  /// {@macro api_response}
   factory ApiResponse.unauthorized(String message) =>
       ApiResponse(status: "unauthorized", code: 401, message: message);
 

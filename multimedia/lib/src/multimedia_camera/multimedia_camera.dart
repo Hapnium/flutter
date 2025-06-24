@@ -10,32 +10,66 @@ import 'restorable_camera_controller.dart';
 
 part 'multimedia_camera_state.dart';
 
+/// {@template multimedia_camera}
 /// A full-screen camera interface supporting photo capture and video recording.
 ///
-/// This widget can be pushed onto the navigation stack to allow users to
-/// interact with the camera, using settings defined in [MultimediaCameraConfiguration].
+/// This widget provides a fully customizable camera screen that can be pushed
+/// onto the navigation stack. It supports both Android and iOS platforms (and optionally web),
+/// enabling features like photo capture, video recording, camera switching,
+/// and real-time camera feedback.
+///
+/// The widget is configured via [MultimediaCameraConfiguration], which provides
+/// control over callbacks, UI layout, camera list, and error handling.
+///
+/// ### Example usage:
+/// ```dart
+/// MultimediaCamera.to(
+///   context: context,
+///   configuration: MultimediaCameraConfiguration(
+///     onImageTaken: (file) {
+///       print('Image taken: $file');
+///     },
+///     onRecordingCompleted: (file) {
+///       print('Video recorded: $file');
+///     },
+///     cameras: availableCameras,
+///   ),
+/// );
+/// ```
+/// {@endtemplate}
 class MultimediaCamera extends StatefulWidget {
-  /// The route name of the screen
+  /// The route name of the screen.
+  ///
+  /// Used for navigation and debugging. Default route is `"/camera"` if none is provided.
   final String route;
 
   /// Configuration settings to customize the camera experience.
+  ///
+  /// Includes options like callbacks for image/video capture, error handling, UI layout,
+  /// available cameras, and whether the screen is being run on the web.
   final MultimediaCameraConfiguration configuration;
 
-  /// Creates a [MultimediaCamera] widget.
-  const MultimediaCamera({super.key, required this.configuration, required this.route});
+  /// {@macro multimedia_camera}
+  const MultimediaCamera({
+    super.key,
+    required this.configuration,
+    required this.route,
+  });
 
   /// Pushes the [MultimediaCamera] widget onto the navigation stack.
   ///
-  /// - [context]: The BuildContext to use for navigation.
-  /// - [configuration]: Configuration for the camera screen.
-  /// - [maintainState]: Whether the route should remain in memory.
-  /// - [fullscreenDialog]: Whether to show the camera as a fullscreen dialog.
-  /// - [allowSnapshotting]: Whether the page allows snapshotting.
-  /// - [barrierDismissible]: If true, the dialog can be dismissed by tapping outside.
-  /// - [settings]: Optional route settings.
-  /// - [routeName]: Optional name for the route.
+  /// This is the recommended way to launch the camera screen.
   ///
-  /// Returns a [Future] resolving to a value of type [T], or null.
+  /// - [context]: The BuildContext used to access the Navigator.
+  /// - [configuration]: Camera configuration options.
+  /// - [maintainState]: Whether the route should remain in memory after being popped.
+  /// - [fullscreenDialog]: Whether the screen should be shown as a fullscreen modal.
+  /// - [allowSnapshotting]: Whether snapshotting of the screen is allowed.
+  /// - [barrierDismissible]: If true, tapping outside will dismiss the dialog.
+  /// - [settings]: Optional [RouteSettings] to pass custom arguments or names.
+  /// - [routeName]: Optional name for the route (defaults to `"/camera"`).
+  ///
+  /// Returns a [Future] that resolves to a result (or null) when the screen is popped.
   static Future<T?>? to<T>({
     required BuildContext context,
     required MultimediaCameraConfiguration configuration,
@@ -44,18 +78,22 @@ class MultimediaCamera extends StatefulWidget {
     bool allowSnapshotting = true,
     bool barrierDismissible = false,
     RouteSettings? settings,
-    String? routeName
+    String? routeName,
   }) {
     String route = routeName ?? settings?.name ?? "/camera";
 
-    return Navigator.push(context, MaterialPageRoute(
-      builder: (BuildContext context) => MultimediaCamera(configuration: configuration, route: route),
-      maintainState: maintainState,
-      fullscreenDialog: fullscreenDialog,
-      allowSnapshotting: allowSnapshotting,
-      barrierDismissible: barrierDismissible,
-      settings: settings ?? RouteSettings(name: routeName ?? "/camera"),
-    ));
+    return Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) =>
+            MultimediaCamera(configuration: configuration, route: route),
+        maintainState: maintainState,
+        fullscreenDialog: fullscreenDialog,
+        allowSnapshotting: allowSnapshotting,
+        barrierDismissible: barrierDismissible,
+        settings: settings ?? RouteSettings(name: route),
+      ),
+    );
   }
 
   @override

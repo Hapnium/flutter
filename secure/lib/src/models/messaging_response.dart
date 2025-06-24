@@ -2,10 +2,13 @@ import 'dart:convert';
 
 import 'package:secure/secure.dart';
 
+/// {@template messaging_response}
 /// Represents a messaging response that includes a message and its metadata.
 ///
 /// This class provides methods for serializing and deserializing the response,
 /// including support for both RSA and EC cryptographic styles.
+/// 
+/// {@endtemplate}
 class MessagingResponse {
   /// The content of the message.
   final String message;
@@ -17,6 +20,8 @@ class MessagingResponse {
   ///
   /// - [message]: The message content.
   /// - [metadata]: Metadata related to the message.
+  /// 
+  /// {@macro messaging_response}
   MessagingResponse({
     required this.message,
     required this.metadata,

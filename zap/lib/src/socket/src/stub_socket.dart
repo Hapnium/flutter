@@ -2,6 +2,7 @@ import '../../enums/socket_type.dart';
 import 'socket_notifier.dart';
 import 'socket_interface.dart';
 
+/// {@template stub_socket}
 /// A concrete WebSocket implementation.
 ///
 /// This class manages a WebSocket connection in a web context, providing lifecycle
@@ -18,7 +19,10 @@ import 'socket_interface.dart';
 /// ws.onMessage((msg) => print('Received: $msg'));
 /// ws.emit('chat', {'text': 'Hello'});
 /// ```
+/// 
+/// {@endtemplate}
 class BaseWebSocket extends SocketInterface {
+  /// {@macro stub_socket}
   BaseWebSocket(super.url, {super.ping, super.allowSelfSigned});
 
   @override

@@ -4,6 +4,7 @@ import 'package:smart/utilities.dart';
 
 import 'base_avatar.dart';
 
+/// {@template smart_avatar}
 /// A smart avatar widget that extends [BaseAvatar] and intelligently displays:
 ///
 /// * A user-provided image (when available).
@@ -22,6 +23,8 @@ import 'base_avatar.dart';
 ///   foregroundImageBuilder: (context, fallback) => NetworkImage("https://example.com/profile.jpg"),
 /// )
 /// ```
+/// 
+/// {@endtemplate}
 class SmartAvatar extends BaseAvatar {
   /// Optional full name of the user. Used for generating initials and consistent colors.
   final String? fullName;
@@ -52,6 +55,8 @@ class SmartAvatar extends BaseAvatar {
   final EdgeInsetsGeometry? padding;
 
   /// Creates a [SmartAvatar] widget that displays a user profile image, initials, or fallback icon.
+  /// 
+  /// {@macro smart_avatar}
   const SmartAvatar({
     super.key,
     required super.radius,
@@ -85,6 +90,8 @@ class SmartAvatar extends BaseAvatar {
   });
 
   /// Creates a [SmartAvatar] widget that displays a user profile image, initials, or fallback icon.
+  /// 
+  /// {@macro smart_avatar}
   const SmartAvatar.circular({
     super.key,
     required super.radius,
@@ -119,6 +126,8 @@ class SmartAvatar extends BaseAvatar {
   );
 
   /// Creates a [SmartAvatar] widget that displays a user profile image, initials, or fallback icon.
+  /// 
+  /// {@macro smart_avatar}
   const SmartAvatar.square({
     super.key,
     required super.radius,

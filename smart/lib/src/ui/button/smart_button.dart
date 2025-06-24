@@ -4,12 +4,15 @@ import 'package:hapnium/hapnium.dart';
 
 import '../export.dart';
 
+/// {@template smart_button}
 /// A button widget used for page navigation with optional notification support.
 ///
 /// The button displays an icon or image along with a label, and it optionally shows a
 /// notification indicator if [needNotification] is set to `true`.
 /// Users can customize the button's appearance, including colors, padding, and text sizes.
 /// Additionally, a custom notification widget can be provided via [notification].
+/// 
+/// {@endtemplate}
 class SmartButton extends StatelessWidget {
   /// The button's configuration containing an icon, image, header, and body text.
   final ButtonView tab;
@@ -157,6 +160,8 @@ class SmartButton extends StatelessWidget {
   /// - [iconSize]: The size of the icon (defaults to `Sizing.space(24)`).
   /// - [headerTextSize]: The font size of the header text (defaults to `Sizing.font(15)`).
   /// - [bodyTextSize]: The font size of the body text (defaults to `Sizing.font(12)`).
+  /// 
+  /// {@macro smart_button}
   const SmartButton({
     super.key,
     required this.tab,
@@ -188,6 +193,9 @@ class SmartButton extends StatelessWidget {
     selectiveBorderRadius = null,
     selectiveWidth = null;
 
+  /// Creates an instance of [SmartButton] in selective mode.
+  /// 
+  /// {@macro smart_button}
   const SmartButton.selective({
     super.key,
     required this.tab,

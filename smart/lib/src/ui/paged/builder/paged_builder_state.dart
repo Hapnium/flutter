@@ -71,7 +71,7 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
         final status = pagingController.value.status;
 
         if (status.equals(PagedStatus.loadingFirstPage)) {
-          pagingController.notifyPageRequestListeners(pagingController.firstPageKey);
+          pagingController.tappyPageRequestListeners(pagingController.firstPageKey);
         }
 
         if (status.equals(PagedStatus.ongoing)) {
@@ -124,7 +124,7 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
         if (hasNextPage && isBuildingTriggerIndexItem) {
           // Schedules the request for the end of this frame.
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            pagingController.notifyPageRequestListeners(nextKey as PageKeyType);
+            pagingController.tappyPageRequestListeners(nextKey as PageKeyType);
           });
 
           _hasRequestedNextPage = true;

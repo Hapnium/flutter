@@ -7,15 +7,17 @@ import '../utils/body_decoder.dart';
 /// A handler for [MockHttpRequest]
 typedef MockHttpRequestHandler = Future<Response> Function(Request request);
 
+/// {@template mock_http_request}
 /// A mock implementation of [HttpRequestInterface]
 /// 
 /// This is used for testing purposes
+/// 
+/// {@endtemplate}
 class MockHttpRequest extends HttpRequestInterface {
   /// The handler for than transforms request on response
   final MockHttpRequestHandler _handler;
 
-  /// Creates a [MockHttpRequest] with a handler that receives [Request]s and sends
-  /// [Response]s.
+  /// {@macro mock_http_request}
   MockHttpRequest(this._handler);
 
   @override

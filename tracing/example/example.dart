@@ -1,7 +1,7 @@
 import 'package:tracing/tracing.dart';
 
 void main() {
-  LoggingService logger = Logging();
+  Tracing tracing = Tracing();
 
   Map<String, String> json = {
     "public_key": """
@@ -30,15 +30,15 @@ void main() {
     -----END PRIVATE KEY-----
     """
   };
-  logger.log(json);
+  tracing.info(json);
 
   String hello = "Welcome to Logger Flutter";
-  logger.log(hello);
+  tracing.info(hello);
 
   List<String> list = [
     "Welcome to Logger Flutter",
     "Welcome to Logger Flutter",
     "Welcome to Logger Flutter"
   ];
-  logger.log(list, from: "List");
+  tracing.info(list);
 }

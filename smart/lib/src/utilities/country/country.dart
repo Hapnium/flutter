@@ -2,8 +2,9 @@ import 'package:hapnium/hapnium.dart';
 
 import 'country_data.dart';
 
+/// {@template country}
 /// A representation of a country.
-
+/// 
 /// This class represents a country with its various attributes, including:
 ///  * `name`: The full name of the country (e.g., "Nigeria").
 ///  * `flag`: The emoji flag representation of the country (e.g., "🇳🇬").
@@ -12,7 +13,8 @@ import 'country_data.dart';
 ///  * `min`: The minimum length of a valid phone number for this country (inclusive).
 ///  * `max`: The maximum length of a valid phone number for this country (inclusive).
 ///  * `image`: An optional image path or URL representing the country's flag.
-
+/// 
+/// {@endtemplate}
 class Country {
   /// The full name of the country (e.g., "Nigeria").
   final String name;
@@ -38,6 +40,8 @@ class Country {
   /// Creates a new `Country` object.
 
   /// All parameters are required.
+  /// 
+  /// {@macro country}
   Country({
     required this.name,
     required this.flag,
@@ -54,7 +58,8 @@ class Country {
   /// and extract the necessary data to create a `Country` object.
   /// If a key is missing in the JSON, an empty string or default value (0 for integers)
   /// will be used for the corresponding field.
-
+  /// 
+  /// {@macro country}
   factory Country.fromJson(JsonMap json) {
     return Country(
       name: json["name"] ?? "",
@@ -86,7 +91,8 @@ class Country {
   bool matchesCountry(String value) => name.equalsIgnoreCase(value);
 
   /// Returns the primary country (currently set to Nigeria).
-
+  /// 
+  /// {@macro country}
   factory Country.primary() => CountryData.instance.nigeria;
 
   /// Finds a country by name (case-insensitive search).
@@ -95,7 +101,8 @@ class Country {
   /// of countries maintained by `CountryUtil`. It performs a case-insensitive
   /// search on the country name. If a matching country is found, it is returned.
   /// Otherwise, the first country in the list is returned as a default.
-
+  /// 
+  /// {@macro country}
   static Country find(String name) {
     return CountryData.instance.countries.firstWhere((country) {
       return country.name.equalsIgnoreCase(name);

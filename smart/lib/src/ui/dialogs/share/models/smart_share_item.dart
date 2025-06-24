@@ -3,12 +3,15 @@ import 'package:hapnium/hapnium.dart';
 
 import 'smart_share_item_config.dart';
 
+/// {@template smart_share_item}
 /// Represents a single share item within the SmartShare widget.
 ///
 /// This class encapsulates the data and configuration for a share item,
 /// including its icon, label, URL, and styling. It also provides utility
 /// methods to determine the type of share item (e.g., WhatsApp, Facebook,
 /// copy link, share).
+/// 
+/// {@endtemplate}
 class SmartShareItem {
   /// The index of the share item within the SmartShare widget.
   final int index;
@@ -32,15 +35,8 @@ class SmartShareItem {
   ///
   /// At least one of `icon` or `asset` must be provided to define the visual
   /// representation of the share item.
-  ///
-  /// **Parameters:**
-  ///
-  /// * `index`: The index of the share item.
-  /// * `icon`: The icon data for the share item.
-  /// * `asset`: The asset path for an image to be used as the share item's icon.
-  /// * `label`: The label text for the share item.
-  /// * `url`: The URL associated with the share item.
-  /// * `config`: The configuration for customizing the appearance of the share item.
+  /// 
+  /// {@macro smart_share_item}
   SmartShareItem({
     required this.index,
     this.icon,

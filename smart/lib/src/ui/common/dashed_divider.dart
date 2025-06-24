@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
+/// {@template dashed_divider}
 /// A widget that draws a horizontal dashed line divider.
-
+/// 
 /// This widget is useful for creating separation lines between sections of your UI
 /// with a dashed line style. It provides options to customize the height and color
 /// of the dashed line.
+/// 
+/// {@endtemplate}
 class DashedDivider extends StatelessWidget {
   /// The height of the dashed line. Defaults to 1.
   final double dashHeight;
@@ -20,6 +23,8 @@ class DashedDivider extends StatelessWidget {
   /// This widget is useful for creating separation lines between sections of your UI
   /// with a dashed line style. It provides options to customize the height and color
   /// of the dashed line.
+  /// 
+  /// {@macro dashed_divider}
   const DashedDivider({super.key, this.dashHeight = 1, this.color = Colors.black, this.dashWidth = 10});
 
   @override

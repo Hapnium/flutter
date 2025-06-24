@@ -4,6 +4,22 @@ extension ClientHandlerExtension on ClientHandler {
   ControllerAdvice get _adviser => controllerAdvice ?? ControllerAdvice();
 
   /// Create a request with body
+  /// 
+  /// This method is used to create a request with a body, which is useful for
+  /// making HTTP requests with a body, such as POST or PUT requests.
+  /// 
+  /// Parameters:
+  /// - [url]: The target endpoint.
+  /// - [contentType]: MIME type of the request body (defaults to JSON).
+  /// - [body]: The body payload for the request.
+  /// - [method]: HTTP method (e.g., 'GET', 'POST', 'PUT', 'DELETE').
+  /// - [query]: Query parameters appended to the URL.
+  /// - [decoder]: Optional function to parse the response body.
+  /// - [responseInterceptor]: Optional hook for inspecting or altering the response.
+  /// - [uploadProgress]: Callback for monitoring upload progress.
+  /// 
+  /// Returns:
+  ///   A [Request] of type [T] representing the server's reply.
   Future<Request<T>> requestWithBody<T>(
     String? url,
     String? contentType,
@@ -72,12 +88,14 @@ extension ClientHandlerExtension on ClientHandler {
     );
   }
 
+  /// Sets the content length header if sendContentLength is true.
   void _setContentLength(Headers headers, int contentLength) {
     if (sendContentLength) {
       headers['content-length'] = '$contentLength';
     }
   }
 
+  /// Tracks progress of a request.
   BodyByteStream _trackProgress(BodyBytes bodyBytes, Progress? uploadProgress) {
     var total = 0;
     var length = bodyBytes.length;
@@ -96,6 +114,7 @@ extension ClientHandlerExtension on ClientHandler {
     return byteStream;
   }
 
+  /// Sets simple headers for a request.
   void _setSimpleHeaders(Headers headers, String? contentType) {
     headers['content-type'] = contentType ?? defaultContentType;
     if (sendUserAgent) {
@@ -103,6 +122,18 @@ extension ClientHandlerExtension on ClientHandler {
     }
   }
 
+  /// Performs a request and returns a response.
+  /// 
+  /// This method is used to perform a request and returns a response.
+  /// 
+  /// Parameters:
+  /// - [request]: The request to perform.
+  /// - [useAuth]: Whether to use authentication.
+  /// - [requestNumber]: The number of requests made.
+  /// - [headers]: Additional HTTP headers.
+  /// 
+  /// Returns:
+  ///   A [Response] of type [T] representing the server's reply.
   Future<Response<T>> perform<T>(Request<T> request, {bool useAuth = false, int requestNumber = 1, Headers? headers}) async {
     headers?.forEach((key, value) {
       request.headers[key] = value;
@@ -142,6 +173,7 @@ extension ClientHandlerExtension on ClientHandler {
     }
   }
 
+  /// Returns a response interceptor.
   ResponseInterceptor<T>? _responseInterceptor<T>(ResponseInterceptor<T>? actual) {
     if (actual != null) return actual;
 
@@ -155,6 +187,23 @@ extension ClientHandlerExtension on ClientHandler {
     return null;
   }
 
+  /// Returns a request with body.
+  /// 
+  /// This method is used to create a request with a body, which is useful for
+  /// making HTTP requests with a body, such as POST or PUT requests.
+  /// 
+  /// Parameters:
+  /// - [url]: The target endpoint.
+  /// - [method]: HTTP method (e.g., 'GET', 'POST', 'PUT', 'DELETE').
+  /// - [contentType]: MIME type of the request body (defaults to JSON).
+  /// - [body]: The body payload for the request.
+  /// - [query]: Query parameters appended to the URL.
+  /// - [decoder]: Optional function to parse the response body.
+  /// - [responseInterceptor]: Optional hook for inspecting or altering the response.
+  /// - [uploadProgress]: Callback for monitoring upload progress.
+  /// 
+  /// Returns:
+  ///   A [Request] of type [T] representing the server's reply.
   Future<Request<T>> getRequestWithBody<T>(String? url, String method, {
     String? contentType,
     required RequestBody body,
@@ -169,6 +218,24 @@ extension ClientHandlerExtension on ClientHandler {
     return requestWithBody<T>(url, contentType, body, method, query, decoder, responseInterceptor, uploadProgress);
   }
 
+  /// Returns a request without body.
+  /// 
+  /// This method is used to create a request without a body, which is useful for
+  /// making HTTP requests without a body, such as GET or DELETE requests.
+  /// 
+  /// Parameters:
+  /// - [url]: The target endpoint.
+  /// - [method]: HTTP method (e.g., 'GET', 'POST', 'PUT', 'DELETE').
+  /// - [contentType]: MIME type of the request body (defaults to JSON).
+  /// - [query]: Query parameters appended to the URL.
+  /// - [decoder]: Optional function to parse the response body.
+  /// - [responseInterceptor]: Optional hook for inspecting or altering the response.
+  /// - [contentLength]: The length of the request body.
+  /// - [followRedirects]: Whether to follow redirects.
+  /// - [maxRedirects]: The maximum number of redirects to follow.
+  /// 
+  /// Returns:
+  ///   A [Request] of type [T] representing the server's reply.
   Future<Request<T>> getRequestWithoutBody<T>(String? url, String method, {
     String? contentType,
     RequestParam? query,
@@ -196,7 +263,16 @@ extension ClientHandlerExtension on ClientHandler {
     return Future.value(request);
   }
 
-  /// Handles exceptions and returns appropriate Response objects based on exception type
+  /// Handles exceptions and returns appropriate Response objects based on exception type.
+  /// 
+  /// This method is used to handle exceptions and returns appropriate Response objects based on exception type.
+  /// 
+  /// Parameters:
+  /// - [e]: The exception to handle.
+  /// - [request]: The request that caused the exception.
+  /// 
+  /// Returns:
+  ///   A [Response] of type [T] representing the server's reply.
   Future<Response<T>> handleException<T>(Exception e, Request<T> request) async {
     ZapException zapException;
     
@@ -207,7 +283,7 @@ extension ClientHandlerExtension on ClientHandler {
       zapException = ZapException(e.toString(), request.url);
     }
 
-    // Always notify the adviser about the exception
+    // Always tappy the adviser about the exception
     _adviser.onException(zapException);
 
     // If errorSafety is disabled, rethrow the exception
@@ -219,7 +295,16 @@ extension ClientHandlerExtension on ClientHandler {
     return _createResponseForException<T>(zapException, request);
   }
 
-  /// Creates appropriate Response objects based on ZapException type
+  /// Creates appropriate Response objects based on ZapException type.
+  /// 
+  /// This method is used to create appropriate Response objects based on ZapException type.
+  /// 
+  /// Parameters:
+  /// - [exception]: The exception to handle.
+  /// - [request]: The request that caused the exception.
+  /// 
+  /// Returns:
+  ///   A [Response] of type [T] representing the server's reply.
   Response<T> _createResponseForException<T>(ZapException exception, Request<T> request) {
     switch (exception.type) {
       case ExceptionType.timeout:

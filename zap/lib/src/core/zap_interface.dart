@@ -8,6 +8,7 @@ import 'zap_socket.dart';
 import 'zap_lifecycle.dart';
 import '../definitions.dart';
 
+/// {@template zap_interface}
 /// Interface defining the contract for Zap HTTP and WebSocket operations with cancellation support.
 /// 
 /// This interface ensures consistent method signatures across different
@@ -15,6 +16,8 @@ import '../definitions.dart';
 ///
 /// It mixes in [ZapLifecycle] to include lifecycle methods such as `onInit`
 /// and `onDispose` if implemented.
+/// 
+/// {@endtemplate}
 abstract class ZapInterface with ZapLifecycle {
   /// The configuration of the [ZapClient] and [ZapImplementation]
   ZapConfig? zapConfig;
@@ -34,6 +37,8 @@ abstract class ZapInterface with ZapLifecycle {
   /// - [zapConfig]: The configuration of the [ZapClient] and [ZapImplementation]
   /// - [zapClient]: The HTTP client instance
   /// - [zapSockets]: The list of active WebSocket connections
+  /// 
+  /// {@macro zap_interface}
   ZapInterface({this.zapConfig, this.zapClient, this.zapSockets});
 
   /// A list of active Socket connections managed by the interface.

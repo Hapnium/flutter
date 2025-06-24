@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:smart/smart.dart';
 
+/// {@template app_explore}
 /// A widget that displays an exploration section for the Smart app, allowing
 /// users to navigate different sections and download the app.
+/// 
+/// {@endtemplate}
 class AppExplore extends StatelessWidget {
   /// The application instance being explored.
   final SmartApp app;
@@ -65,6 +68,8 @@ class AppExplore extends StatelessWidget {
   ///
   /// The [app] parameter is required.
   /// Optional parameters allow customization of colors, text sizes, image size, and interactions.
+  /// 
+  /// {@macro app_explore}
   const AppExplore({
     super.key,
     required this.app,

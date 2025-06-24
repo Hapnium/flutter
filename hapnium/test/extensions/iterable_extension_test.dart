@@ -15,12 +15,6 @@ void main() {
       expect(result, equals([4]));
     });
 
-    test('flattenIterable (deprecated) works with nullable selector', () {
-      final list = [1, 2, 3];
-      final result = list.flattenIterable((e) => e.isEven ? [e, e * 2] : null);
-      expect(result, equals([2, 4]));
-    });
-
     test('all returns true only if all match', () {
       expect([2, 4, 6].all((e) => e.isEven), isTrue);
       expect([2, 3, 6].all((e) => e.isEven), isFalse);

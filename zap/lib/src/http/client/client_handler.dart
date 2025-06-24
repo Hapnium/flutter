@@ -1,23 +1,61 @@
 part of 'zap_client.dart';
 
+/// {@template client_handler}
+/// 
+/// This class is used to handle HTTP requests and responses.
+/// It provides a high-level interface for making HTTP requests and handling responses.
+/// 
+/// {@endtemplate}
 class ClientHandler {
+  /// This is the base URL for all requests.
   final String? baseUrl;
+  
+  /// Whether to send the user agent in the request headers.
   final bool sendUserAgent;
+  
+  /// Whether to send the content length in the request headers.
   final bool sendContentLength;
+  
+  /// The user agent to send in the request headers.
   final String userAgent;
+  
+  /// The default content type to send in the request headers.
   final String defaultContentType;
+  
+  /// The timeout for the request.
   final Duration timeout;
+  
+  /// Whether to enable error safety.
   final bool errorSafety;
+  
+  /// The maximum number of authentication retries.
   final int maxAuthRetries;
+  
+  /// The maximum number of redirects.
   final int maxRedirects;
+  
+  /// Whether to follow redirects.
   final bool followRedirects;
+  
+  /// The proxy finder.
   final ProxyFinder? findProxy;
+  
+  /// The modifier.
   final ZapModifier modifier;
+  
+  /// The controller advice.
   final ControllerAdvice? controllerAdvice;
+  
+  /// The HTTP client.
   final HttpRequestInterface client;
+  
+  /// The default decoder.
   final ResponseDecoder? defaultDecoder;
+  
+  /// The default response interceptor.
   final ResponseInterceptor? defaultResponseInterceptor;
 
+  /// {@macro client_handler}
   ClientHandler({
     this.baseUrl,
     this.sendUserAgent = false,

@@ -3,10 +3,13 @@ import 'dart:convert';
 import '../definitions.dart';
 import '../enums/socket_type.dart';
 
+/// {@template socket_messenger}
 /// Represents a generic message passed through the socket connection.
 ///
 /// This model is used to encode and decode JSON socket payloads in a single,
 /// unified structure that can be extended as needed.
+/// 
+/// {@endtemplate}
 class SocketMessenger {
   /// The type of the socket message (e.g., connect, send, receive, ping, etc.).
   final SocketType type;
@@ -34,6 +37,7 @@ class SocketMessenger {
   /// The topic associated with the message.
   final String? topic;
 
+  /// {@macro socket_messenger}
   SocketMessenger({
     required this.type,
     this.event,
@@ -46,6 +50,8 @@ class SocketMessenger {
   });
 
   /// Creates a `SocketMessenger` instance from a JSON map.
+  /// 
+  /// {@macro socket_messenger}
   factory SocketMessenger.fromJson(Map<String, dynamic> json) {
     return SocketMessenger(
       type: json['type'] ?? '',
@@ -60,6 +66,8 @@ class SocketMessenger {
   }
 
   /// Converts this object to a JSON map.
+  /// 
+  /// {@macro socket_messenger}
   Map<String, dynamic> toJson() => {
     'type': type.name,
     if (event != null) 'event': event,
@@ -72,11 +80,18 @@ class SocketMessenger {
   };
 
   /// Encodes the object as a JSON string.
+  /// 
+  /// {@macro socket_messenger}
   String encode() => jsonEncode(toJson());
 
   /// Decodes a JSON string into a `SocketMessenger`.
+  /// 
+  /// {@macro socket_messenger} 
   static SocketMessenger decode(String jsonStr) => SocketMessenger.fromJson(jsonDecode(jsonStr));
 
+  /// Creates a simple `SocketMessenger` instance.
+  /// 
+  /// {@macro socket_messenger}
   factory SocketMessenger.simple({required SocketType command, required dynamic data}) {
     return SocketMessenger(
       type: command,

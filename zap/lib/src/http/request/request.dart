@@ -8,11 +8,23 @@ import "../../definitions.dart";
 import '../client/zap_client.dart' show ResponseInterceptor;
 import '../multipart/form_data.dart';
 
+/// {@template request}
 /// Represents a network request sent through the Zap client.
 ///
 /// This class holds all configuration and data associated with an HTTP request,
 /// such as method, headers, body, redirect behavior, files, and more. It also
 /// supports response decoding and intercepting for flexible response handling.
+/// 
+/// Example:
+/// ```dart
+/// final request = Request(
+///   url: Uri.parse("https://api.example.com/v1/data"),
+///   method: "GET",
+///   headers: {'Content-Type': 'application/json'},
+/// );
+/// ```
+/// 
+/// {@endtemplate}
 class Request<T> {
   /// The HTTP headers attached to this request.
   ///
@@ -72,6 +84,8 @@ class Request<T> {
   /// Internal constructor for initializing a [Request].
   ///
   /// Use the factory constructor for external instantiation.
+  /// 
+  /// {@macro request}
   const Request._({
     required this.method,
     required this.bodyBytes,
@@ -104,6 +118,17 @@ class Request<T> {
   /// - [persistentConnection]: Whether to reuse TCP connection (default: `true`).
   /// - [decoder]: A custom response decoder to parse the response into [T].
   /// - [responseInterceptor]: Optional interceptor to modify/inspect the response.
+  /// 
+  /// Example:
+  /// ```dart
+  /// final request = Request(
+  ///   url: Uri.parse("https://api.example.com/v1/data"),
+  ///   method: "GET",
+  ///   headers: {'Content-Type': 'application/json'},
+  /// );
+  /// ```
+  /// 
+  /// {@macro request}
   factory Request({
     required Uri url,
     required String method,

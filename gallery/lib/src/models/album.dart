@@ -1,36 +1,58 @@
 part of '../gallery.dart';
 
-/// A album in the gallery.
+/// {@template album}
+/// Represents a media album in the device's gallery.
+///
+/// Albums can contain images or videos, depending on their [mediumType].
+/// Provides helper methods to fetch media entries or a thumbnail preview.
+///
+/// ### Example usage:
+/// ```dart
+/// final album = Album.fromJson(json, MediumType.image, true);
+/// final mediaPage = await album.listMedia(skip: 0, take: 50);
+/// final thumbnail = await album.getThumbnail(width: 200, height: 200);
+/// ```
+/// {@endtemplate}
 @immutable
 class Album {
   /// A unique identifier for the album.
+  ///
+  /// Used internally to fetch album content.
   final String id;
 
-  /// The [MediumType] of the album.
+  /// The type of media the album holds (e.g., image, video).
+  ///
+  /// Default: `null`
   final MediumType? mediumType;
 
-  /// The sort direction is newest or not
+  /// Whether the album is sorted by newest items first.
+  ///
+  /// Default: `null`
   final bool newest;
 
-  /// The name of the album.
+  /// The name/title of the album as displayed in the UI.
+  ///
+  /// Default: `null`
   final String? name;
 
-  /// The total number of media in the album.
+  /// Total number of media items in this album.
+  ///
+  /// Default: `0`
   final int count;
 
-  /// Indicates whether this album contains all media.
+  /// Returns `true` if this album represents all media entries.
   bool get isAllAlbum => id == "__ALL__";
 
-  /// Creates a album from platform channel protocol.
+  /// {@macro album}
   Album.fromJson(dynamic json, this.mediumType, this.newest)
       : id = json['id'],
         name = json['name'],
         count = json['count'] ?? 0;
 
-  /// list media in the album.
+  /// Retrieves a page of media items in the album.
   ///
-  /// Pagination can be controlled out of [skip] (defaults to `0`) and
-  /// [take] (defaults to `<total>`).
+  /// Pagination can be controlled using [skip] (offset) and [take] (limit).
+  /// Optionally uses a lightweight fetch mode via [lightWeight].
   Future<MediaPage> listMedia({
     int? skip,
     int? take,
@@ -44,9 +66,10 @@ class Album {
     );
   }
 
-  /// Get thumbnail data for this album.
+  /// Fetches thumbnail data representing this album.
   ///
-  /// It will display the lastly taken medium thumbnail.
+  /// Displays the most recent medium's thumbnail in the album.
+  /// Useful for preview purposes in album grids or lists.
   Future<List<int>> getThumbnail({
     int? width,
     int? height,

@@ -9,17 +9,22 @@ import '../../../utilities/rsa_utils.dart';
 import '../../../utilities/secure_utils.dart';
 import '../secure_messaging_service.dart';
 
+/// {@template rsa_secure_messaging}
 /// RSA implementation of the [SecureMessagingService].
 ///
 /// This class provides RSA-based encryption and decryption functionalities
 /// for secure messaging. It extends the [SecureMessaging] class and implements
 /// the [SecureMessagingService] interface.
+/// 
+/// {@endtemplate}
 class RSASecureMessaging extends SecureMessaging implements SecureMessagingService {
   /// RSA implementation of the [SecureMessagingService].
   ///
   /// This class provides RSA-based encryption and decryption functionalities
   /// for secure messaging. It extends the [SecureMessaging] class and implements
   /// the [SecureMessagingService] interface.
+  /// 
+  /// {@macro rsa_secure_messaging}
   RSASecureMessaging() : super(PemStyle.RSA);
 
   OAEPEncoding _getEncoding() => OAEPEncoding(RSAEngine());

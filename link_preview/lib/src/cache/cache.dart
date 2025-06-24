@@ -1,17 +1,25 @@
 import 'package:link_preview/link_preview.dart';
 
+/// {@template cache}
 /// A concrete implementation of [CacheManager] that acts as a global singleton.
 ///
 /// This class is marked as `final`, preventing further subclassing.
 ///
 /// Use [Cache.instance] to access the singleton.
+/// 
+/// {@endtemplate}
 final class Cache extends CacheManager {
   /// The singleton instance of [Cache].
+  /// 
+  /// {@macro cache}
   static final Cache instance = Cache._();
 
+  /// The in-memory cache storage
   final Map<String, LinkPreviewData> _cache = {};
 
   /// Private constructor to enforce singleton pattern.
+  /// 
+  /// {@macro cache}
   Cache._();
 
   @override

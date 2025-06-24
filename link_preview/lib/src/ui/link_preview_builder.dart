@@ -4,49 +4,100 @@ import '../link_preview.dart';
 import '../models/link_preview_data.dart';
 import '../typedefs.dart' show LinkPreviewAnimationBuilder, LinkPreviewWidgetBuilder, OnPreviewDataFetched;
 
+/// {@template link_preview_builder}
 /// A widget that fetches link preview metadata and builds a widget using the provided builder.
 ///
-/// It optionally supports animated expansion and loading widgets. You can also provide
-/// your own animation builder if the default animation doesn't fit your use case.
+/// This widget fetches metadata from a provided URL (such as title, description, and image)
+/// and passes it to a custom builder function to render your own preview UI.
+///
+/// It supports optional loading states, customizable animations, and full control over the
+/// network request configuration (e.g., user agent, timeout, CORS proxy).
+///
+/// ## Example usage:
+/// ```dart
+/// LinkPreviewBuilder(
+///   link: 'https://example.com',
+///   builder: (context, data) => Card(
+///     child: ListTile(
+///       leading: data.image != null ? Image.network(data.image!.url) : null,
+///       title: Text(data.title ?? ''),
+///       subtitle: Text(data.description ?? ''),
+///     ),
+///   ),
+///   loadingBuilder: (context) => const CircularProgressIndicator(),
+///   enableAnimation: true,
+/// )
+/// ```
+/// {@endtemplate}
 class LinkPreviewBuilder extends StatefulWidget {
   /// The URL to preview.
+  ///
+  /// This is the link from which the preview metadata will be fetched.
+  /// Required field. Default: null
   final String link;
 
   /// Builds the final widget using the fetched preview data.
+  ///
+  /// This is called after metadata is fetched successfully from the link.
+  /// Required field. Default: null
   final LinkPreviewWidgetBuilder builder;
 
   /// Widget builder displayed while fetching preview data.
+  ///
+  /// Useful for showing a loading indicator or placeholder while waiting
+  /// for metadata to load. Default: null (no loading widget shown)
   final WidgetBuilder? loadingBuilder;
 
-  /// Duration for the default expand animation. Defaults to 300ms.
+  /// Duration for the default expand animation.
+  ///
+  /// Applied when [enableAnimation] is true. Default: null (falls back to 300ms)
   final Duration? animationDuration;
 
-  /// Enables expand animation. Defaults to false.
+  /// Enables expand animation for the preview widget.
+  ///
+  /// When enabled, the resulting widget appears with an animated size transition.
+  /// Default: false
   final bool? enableAnimation;
 
   /// Allows you to define a custom animation wrapper around the result widget.
   ///
   /// If not provided, a default [SizeTransition] is used.
+  /// Default: null
   final LinkPreviewAnimationBuilder? animatedBuilder;
 
-  /// Optional CORS proxy for web use. Not guaranteed to work in all cases.
+  /// Optional CORS proxy for web-based link previews.
+  ///
+  /// This is useful when dealing with cross-origin issues on Flutter Web.
+  /// It is not guaranteed to work in all cases, depending on the target server.
+  /// Default: null
   final String? corsProxy;
 
   /// User agent to send as a GET header when requesting the preview data.
   ///
-  /// User-Agent to be used in the HTTP request to the link
-  /// Default: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+  /// Can be used to simulate requests from a browser or crawler.
+  /// Default:
+  /// `'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'`
   final String? userAgent;
 
-  /// Maximum time to wait for a preview request before timing out. Defaults to 5 seconds.
+  /// Maximum time to wait for a preview request before timing out.
+  ///
+  /// If the request takes longer than this duration, it will be aborted.
+  /// Default: null (defaults to 5 seconds internally)
   final Duration? requestTimeout;
 
-  /// Duration for the cache. Defaults to 24 hours.
+  /// Duration to cache the preview data.
+  ///
+  /// Prevents redundant network calls for the same link within the duration.
+  /// Default: `Duration(hours: 24)`
   final Duration? cacheDuration;
 
-  /// Callback triggered when preview data is fetched.
+  /// Callback triggered when preview data is successfully fetched.
+  ///
+  /// Can be used to handle side-effects like caching or logging.
+  /// Default: null
   final OnPreviewDataFetched? onPreviewDataFetched;
 
+  /// {@macro link_preview_builder}
   const LinkPreviewBuilder({
     super.key,
     required this.link,
@@ -59,7 +110,7 @@ class LinkPreviewBuilder extends StatefulWidget {
     this.userAgent,
     this.requestTimeout,
     this.onPreviewDataFetched,
-    this.cacheDuration = const Duration(hours: 24)
+    this.cacheDuration = const Duration(hours: 24),
   });
 
   @override

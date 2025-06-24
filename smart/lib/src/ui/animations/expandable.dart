@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// {@template expandable}
 /// A widget that provides an expandable/collapsible section with a header and content.
 ///
 /// The [Expandable] widget allows users to toggle between an expanded and collapsed state,
@@ -16,6 +17,8 @@ import 'package:flutter/material.dart';
 ///   borderRadius: BorderRadius.circular(12),
 /// )
 /// ```
+/// 
+/// {@endtemplate}
 class Expandable extends StatefulWidget {
   /// The widget displayed as the header (always visible).
   ///
@@ -69,6 +72,8 @@ class Expandable extends StatefulWidget {
   final EdgeInsetsGeometry? bodyPadding;
 
   /// Creates an instance of [Expandable].
+  /// 
+  /// {@macro expandable}
   const Expandable({
     super.key,
     required this.header,

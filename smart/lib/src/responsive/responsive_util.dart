@@ -1,12 +1,15 @@
 import 'package:flutter/widgets.dart';
 import 'package:smart/smart.dart';
 
+/// {@template responsive_util}
 /// A utility class for managing responsive breakpoints and screen properties.
 ///
 /// This class provides a convenient way to determine whether the current screen size
 /// is categorized as mobile, tablet, or desktop based on predefined breakpoints.
 /// Additionally, it provides access to other screen-related properties such as width,
 /// height, padding, and text scaling factor.
+/// 
+/// {@endtemplate}
 class ResponsiveUtil {
   late Size _size;
   ResponsiveConfig _config = ResponsiveConfig();
@@ -26,6 +29,8 @@ class ResponsiveUtil {
   ///   print('This is a mobile screen.');
   /// }
   /// ```
+  /// 
+  /// {@macro responsive_util}
   factory ResponsiveUtil(BuildContext context, {ResponsiveConfig? config}) {
     final instance = ResponsiveUtil._();
     instance._size = MediaQuery.sizeOf(context);

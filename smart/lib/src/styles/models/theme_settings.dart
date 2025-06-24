@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// {@template theme_settings}
 /// A class representing a set of theme settings for an application.
 ///
 /// This class provides properties for controlling various aspects of the theme,
@@ -12,6 +13,8 @@ import 'package:flutter/material.dart';
 ///   desired.
 /// * `style`: A catch-all text style that can be applied to various elements
 ///   where a consistent style is needed.
+/// 
+/// {@endtemplate}
 class ThemeSettings {
   /// The visual density of the application.
   final VisualDensity density;
@@ -28,5 +31,7 @@ class ThemeSettings {
   /// Creates a new instance of [ThemeSettings].
   ///
   /// All parameters are required.
+  /// 
+  /// {@macro theme_settings}
   ThemeSettings({required this.density, required this.text, required this.logo, required this.style});
 }

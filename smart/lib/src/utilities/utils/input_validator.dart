@@ -1,7 +1,12 @@
 import 'package:hapnium/hapnium.dart';
 
+/// {@template input_validator}
 /// A utility class for validating common user inputs such as email, text, and password.
+/// 
+/// {@endtemplate}
 class InputValidator {
+  InputValidator._();
+  
   /// Validates an email address.
   ///
   /// Users can customize the regex by adding a specific domain or modifying parts of the default pattern.

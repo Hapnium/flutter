@@ -11,6 +11,7 @@ import 'socket_interface.dart';
 import 'socket_notifier.dart';
 import '../../enums/socket_status.dart';
 
+/// {@template html_socket}
 /// A concrete WebSocket implementation for browser environments using `package:web`.
 ///
 /// This class manages a WebSocket connection in a web context, providing lifecycle
@@ -27,6 +28,8 @@ import '../../enums/socket_status.dart';
 /// ws.onMessage((msg) => print('Received: $msg'));
 /// ws.emit('chat', {'text': 'Hello'});
 /// ```
+/// 
+/// {@endtemplate}
 class BaseWebSocket extends SocketInterface {
   /// Underlying WebSocket instance from the `web` package.
   html.WebSocket? socket;
@@ -47,6 +50,8 @@ class BaseWebSocket extends SocketInterface {
   ///
   /// The [url] is automatically converted from HTTP(S) to WS(S).
   /// For example, `https://example.com` becomes `wss://example.com`.
+  /// 
+  /// {@macro html_socket}
   BaseWebSocket(
     super.url, {
     super.ping = const Duration(seconds: 5),
@@ -87,23 +92,23 @@ class BaseWebSocket extends SocketInterface {
       });
 
       socket!.onMessage.listen((event) {
-        socketNotifier!.notifyData(event.data);
+        socketNotifier!.tappyData(event.data);
       });
 
       socket!.onClose.listen((e) {
         _t?.cancel();
 
         connectionStatus = SocketStatus.closed;
-        socketNotifier!.notifyClose(SocketClose(e.reason, e.code));
+        socketNotifier!.tappyClose(SocketClose(e.reason, e.code));
       });
       socket!.onError.listen((event) {
         _t?.cancel();
-        socketNotifier!.notifyError(SocketClose(event.toString(), 0));
+        socketNotifier!.tappyError(SocketClose(event.toString(), 0));
         connectionStatus = SocketStatus.closed;
       });
     } on Exception catch (e) {
       _t?.cancel();
-      socketNotifier!.notifyError(SocketClose(e.toString(), 500));
+      socketNotifier!.tappyError(SocketClose(e.toString(), 500));
       connectionStatus = SocketStatus.closed;
       //  close(500, e.toString());
     }

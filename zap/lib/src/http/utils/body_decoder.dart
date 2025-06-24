@@ -3,6 +3,15 @@ import 'dart:convert';
 import '../../core/zap_inst.dart';
 import '../request/request.dart';
 
+/// Decodes the body of a request
+/// 
+/// Args:
+///   request: The request
+///   stringBody: The body of the request as a string
+///   mimeType: The mime type of the body
+/// 
+/// Returns:
+///   The decoded body
 T? bodyDecoded<T>(Request<T> request, String stringBody, String? mimeType) {
   T? body;
   dynamic bodyToDecode;

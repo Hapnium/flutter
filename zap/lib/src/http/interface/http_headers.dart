@@ -1,3 +1,6 @@
+// ignore_for_file: constant_identifier_names
+
+/// {@template http_headers}
 /// Headers for HTTP requests and responses.
 ///
 /// In some situations, headers are immutable:
@@ -25,249 +28,371 @@
 /// as the standard allows. In most cases a name holds only a single value,
 /// The most common mode of operation is to use `set()` for setting a value,
 /// and `value()` for retrieving a value.
+/// 
+/// {@endtemplate}
 abstract interface class HttpHeaders {
   /// The `accept` header.
-  static const acceptHeader = "accept";
+  /// 
+  /// Mostly used to specify the types of content that the client is able to process.
+  static const String ACCEPT = "accept";
 
   /// The `accept-charset` header.
-  static const acceptCharsetHeader = "accept-charset";
+  /// 
+  /// Mostly used to specify the character encodings that the client is able to process.
+  static const String ACCEPT_CHARSET = "accept-charset";
 
   /// The `accept-encoding` header.
-  static const acceptEncodingHeader = "accept-encoding";
+  /// 
+  /// Mostly used to specify the encoding that the client is able to process.
+  static const String ACCEPT_ENCODING = "accept-encoding";
 
   /// The `accept-language` header.
-  static const acceptLanguageHeader = "accept-language";
+  /// 
+  /// Mostly used to specify the language that the client is able to process.
+  static const String ACCEPT_LANGUAGE = "accept-language";
 
   /// The `accept-ranges` header.
-  static const acceptRangesHeader = "accept-ranges";
+  /// 
+  /// Mostly used to specify the range that the client is able to process.
+  static const String ACCEPT_RANGES = "accept-ranges";
 
   /// The `access-control-allow-credentials` header.
-  static const accessControlAllowCredentialsHeader = 'access-control-allow-credentials';
+  /// 
+  /// Mostly used to specify the credentials that the client is able to process.
+  static const String ACCESS_CONTROL_ALLOW_CREDENTIALS = 'access-control-allow-credentials';
 
   /// The `access-control-allow-headers` header.
-  static const accessControlAllowHeadersHeader = 'access-control-allow-headers';
+  /// 
+  /// Mostly used to specify the headers that the client is able to process.
+  static const String ACCESS_CONTROL_ALLOW_HEADERS = 'access-control-allow-headers';
 
   /// The `access-control-allow-methods` header.
-  static const accessControlAllowMethodsHeader = 'access-control-allow-methods';
+  /// 
+  /// Mostly used to specify the methods that the client is able to process.
+  static const String ACCESS_CONTROL_ALLOW_METHODS = 'access-control-allow-methods';
 
   /// The `access-control-allow-origin` header.
-  static const accessControlAllowOriginHeader = 'access-control-allow-origin';
+  /// 
+  /// Mostly used to specify the origin that the client is able to process.
+  static const String ACCESS_CONTROL_ALLOW_ORIGIN = 'access-control-allow-origin';
 
   /// The `access-control-expose-headers` header.
-  static const accessControlExposeHeadersHeader = 'access-control-expose-headers';
+  /// 
+  /// Mostly used to specify the headers that the client is able to process.
+  static const String ACCESS_CONTROL_EXPOSE_HEADERS = 'access-control-expose-headers';
 
   /// The `access-control-max-age` header.
-  static const accessControlMaxAgeHeader = 'access-control-max-age';
+  /// 
+  /// Mostly used to specify the max age that the client is able to process.
+  static const String ACCESS_CONTROL_MAX_AGE = 'access-control-max-age';
 
   /// The `access-control-request-headers` header.
-  static const accessControlRequestHeadersHeader = 'access-control-request-headers';
+  /// 
+  /// Mostly used to specify the headers that the client is able to process.
+  static const String ACCESS_CONTROL_REQUEST_HEADERS = 'access-control-request-headers';
 
   /// The `access-control-request-method` header.
-  static const accessControlRequestMethodHeader = 'access-control-request-method';
+  /// 
+  /// Mostly used to specify the methods that the client is able to process.
+  static const String ACCESS_CONTROL_REQUEST_METHOD = 'access-control-request-method';
 
   /// The `age` header.
-  static const ageHeader = "age";
+  /// 
+  /// Mostly used to specify the age that the client is able to process.
+  static const String AGE = "age";
 
   /// The `allow` header.
-  static const allowHeader = "allow";
+  /// 
+  /// Mostly used to specify the methods that the client is able to process.
+  static const String ALLOW = "allow";
 
   /// The `authorization` header.
-  static const authorizationHeader = "authorization";
+  /// 
+  /// Mostly used to specify the authorization that the client is able to process.
+  static const String AUTHORIZATION = "authorization";
 
   /// The `cache-control` header.
-  static const cacheControlHeader = "cache-control";
+  /// 
+  /// Mostly used to specify the cache control that the client is able to process.
+  static const String CACHE_CONTROL = "cache-control";
 
   /// The `connection` header.
-  static const connectionHeader = "connection";
+  /// 
+  /// Mostly used to specify the connection that the client is able to process.
+  static const String CONNECTION = "connection";
 
   /// The `content-encoding` header.
-  static const contentEncodingHeader = "content-encoding";
+  /// 
+  /// Mostly used to specify the encoding that the client is able to process.
+  static const String CONTENT_ENCODING = "content-encoding";
 
   /// The `content-language` header.
-  static const contentLanguageHeader = "content-language";
+  /// 
+  /// Mostly used to specify the language that the client is able to process.
+  static const String CONTENT_LANGUAGE = "content-language";
 
   /// The `content-length` header.
-  static const contentLengthHeader = "content-length";
+  /// 
+  /// Mostly used to specify the length that the client is able to process.
+  static const String CONTENT_LENGTH = "content-length";
 
   /// The `content-location` header.
-  static const contentLocationHeader = "content-location";
+  /// 
+  /// Mostly used to specify the location that the client is able to process.
+  static const String CONTENT_LOCATION = "content-location";
 
   /// The `content-md5` header.
-  static const contentMD5Header = "content-md5";
+  /// 
+  /// Mostly used to specify the md5 that the client is able to process.
+  static const String CONTENT_MD5 = "content-md5";
 
   /// The `content-range` header.
-  static const contentRangeHeader = "content-range";
+  /// 
+  /// Mostly used to specify the range that the client is able to process.
+  static const String CONTENT_RANGE = "content-range";
 
   /// The `content-type` header.
-  static const contentTypeHeader = "content-type";
+  /// 
+  /// Mostly used to specify the type that the client is able to process.
+  static const String CONTENT_TYPE = "content-type";
 
   /// The `date` header.
-  static const dateHeader = "date";
+  /// 
+  /// Mostly used to specify the date that the client is able to process.
+  static const String DATE = "date";
 
   /// The `etag` header.
-  static const etagHeader = "etag";
+  /// 
+  /// Mostly used to specify the etag that the client is able to process.
+  static const String ETAG = "etag";
 
   /// The `expect` header.
-  static const expectHeader = "expect";
+  /// 
+  /// Mostly used to specify the expect that the client is able to process.
+  static const String EXPECT = "expect";
 
   /// The `expires` header.
-  static const expiresHeader = "expires";
+  /// 
+  /// Mostly used to specify the expires that the client is able to process.
+  static const String EXPIRES = "expires";
 
   /// The `from` header.
-  static const fromHeader = "from";
+  /// 
+  /// Mostly used to specify the from that the client is able to process.
+  static const String FROM = "from";
 
   /// The `host` header.
-  static const hostHeader = "host";
+  /// 
+  /// Mostly used to specify the host that the client is able to process.
+  static const String HOST = "host";
 
   /// The `if-match` header.
-  static const ifMatchHeader = "if-match";
+  /// 
+  /// Mostly used to specify the match that the client is able to process.
+  static const String IF_MATCH = "if-match";
 
   /// The `if-modified-since` header.
-  static const ifModifiedSinceHeader = "if-modified-since";
+  /// 
+  /// Mostly used to specify the modified since that the client is able to process.
+  static const String IF_MODIFIED_SINCE = "if-modified-since";
 
   /// The `if-none-match` header.
-  static const ifNoneMatchHeader = "if-none-match";
+  /// 
+  /// Mostly used to specify the none match that the client is able to process.
+  static const String IF_NONE_MATCH = "if-none-match";
 
   /// The `if-range` header.
-  static const ifRangeHeader = "if-range";
+  /// 
+  /// Mostly used to specify the range that the client is able to process.
+  static const String IF_RANGE = "if-range";
 
   /// The `if-unmodified-since` header.
-  static const ifUnmodifiedSinceHeader = "if-unmodified-since";
+  /// 
+  /// Mostly used to specify the unmodified since that the client is able to process.
+  static const String IF_UNMODIFIED_SINCE = "if-unmodified-since";
 
   /// The `last-modified` header.
-  static const lastModifiedHeader = "last-modified";
+  /// 
+  /// Mostly used to specify the modified since that the client is able to process.
+  static const String LAST_MODIFIED = "last-modified";
 
   /// The `location` header.
-  static const locationHeader = "location";
+  /// 
+  /// Mostly used to specify the location that the client is able to process.
+  static const String LOCATION = "location";
 
   /// The `max-forwards` header.
-  static const maxForwardsHeader = "max-forwards";
+  /// 
+  /// Mostly used to specify the forwards that the client is able to process.
+  static const String MAX_FORWARDS = "max-forwards";
 
   /// The `pragma` header.
-  static const pragmaHeader = "pragma";
+  /// 
+  /// Mostly used to specify the pragma that the client is able to process.
+  static const String PRAGMA = "pragma";
 
   /// The `proxy-authenticate` header.
-  static const proxyAuthenticateHeader = "proxy-authenticate";
+  /// 
+  /// Mostly used to specify the authenticate that the client is able to process.
+  static const String PROXY_AUTHENTICATE = "proxy-authenticate";
 
   /// The `proxy-authorization` header.
-  static const proxyAuthorizationHeader = "proxy-authorization";
+  /// 
+  /// Mostly used to specify the authorization that the client is able to process.
+  static const String PROXY_AUTHORIZATION = "proxy-authorization";
 
   /// The `range` header.
-  static const rangeHeader = "range";
+  /// 
+  /// Mostly used to specify the range that the client is able to process.
+  static const String RANGE = "range";
 
   /// The `referer` header.
-  static const refererHeader = "referer";
+  /// 
+  /// Mostly used to specify the referer that the client is able to process.
+  static const String REFERER = "referer";
 
   /// The `retry-after` header.
-  static const retryAfterHeader = "retry-after";
+  /// 
+  /// Mostly used to specify the retry after that the client is able to process.
+  static const String RETRY_AFTER = "retry-after";
 
   /// The `server` header.
-  static const serverHeader = "server";
+  /// 
+  /// Mostly used to specify the server that the client is able to process.
+  static const String SERVER = "server";
 
   /// The `te` header.
-  static const teHeader = "te";
+  /// 
+  /// Mostly used to specify the te that the client is able to process.
+  static const String TE = "te";
 
   /// The `trailer` header.
-  static const trailerHeader = "trailer";
+  /// 
+  /// Mostly used to specify the trailer that the client is able to process.
+  static const String TRAILER = "trailer";
 
   /// The `transfer-encoding` header.
-  static const transferEncodingHeader = "transfer-encoding";
+  /// 
+  /// Mostly used to specify the transfer encoding that the client is able to process.
+  static const String TRANSFER_ENCODING = "transfer-encoding";
 
   /// The `upgrade` header.
-  static const upgradeHeader = "upgrade";
+  /// 
+  /// Mostly used to specify the upgrade that the client is able to process.
+  static const String UPGRADE = "upgrade";
 
   /// The `user-agent` header.
-  static const userAgentHeader = "user-agent";
+  /// 
+  /// Mostly used to specify the user agent that the client is able to process.
+  static const String USER_AGENT = "user-agent";
 
   /// The `vary` header.
-  static const varyHeader = "vary";
+  /// 
+  /// Mostly used to specify the vary that the client is able to process.
+  static const String VARY = "vary";
 
   /// The `via` header.
-  static const viaHeader = "via";
+  /// 
+  /// Mostly used to specify the via that the client is able to process.
+  static const String VIA = "via";
 
   /// The `warning` header.
-  static const warningHeader = "warning";
+  /// 
+  /// Mostly used to specify the warning that the client is able to process.
+  static const String WARNING = "warning";
 
   /// The `www-authenticate` header.
-  static const wwwAuthenticateHeader = "www-authenticate";
+  /// 
+  /// Mostly used to specify the authenticate that the client is able to process.
+  static const String WWW_AUTHENTICATE = "www-authenticate";
 
   /// The `content-disposition` header.
-  static const contentDisposition = "content-disposition";
+  /// 
+  /// Mostly used to specify the disposition that the client is able to process.
+  static const String CONTENT_DISPOSITION = "content-disposition";
 
   // Cookie headers from RFC 6265.
-  static const cookieHeader = "cookie";
-  static const setCookieHeader = "set-cookie";
+
+  /// The `cookie` header.
+  /// 
+  /// Mostly used to specify the cookie that the client is able to process.
+  static const String COOKIE = "cookie";
+
+  /// The `set-cookie` header.
+  /// 
+  /// Mostly used to specify the cookie that the client is able to process.
+  static const String SET_COOKIE = "set-cookie";
 
   /// The general headers.
   ///
   /// General headers are used in both requests and responses.
-  static const generalHeaders = [
-    cacheControlHeader,
-    connectionHeader,
-    dateHeader,
-    pragmaHeader,
-    trailerHeader,
-    transferEncodingHeader,
-    upgradeHeader,
-    viaHeader,
-    warningHeader
+  static const List<String> GENERAL = [
+    CACHE_CONTROL,
+    CONNECTION,
+    DATE,
+    PRAGMA,
+    TRAILER,
+    TRANSFER_ENCODING,
+    UPGRADE,
+    VIA,
+    WARNING
   ];
 
   /// The entity headers.
   ///
   /// Entity headers are used in both requests and responses.
-  static const entityHeaders = [
-    allowHeader,
-    contentEncodingHeader,
-    contentLanguageHeader,
-    contentLengthHeader,
-    contentLocationHeader,
-    contentMD5Header,
-    contentRangeHeader,
-    contentTypeHeader,
-    expiresHeader,
-    lastModifiedHeader
+  static const List<String> ENTITY = [
+    ALLOW,
+    CONTENT_ENCODING,
+    CONTENT_LANGUAGE,
+    CONTENT_LENGTH,
+    CONTENT_LOCATION,
+    CONTENT_MD5,
+    CONTENT_RANGE,
+    CONTENT_TYPE,
+    EXPIRES,
+    LAST_MODIFIED
   ];
 
   /// The response headers.
   ///
   /// Response headers are used in responses.
-  static const responseHeaders = [
-    acceptRangesHeader,
-    ageHeader,
-    etagHeader,
-    locationHeader,
-    proxyAuthenticateHeader,
-    retryAfterHeader,
-    serverHeader,
-    varyHeader,
-    wwwAuthenticateHeader,
-    contentDisposition
+  static const List<String> RESPONSE = [
+    ACCEPT_RANGES,
+    AGE,
+    ETAG,
+    LOCATION,
+    PROXY_AUTHENTICATE,
+    RETRY_AFTER,
+    SERVER,
+    VARY,
+    WWW_AUTHENTICATE,
+    CONTENT_DISPOSITION
   ];
 
   /// The request headers.
   ///
   /// Request headers are used in requests.
-  static const requestHeaders = [
-    acceptHeader,
-    acceptCharsetHeader,
-    acceptEncodingHeader,
-    acceptLanguageHeader,
-    authorizationHeader,
-    expectHeader,
-    fromHeader,
-    hostHeader,
-    ifMatchHeader,
-    ifModifiedSinceHeader,
-    ifNoneMatchHeader,
-    ifRangeHeader,
-    ifUnmodifiedSinceHeader,
-    maxForwardsHeader,
-    proxyAuthorizationHeader,
-    rangeHeader,
-    refererHeader,
-    teHeader,
-    userAgentHeader
+  static const List<String> REQUEST = [
+    ACCEPT,
+    ACCEPT_CHARSET,
+    ACCEPT_ENCODING,
+    ACCEPT_LANGUAGE,
+    AUTHORIZATION,
+    EXPECT,
+    FROM,
+    HOST,
+    IF_MATCH,
+    IF_MODIFIED_SINCE,
+    IF_NONE_MATCH,
+    IF_RANGE,
+    IF_UNMODIFIED_SINCE,
+    MAX_FORWARDS,
+    PROXY_AUTHORIZATION,
+    RANGE,
+    REFERER,
+    TE,
+    USER_AGENT
   ];
 
   /// The date specified by the [dateHeader] header, if any.

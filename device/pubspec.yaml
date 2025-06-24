@@ -5,7 +5,7 @@ description: >
 
 publish_to: none
 
-version: 0.2.3
+version: 0.2.4
 homepage: https://github.com/Hapnium/flutter/tree/main/device
 repository: https://github.com/Hapnium/flutter/tree/main/device
 
@@ -21,5 +21,3 @@ dependencies:
     path: ../tracing
   hapnium:
     path: ../hapnium
-  zap:
-    path: ../zap

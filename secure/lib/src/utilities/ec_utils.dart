@@ -6,8 +6,31 @@ import 'package:pointycastle/export.dart';
 import '../enums/pem_mode.dart';
 import 'pem.dart';
 
-/// Utility class for handling EC key encoding and decoding.
+/// {@template ec_utils}
+/// A utility class for handling Elliptic Curve (EC) key operations including:
+/// - Encoding and decoding EC public and private keys to/from PEM format
+/// - Deriving AES keys from shared secrets
+/// - Generating shared secrets from EC key agreements
+///
+/// This class supports working with EC keys in secure messaging and key exchange protocols.
+///
+/// Example usage:
+/// ```dart
+/// // Generate shared secret
+/// final point = ECUtils.parameters.curve.decodePoint(publicKeyBytes)!;
+/// final secret = ECUtils.getSharedSecret(point, privateKey.d);
+///
+/// // Derive AES key
+/// final aesKey = ECUtils.deriveAesKey(point.getEncoded(), secret);
+/// ```
+/// {@endtemplate}
 class ECUtils {
+  /// {@macro ec_utils}
+  ECUtils._();
+  
+  /// The elliptic curve domain parameters used for all key operations.
+  ///
+  /// Default: `ECCurve_secp128r1()`, which is a 128-bit curve recommended for constrained environments.
   static ECDomainParameters parameters = ECCurve_secp128r1();
 
   /// Encodes an [ECPublicKey] to PEM format.
@@ -89,8 +112,32 @@ class ECUtils {
     return ECPrivateKey(modulus, parameters);
   }
 
+  /// Generates a shared secret between a local private key and a remote public point.
+  ///
+  /// [point]: The remote party's EC point (usually their public key).
+  /// [key]: The local private scalar `d` used to multiply the point.
+  ///
+  /// Returns: A shared secret as a `Uint8List`, suitable for key derivation.
+  ///
+  /// Example:
+  /// ```dart
+  /// final secret = ECUtils.getSharedSecret(remotePoint, privateKey.d);
+  /// ```
   static Uint8List getSharedSecret(ECPoint point, BigInt? key) => (point * key)!.getEncoded(false);
 
+  /// Derives a 256-bit AES key from the ephemeral public key and the shared secret.
+  ///
+  /// [ephPublicKey]: The sender’s ephemeral public key (encoded).
+  /// [sharedSecret]: The shared secret derived from key agreement.
+  ///
+  /// Returns: A derived AES key as a `Uint8List` of 32 bytes.
+  ///
+  /// Uses HKDF with SHA-256 for key derivation.
+  ///
+  /// Example:
+  /// ```dart
+  /// final aesKey = ECUtils.deriveAesKey(ephPub, sharedSecret);
+  /// ```
   static Uint8List deriveAesKey(Uint8List ephPublicKey, Uint8List sharedSecret) {
     Uint8List input = Uint8List.fromList(ephPublicKey + sharedSecret);
     Uint8List aesKey = Uint8List(32);

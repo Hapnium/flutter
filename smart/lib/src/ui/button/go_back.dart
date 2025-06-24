@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smart/utilities.dart'; // Assuming Utilities contains Sizing class
 
+/// {@template go_back}
 /// A reusable IconButton for navigating back.
 /// 
 /// This widget provides a convenient way to add a back button to your screens 
@@ -25,7 +26,8 @@ import 'package:smart/utilities.dart'; // Assuming Utilities contains Sizing cla
 /// * **selectedIcon:** The icon to display when the button is selected.
 /// * **defaultIcon:** The default icon to display.
 /// * **result:** The data to be passed to the previous route when popping.
-///
+/// 
+/// {@endtemplate}
 class GoBack<T> extends StatelessWidget {
   /// An optional callback function that will be executed when the button is pressed.
   /// 
@@ -77,6 +79,9 @@ class GoBack<T> extends StatelessWidget {
   /// The data to be passed to the previous route when popping.
   final T? result;
 
+  /// Creates a [GoBack] widget.
+  /// 
+  /// {@macro go_back}
   const GoBack({
     super.key,
     this.onTap,

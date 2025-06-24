@@ -1,5 +1,6 @@
 import '../enums/exception_type.dart';
 
+/// {@template zap_exception}
 /// A comprehensive exception thrown by ZapClient during HTTP operations.
 ///
 /// The [ZapException] class represents a unified structure for handling all errors
@@ -9,6 +10,8 @@ import '../enums/exception_type.dart';
 ///
 /// Inspired by structured error models in frameworks like Spring Boot, this class
 /// promotes consistent error categorization and better error-handling workflows.
+/// 
+/// {@endtemplate}
 class ZapException implements Exception {
   /// A human-readable description of the error.
   final String message;
@@ -34,6 +37,8 @@ class ZapException implements Exception {
   /// Main constructor for [ZapException].
   ///
   /// Use this when constructing exceptions directly or from custom handlers.
+  /// 
+  /// {@macro zap_exception}
   ZapException(
     this.message, [
     this.uri,
@@ -45,42 +50,62 @@ class ZapException implements Exception {
   ]);
 
   /// Creates a timeout-related exception.
+  /// 
+  /// {@macro zap_exception}
   ZapException.timeout(String message, [Uri? uri, Map<String, dynamic>? details])
       : this(message, uri, ExceptionType.timeout, null, details);
 
   /// Creates a network failure exception (e.g., no internet).
+  /// 
+  /// {@macro zap_exception}
   ZapException.network(String message, [Uri? uri, Map<String, dynamic>? details])
       : this(message, uri, ExceptionType.network, null, details);
 
   /// Creates an exception for server-side errors (HTTP 5xx).
+  /// 
+  /// {@macro zap_exception}
   ZapException.server(String message, int statusCode, [Uri? uri, Map<String, dynamic>? details])
       : this(message, uri, ExceptionType.server, statusCode, details);
 
   /// Creates an exception for client-side errors (HTTP 4xx).
+  /// 
+  /// {@macro zap_exception}
   ZapException.client(String message, int statusCode, [Uri? uri, Map<String, dynamic>? details])
       : this(message, uri, ExceptionType.client, statusCode, details);
 
   /// Creates an authentication or authorization failure exception.
+  /// 
+  /// {@macro zap_exception}
   ZapException.auth(String message, [Uri? uri, int? statusCode, Map<String, dynamic>? details])
       : this(message, uri, ExceptionType.auth, statusCode, details);
 
   /// Creates an exception for cancelled requests (e.g., manually aborted).
+  /// 
+  /// {@macro zap_exception}
   ZapException.cancelled(String message, [Uri? uri, Map<String, dynamic>? details])
       : this(message, uri, ExceptionType.cancelled, null, details);
 
   /// Creates an SSL handshake or certificate failure exception.
+  /// 
+  /// {@macro zap_exception}
   ZapException.ssl(String message, [Uri? uri, Map<String, dynamic>? details])
       : this(message, uri, ExceptionType.ssl, null, details);
 
   /// Creates a connection failure exception (e.g., socket issues).
+  /// 
+  /// {@macro zap_exception}
   ZapException.connection(String message, [Uri? uri, Map<String, dynamic>? details])
       : this(message, uri, ExceptionType.connection, null, details);
 
   /// Creates a DNS resolution failure exception.
+  /// 
+  /// {@macro zap_exception}
   ZapException.dns(String message, [Uri? uri, Map<String, dynamic>? details])
       : this(message, uri, ExceptionType.dns, null, details);
 
   /// Creates an exception related to parsing the response body.
+  /// 
+  /// {@macro zap_exception}
   ZapException.parsing(String message, [Uri? uri, Map<String, dynamic>? details])
       : this(message, uri, ExceptionType.parsing, null, details);
 

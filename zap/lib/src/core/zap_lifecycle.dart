@@ -1,8 +1,11 @@
 import 'package:flutter/foundation.dart' show nonVirtual;
 import 'package:flutter/widgets.dart' show WidgetsBinding, WidgetsFlutterBinding, protected, mustCallSuper;
 
+/// {@template zap_lifecycle}
 /// The [ZapLifecycle]
-///
+/// 
+/// This mixin provides a simple way to manage the lifecycle of a controller.
+/// 
 /// ```dart
 /// class SomeController with ZapLifecycle {
 ///   SomeController() {
@@ -10,6 +13,8 @@ import 'package:flutter/widgets.dart' show WidgetsBinding, WidgetsFlutterBinding
 ///   }
 /// }
 /// ```
+/// 
+/// {@endtemplate}
 mixin ZapLifecycle {
   /// Called immediately after the widget is allocated in memory.
   /// You might use this to initialize something for the controller.

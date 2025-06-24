@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:smart/smart.dart';
 
+/// {@template line_header}
 /// A widget that displays a header with an optional footer and an underline.
 ///
 /// This widget displays a header text followed by an optional footer text and
 /// an underline. It provides options for customizing the appearance of the
 /// header, footer, and underline.
+/// 
+/// {@endtemplate}
 class LineHeader extends StatelessWidget {
   /// The main header text to be displayed.
   final String header;
@@ -34,6 +37,8 @@ class LineHeader extends StatelessWidget {
   /// This widget displays a header text followed by an optional footer text and
   /// an underline. It provides options for customizing the appearance of the
   /// header, footer, and underline.
+  /// 
+  /// {@macro line_header}
   const LineHeader({
     super.key,
     required this.header,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../smart.dart';
 
+/// {@template social_media_connect}
 /// A customizable widget for displaying social media connection buttons.
 ///
 /// This widget allows you to display a set of social media icons with a title. The icons are arranged in a
@@ -29,6 +30,8 @@ import '../../../../smart.dart';
 /// - **[wrapCrossAxisAlignment]**: Cross-axis alignment of the icons in the wrap.
 /// - **[onSocialClicked]**: The callback function to be triggered when a social media icon is clicked.
 ///   It receives the social media path as a parameter.
+/// 
+/// {@endtemplate}
 class SocialMediaConnect extends StatelessWidget {
   /// Determines whether the widget should be centered on the screen.
   final Boolean isCentered;
@@ -94,24 +97,8 @@ class SocialMediaConnect extends StatelessWidget {
   /// Creates a [SocialMediaConnect] widget.
   ///
   /// All parameters are optional, and if not provided, default values will be used.
-  ///
-  /// - [isCentered] centers the widget if true. Defaults to false.
-  /// - [domain] can be used to specify the domain for social media links.
-  /// - [padding] provides padding around the entire widget.
-  /// - [iconPadding] defines padding for each icon.
-  /// - [titleTextSize] allows setting the font size for the title.
-  /// - [titleTextColor] sets the title text color.
-  /// - [socialAssetWidth] controls the width of the social media icons.
-  /// - [socialAssetHeight] controls the height of the social media icons.
-  /// - [socialAssetColor] sets the color for the social media icons.
-  /// - [iconSplashSize] defines the splash size for icon presses.
-  /// - [spacing] sets the horizontal spacing between icons.
-  /// - [runSpacing] sets the vertical spacing between icons.
-  /// - [title] allows setting the title text.
-  /// - [mainAxisAlignment] and [crossAxisAlignment] control the layout.
-  /// - [alignment] and [runAlignment] customize the wrap's alignment.
-  /// - [wrapCrossAxisAlignment] adjusts the cross-axis alignment of the wrap.
-  /// - [onSocialClicked] specifies the callback for social media icon clicks.
+  /// 
+  /// {@macro social_media_connect}
   const SocialMediaConnect({
     super.key,
     this.isCentered = false,

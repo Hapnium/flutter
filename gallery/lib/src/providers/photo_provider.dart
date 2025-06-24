@@ -1,18 +1,35 @@
 part of '../gallery.dart';
 
-/// Fetches the given image from the gallery.
+/// {@template photo_provider}
+/// An [ImageProvider] that loads the full-resolution image
+/// for a given media item in the gallery.
+///
+/// Typically used to render a photo after user selection.
+///
+/// ### Example usage:
+/// ```dart
+/// Image(
+///   image: PhotoProvider(
+///     mediumId: '67890',
+///     mimeType: 'image/jpeg',
+///   ),
+/// )
+/// ```
+/// {@endtemplate}
 class PhotoProvider extends ImageProvider<PhotoProvider> {
-  /// ImageProvider of photo
+  /// The unique ID of the media item.
+  final String mediumId;
+
+  /// Optional MIME type of the image (e.g., `image/jpeg`).
+  ///
+  /// Default: `null`
+  final String? mimeType;
+
+  /// {@macro photo_provider}
   PhotoProvider({
     required this.mediumId,
     this.mimeType,
   });
-
-  /// Medium id
-  final String mediumId;
-
-  /// Mime type
-  final String? mimeType;
 
   @override
   ImageStreamCompleter loadImage(key, decode) {

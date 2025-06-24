@@ -3,10 +3,35 @@ import 'package:tracing/tracing.dart';
 
 import '../models/link_preview_data.dart';
 
-/// A customizable cache manager for [LinkPreviewData].
+/// {@template cache_manager}
+/// An abstract base class that defines a customizable cache mechanism for [LinkPreviewData].
 ///
-/// Subclasses can override how the data is stored (e.g., local memory, database, network),
-/// but the core logic around validation and cleanup is handled here.
+/// Designed for extensibility, you can implement your own cache manager that persists
+/// data using memory, database, disk, or even cloud storage. This class ensures that
+/// validation and expiration checks are handled before returning any cached data.
+///
+/// Example:
+/// ```dart
+/// class InMemoryCacheManager extends CacheManager {
+///   final _cache = <String, LinkPreviewData>{};
+///
+///   @override
+///   Future<void> store(String key, LinkPreviewData value) async {
+///     _cache[key] = value;
+///   }
+///
+///   @override
+///   Future<LinkPreviewData?> retrieve(String key) async {
+///     return _cache[key];
+///   }
+///
+///   @override
+///   Future<void> remove(String key) async {
+///     _cache.remove(key);
+///   }
+/// }
+/// ```
+/// {@endtemplate}
 abstract class CacheManager {
   /// Stores a [LinkPreviewData] object with the given [key].
   ///

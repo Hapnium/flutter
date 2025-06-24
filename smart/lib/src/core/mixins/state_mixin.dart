@@ -148,14 +148,14 @@
 //     return _value;
 //   }
 //
-//   void _notify() {
+//   void _tappy() {
 //     refresh();
 //   }
 //
 //   set value(T newValue) {
 //     if (_value == newValue) return;
 //     _value = newValue;
-//     _notify();
+//     _tappy();
 //   }
 //
 //   T? call([T? v]) {

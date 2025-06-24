@@ -12,7 +12,7 @@ import 'extensions/string_extension_test.dart' as string_extension_test;
 
 import 'utils/instance_test.dart' as instance_test;
 import 'utils/json_utils_test.dart' as json_utils_test;
-import 'utils/type_utils_test.dart' as type_utils_test;
+import 'utils/regex_utils_test.dart' as regex_utils_test;
 
 void main() {
   optional_test.main();
@@ -29,5 +29,5 @@ void main() {
 
   instance_test.main();
   json_utils_test.main();
-  type_utils_test.main();
+  regex_utils_test.main();
 }

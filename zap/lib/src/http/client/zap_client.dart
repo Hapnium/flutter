@@ -27,6 +27,8 @@ part 'client_handler_extension.dart';
 /// - [response]: The raw HTTP response.
 typedef ResponseInterceptor<T> = Future<Response<T>?> Function(Request<T> request, Type targetType, HttpClientResponse response);
 
+/// {@template zap_client}
+/// 
 /// The core HTTP client used to configure and send HTTP requests.
 ///
 /// [ZapClient] provides a customizable interface for sending HTTP requests
@@ -44,6 +46,7 @@ typedef ResponseInterceptor<T> = Future<Response<T>?> Function(Request<T> reques
 ///   timeout: Duration(seconds: 10),
 /// );
 /// ```
+/// {@endtemplate}
 class ZapClient {
   /// The user agent string to send with each request.
   ///
@@ -152,6 +155,8 @@ class ZapClient {
   ///
   /// ### Returns:
   /// A new, fully configured instance of [ZapClient].
+  /// 
+  /// {@macro zap_client}
   ZapClient({
     this.userAgent = 'hapx-client',
     this.timeout = const Duration(seconds: 8),

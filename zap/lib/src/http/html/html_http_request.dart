@@ -20,9 +20,14 @@ import '../interface/http_request_interface.dart';
 import '../utils/body_decoder.dart';
 import '../utils/http_status.dart';
 
+/// {@template html_http_request}
 /// A `dart:web` implementation of [HttpRequestInterface] with comprehensive error handling.
+/// 
+/// {@endtemplate}
 class HttpRequestImplementation implements HttpRequestInterface {
   /// Creates a [HttpRequestImplementation]
+  /// 
+  /// {@macro html_http_request}
   HttpRequestImplementation({
     bool allowAutoSignedCert = true,
     List<ZapTrustedCertificate>? trustedCertificates,

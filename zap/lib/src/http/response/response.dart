@@ -3,6 +3,7 @@ import '../../enums/zap_provider.dart';
 import '../request/request.dart';
 import '../utils/http_status.dart';
 
+/// {@template response}
 /// A class that encapsulates an HTTP response, including the decoded body,
 /// headers, status code, and raw response data.
 ///
@@ -20,6 +21,8 @@ import '../utils/http_status.dart';
 ///   // Use response.body
 /// }
 /// ```
+/// 
+/// {@endtemplate}
 class Response<T> {
   /// The original request that triggered this response.
   ///
@@ -65,6 +68,8 @@ class Response<T> {
   /// Constructs a new [Response] with the given fields.
   ///
   /// If [message] is not provided, it will default to the status description.
+  /// 
+  /// {@macro response}
   Response({
     this.request,
     required this.status,

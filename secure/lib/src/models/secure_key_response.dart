@@ -1,6 +1,9 @@
+/// {@template secure_key_response}
 /// Represents a secure key pair (public and private keys).
 ///
 /// This class provides methods for serializing and deserializing the key pair.
+/// 
+/// {@endtemplate}
 class SecureKeyResponse {
   /// The public key.
   final String publicKey;
@@ -12,6 +15,8 @@ class SecureKeyResponse {
   ///
   /// - [publicKey]: The public key.
   /// - [privateKey]: The private key.
+  /// 
+  /// {@macro secure_key_response}
   SecureKeyResponse({
     required this.publicKey,
     required this.privateKey,

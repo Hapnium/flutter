@@ -13,6 +13,15 @@ void main() {
         expect(Instance.of<Map<String, dynamic>>({"key": "value"}), isTrue);
       });
 
+      test('should return true when value is of type T', () {
+        expect(Instance.isType("Hello", String), isTrue);
+        expect(Instance.isType(42, int), isTrue);
+        expect(Instance.isType(3.14, double), isTrue);
+        expect(Instance.isType(true, Map), isFalse);
+        expect(Instance.isType([1, 2, 3], List<int>), isTrue);
+        expect(Instance.isType({"key": "value"}, Map<String, String>), isTrue);
+      });
+
       test('should return false when value is not of type T', () {
         expect(Instance.of<String>(42), isFalse);
         expect(Instance.of<int>(3.14), isFalse);
@@ -90,6 +99,51 @@ void main() {
         expect(Instance.nullable<String>("Hello"), isFalse);
         expect(Instance.nullable<int>(42), isFalse);
       });
+    });
+  });
+  group('valueOf', () {
+    test('should convert various types to strings', () {
+      expect(Instance.valueOf(100), '100');
+      expect(Instance.valueOf(3.14), '3.14');
+      expect(Instance.valueOf(true), 'true');
+      expect(Instance.valueOf(false), 'false');
+      expect(Instance.valueOf([1, 2, 3]), '[1, 2, 3]');
+      expect(Instance.valueOf({'a': 1, 'b': 2}), '{a: 1, b: 2}');
+      expect(Instance.valueOf(null), 'null');
+    });
+  });
+
+  group('toBoolean', () {
+    test('should convert strings to booleans', () {
+      expect(Instance.toBoolean("true"), isTrue);
+      expect(Instance.toBoolean("TRUE"), isTrue); // Case-insensitive
+      expect(Instance.toBoolean("  true  "), isTrue); // Trimmed
+      expect(Instance.toBoolean("false"), isFalse);
+      expect(Instance.toBoolean("FALSE"), isFalse); // Case-insensitive
+      expect(Instance.toBoolean("  false  "), isFalse); // Trimmed
+      expect(Instance.toBoolean("anything else"), isFalse); // Invalid string
+    });
+
+    test('should convert integers to booleans', () {
+      expect(Instance.toBoolean(1), isTrue);
+      expect(Instance.toBoolean(0), isFalse);
+      expect(Instance.toBoolean(-1), isFalse); // Anything other than 1 is false
+      expect(Instance.toBoolean(2), isFalse);
+    });
+
+    test('should return the boolean value itself', () {
+      expect(Instance.toBoolean(true), isTrue);
+      expect(Instance.toBoolean(false), isFalse);
+    });
+
+    test('should return false for other types', () {
+      expect(Instance.toBoolean(3.14), isFalse);
+      expect(Instance.toBoolean([1, 2, 3]), isFalse);
+      expect(Instance.toBoolean({'a': 1}), isFalse);
+    });
+
+    test('should handle null values', () {
+      expect(Instance.toBoolean(null), isFalse);
     });
   });
 }

@@ -1,7 +1,10 @@
 import '../definitions.dart';
 import '../enums/socket_type.dart';
 
+/// {@template zync_response}
 /// Represents a message response from the WebSocket connection.
+/// 
+/// {@endtemplate}
 class ZyncResponse {
   /// The event type or command.
   final SocketType? type;
@@ -24,6 +27,9 @@ class ZyncResponse {
   /// Timestamp when the message was received.
   final DateTime timestamp;
 
+  /// Creates a new instance of [ZyncResponse].
+  /// 
+  /// {@macro zync_response}
   ZyncResponse({
     this.type,
     this.headers,

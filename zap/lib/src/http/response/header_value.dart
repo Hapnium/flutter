@@ -2,12 +2,25 @@ import 'dart:collection';
 
 import '../../definitions.dart';
 
+/// {@template header_value}
 /// The header value
 /// 
 /// This is used to parse and handle the header value
+/// 
+/// Example:
+/// ```dart
+/// final headerValue = HeaderValue.parse('text/html; charset=utf-8');
+/// ```
+/// 
+/// {@endtemplate}
 class HeaderValue {
+  /// The value of the header
   String _value;
+
+  /// The parameters of the header value
   Map<String, String?>? _parameters;
+
+  /// The unmodifiable parameters of the header value
   Map<String, String?>? _unmodifiableParameters;
 
   /// Create a [HeaderValue]
@@ -15,6 +28,8 @@ class HeaderValue {
   /// Args:
   ///   value: The header value
   ///   parameters: The parameters of the header value
+  /// 
+  /// {@macro header_value}
   HeaderValue([this._value = '', Headers? parameters]) {
     if (parameters != null) {
       _parameters = HashMap<String, String>.from(parameters);
@@ -28,6 +43,8 @@ class HeaderValue {
   ///   parameterSeparator: The separator of parameters
   ///   valueSeparator: The separator of values
   ///   preserveBackslash: When true, the backslash will be preserved
+  /// 
+  /// {@macro header_value}
   static HeaderValue parse(String value, {
     String parameterSeparator = ';',
     String? valueSeparator,

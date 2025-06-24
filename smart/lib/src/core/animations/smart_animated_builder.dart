@@ -2,19 +2,71 @@ import 'package:flutter/material.dart';
 
 import 'animations.dart';
 
+/// {@template smart_animated_builder}
+/// A generic, reusable animation widget that wraps `AnimatedBuilder` with
+/// support for delayed start, idle values before animation, optional lifecycle
+/// callbacks, and curve customization.
+///
+/// The `SmartAnimatedBuilder` starts the animation after a specified [delay],
+/// then interpolates a [Tween] over the given [duration]. It also allows
+/// specifying an [idleValue] that is used before the animation starts.
+///
+/// ### Features
+/// - Delayed animation start via [delay]
+/// - Pre-animation idle value rendering
+/// - Optional [onStart] and [onComplete] lifecycle hooks
+/// - Curve control via [curve]
+/// - Child composition support
+/// - Built-in support for animation subclasses like `FadeInAnimation`
+///
+/// ### Example:
+/// ```dart
+/// SmartAnimatedBuilder<double>(
+///   delay: Duration(milliseconds: 300),
+///   duration: Duration(milliseconds: 800),
+///   idleValue: 0.0,
+///   tween: Tween(begin: 0.0, end: 1.0),
+///   builder: (context, value, child) {
+///     return Opacity(opacity: value, child: child);
+///   },
+///   child: Text('Hello World'),
+/// )
+/// ```
+/// {@endtemplate}
 class SmartAnimatedBuilder<T> extends StatefulWidget {
+  /// The duration of the animation.
   final Duration duration;
+
+  /// The delay before the animation starts.
   final Duration delay;
+
+  /// A static child widget passed to the builder.
   final Widget child;
+
+  /// Callback triggered when the animation completes.
   final ValueSetter<AnimationController>? onComplete;
+
+  /// Callback triggered when the animation starts.
   final ValueSetter<AnimationController>? onStart;
+
+  /// The tween used to interpolate values of type [T].
   final Tween<T> tween;
+
+  /// The value to show before the animation starts.
   final T idleValue;
+
+  /// The builder function that receives the interpolated value.
   final ValueWidgetBuilder<T> builder;
+
+  /// The curve applied to the tween animation.
   final Curve curve;
 
+  /// Combined total time (delay + duration).
   Duration get totalDuration => duration + delay;
 
+  /// Creates a [SmartAnimatedBuilder].
+  /// 
+  /// {@macro smart_animated_builder}
   const SmartAnimatedBuilder({
     super.key,
     this.curve = Curves.linear,
@@ -27,12 +79,12 @@ class SmartAnimatedBuilder<T> extends StatefulWidget {
     required this.child,
     required this.delay,
   });
+
   @override
   SmartAnimatedBuilderState<T> createState() => SmartAnimatedBuilderState<T>();
 }
 
-class SmartAnimatedBuilderState<T> extends State<SmartAnimatedBuilder<T>>
-    with SingleTickerProviderStateMixin {
+class SmartAnimatedBuilderState<T> extends State<SmartAnimatedBuilder<T>> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<T> _animation;
 

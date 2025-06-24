@@ -4,6 +4,7 @@ import 'package:hapnium/hapnium.dart';
 
 import '../export.dart';
 
+/// {@template base_stacked_avatars}
 /// A widget that displays a list of avatars in a stacked format.
 ///
 /// - Supports displaying up to 3 avatars side-by-side with overlapping positions.
@@ -11,6 +12,8 @@ import '../export.dart';
 /// - Allows full customization of avatar appearance and badge display.
 ///
 /// - [T] is the type of data for the avatars.
+/// 
+/// {@endtemplate}
 abstract class BaseStackedAvatars<T> extends StatelessWidget {
   /// List of avatar items to display.
   final List<T> avatars;
@@ -58,6 +61,9 @@ abstract class BaseStackedAvatars<T> extends StatelessWidget {
   /// Defaults to true
   final bool showRemainingCount;
 
+  /// Creates a [BaseStackedAvatars] widget.
+  /// 
+  /// {@macro base_stacked_avatars}
   const BaseStackedAvatars({
     super.key,
     required this.avatars,

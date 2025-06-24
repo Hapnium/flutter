@@ -11,9 +11,9 @@ void defaultLogWriterCallback(String value, {bool isError = false}) {
   if(Smart.isLogEnable) {
     if(Smart.usePrettyLog) {
       if(isError) {
-        console.error(value, from: "SMART");
+        console.error(value, tag: "SMART");
       } else {
-        console.debug(value, from: "SMART");
+        console.debug(value, tag: "SMART");
       }
     } else {
       developer.log(value, name: 'SMART');

@@ -2,6 +2,7 @@ import '../../enums/socket_type.dart';
 import '../../exceptions/zap_exception.dart';
 import 'socket_notifier.dart';
 
+/// {@template socket_interface}
 /// An abstract interface for WebSocket connections.
 ///
 /// This class defines the structure for socket implementations that work with
@@ -12,6 +13,8 @@ import 'socket_notifier.dart';
 /// 
 /// Example implementations could use `WebSocket` from `dart:io` (server/native)
 /// or `WebSocket` from `dart:html` (browser).
+/// 
+/// {@endtemplate}
 abstract class SocketInterface {
   /// The WebSocket URL to connect to.
   String url;
@@ -34,6 +37,8 @@ abstract class SocketInterface {
   /// - [url]: The WebSocket server URL.
   /// - [ping]: Optional ping interval.
   /// - [allowSelfSigned]: Whether to allow insecure certificates (default is true).
+  /// 
+  /// {@macro socket_interface}
   SocketInterface(
     this.url, {
     this.ping = const Duration(seconds: 5),

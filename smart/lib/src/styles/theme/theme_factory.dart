@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import '../models/theme_settings.dart';
 import '../../enums/ui/font_family.dart';
 
+/// {@template theme_factory}
 /// An abstract class that provides methods to generate themes and text styles.
 ///
 /// This class allows developers to create both light and dark themes, as well
 /// as define text themes using custom fonts, Google Fonts, or built-in package fonts.
+/// 
+/// {@endtemplate}
 abstract class ThemeFactory {
   /// Generates a [TextStyle] using the given [fontFamily].
   ///

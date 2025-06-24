@@ -1,3 +1,4 @@
+/// {@template zap_page}
 /// A generic helper class to represent paginated response data from a server.
 ///
 /// This class is useful when dealing with APIs that return paginated results,
@@ -13,6 +14,8 @@
 ///   limit: 10,
 /// );
 /// ```
+/// 
+/// {@endtemplate}
 class ZapPage<T> {
   /// The list of items returned for the current page.
   ///
@@ -42,6 +45,8 @@ class ZapPage<T> {
   /// - [total]: The total number of items available.
   /// - [page]: The current page index (starting at 1).
   /// - [limit]: The maximum number of items per page.
+  /// 
+  /// {@macro zap_page}
   const ZapPage({
     required this.data,
     required this.total,

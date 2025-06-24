@@ -7,6 +7,7 @@ import 'package:tracing/tracing.dart';
 
 import '../export.dart';
 
+/// {@template base_avatar}
 /// A base class for creating circular avatars with customizable appearance and behavior.
 ///
 /// This abstract class provides a foundation for building various types of avatars,
@@ -20,6 +21,8 @@ import '../export.dart';
 /// * **Click ability:** Define an `onClick` callback for user interactions.
 /// * **Theming:** Adapt to the current theme with `isLightTheme`.
 /// * **Logging:** Enable/disable logging for image loading errors.
+/// 
+/// {@endtemplate}
 abstract class BaseAvatar extends StatelessWidget {
   /// The size of the avatar, expressed as the radius (half the diameter).
   ///
@@ -142,6 +145,8 @@ abstract class BaseAvatar extends StatelessWidget {
   final ImageDecorationBuilder? foregroundImageDecorationBuilder;
 
   /// Constructor for `BaseAvatar`. The `foregroundImageBuilder` is required for extensions.
+  /// 
+  /// {@macro base_avatar}
   const BaseAvatar({
     super.key,
     this.foregroundImageBuilder,
@@ -181,7 +186,7 @@ abstract class BaseAvatar extends StatelessWidget {
     final ImageProvider? foreground = foregroundImageBuilder.isNotNull ? foregroundImageBuilder!(context, fallback) : null;
     final ImageErrorListener foregroundError = onForegroundImageError ?? (Object exception, StackTrace? stackTrace) {
       if (showLogs) {
-        console.log("${exception} || ${stackTrace}", from: "[BASE AVATAR - onForegroundImageError]");
+        console.log("${exception} || ${stackTrace}", tag: "[BASE AVATAR - onForegroundImageError]");
       }
     };
 
@@ -189,7 +194,7 @@ abstract class BaseAvatar extends StatelessWidget {
     final ImageProvider? background = backgroundImageBuilder.isNotNull ? backgroundImageBuilder!(context, fallback) : null;
     final ImageErrorListener? backgroundError = background.isNotNull ? onBackgroundImageError ?? (Object exception, StackTrace? stackTrace) {
       if (showLogs) {
-        console.log("${exception} || ${stackTrace}", from: "[BASE AVATAR - onBackgroundImageError]");
+        console.log("${exception} || ${stackTrace}", tag: "[BASE AVATAR - onBackgroundImageError]");
       }
     } : null;
 

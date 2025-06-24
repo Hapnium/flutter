@@ -31,7 +31,6 @@ void main() {
     });
 
     test('toAudioTimer and toTimeUnit', () {
-      expect(5.toAudioTimer, equals('05')); // Deprecated
       expect(12.toTimeUnit(), equals('12'));
       expect(3.toTimeUnit(), equals('03'));
     });

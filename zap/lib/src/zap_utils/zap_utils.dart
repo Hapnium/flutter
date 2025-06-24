@@ -9,12 +9,16 @@ import '../http/utils/http_status.dart';
 import '../core/zap.dart';
 import '../core/zap_interface.dart';
 
+/// {@template zap_utils}
 /// Utility class providing helper methods for interacting with external APIs,
 /// including image fetching, IP address retrieval, and Google Maps distance matrix calculations.
 /// 
 /// This class uses Zap HTTP client for all network requests, providing consistent
 /// error handling, logging, and configuration across the application.
+/// 
+/// {@endtemplate}
 final class ZapUtils {
+  /// {@macro zap_utils}
   /// Singleton instance of the [ZapUtils] class
   static final ZapUtils _instance = ZapUtils._internal();
 

@@ -27,6 +27,5 @@ class RestorableCameraController extends RestorableValue<CameraController> {
   
   @override
   void didUpdateValue(CameraController? oldValue) {
-    // TODO: implement didUpdateValue
   }
 }

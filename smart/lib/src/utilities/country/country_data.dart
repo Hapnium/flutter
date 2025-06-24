@@ -1,8 +1,17 @@
 import 'country.dart';
 
+/// {@template country_data}
+/// A class that provides access to country data.
+/// 
+/// This class is **not meant to be instantiated** and should be accessed statically.
+/// 
+/// {@endtemplate}
 class CountryData {
   CountryData._();
 
+  /// The singleton instance of [CountryData].
+  /// 
+  /// {@macro country_data}
   static CountryData instance = CountryData._();
 
   String _image(String code) {
@@ -10,6 +19,8 @@ class CountryData {
   }
 
   /// List of all available countries
+  /// 
+  /// {@macro country_data}
   List<Country> get countries => [
         afghanistan,
         alandIslands,

@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 
 typedef TimerWidgetBuilder = Widget Function(BuildContext context, double progress, int remaining);
 
+/// {@template smart_timer}
 /// A countdown timer widget that supports circular or linear (square) styles.
 ///
 /// The timer begins counting down when [startCounting] is true,
 /// can be paused with [pause], and reset with [reset].
 /// Once countdown completes, it stops and optionally shows a custom widget using [actionBuilder].
+/// 
+/// {@endtemplate}
 class SmartTimer extends StatefulWidget {
   /// A widget to display when the countdown is complete or not active.
   final WidgetBuilder? actionBuilder;
@@ -70,6 +73,8 @@ class SmartTimer extends StatefulWidget {
   final Color? textColor;
 
   /// Creates a circular countdown timer.
+  /// 
+  /// {@macro smart_timer}
   const SmartTimer.circular({
     super.key,
     this.actionBuilder,
@@ -93,6 +98,8 @@ class SmartTimer extends StatefulWidget {
   })  : isCircular = true, borderRadius = null;
 
   /// Creates a square/linear countdown timer.
+  /// 
+  /// {@macro smart_timer}
   const SmartTimer.square({
     super.key,
     this.actionBuilder,

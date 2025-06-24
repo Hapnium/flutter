@@ -8,6 +8,7 @@ import 'src/stub_socket.dart'
     if (dart.library.js_interop) 'src/html_socket.dart'
     if (dart.library.io) 'src/io_socket.dart';
 
+/// {@template socket_client}
 /// [SocketClient] is a platform-agnostic WebSocket abstraction that delegates
 /// to the correct implementation based on where the app is running:
 ///
@@ -26,6 +27,8 @@ import 'src/stub_socket.dart'
 /// socket.onMessage((msg) => print('Received: $msg'));
 /// socket.emit('chat', {'message': 'Hi!'});
 /// ```
+/// 
+/// {@endtemplate}
 class SocketClient extends BaseWebSocket {
   /// Constructs a [SocketClient] with a given WebSocket [url].
   ///
@@ -37,6 +40,8 @@ class SocketClient extends BaseWebSocket {
   ///
   /// The actual behavior of this constructor is determined by the imported
   /// platform-specific `BaseWebSocket` implementation.
+  /// 
+  /// {@macro socket_client}
   SocketClient(
     super.url, {
     super.ping,

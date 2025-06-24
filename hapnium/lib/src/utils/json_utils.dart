@@ -3,14 +3,19 @@ import 'dart:convert';
 import './typedefs.dart';
 import '../extensions/others/t.dart';
 
+/// {@template json_utils}
 /// A generic codec class for encoding and decoding data using JSON.
 ///
 /// This class provides methods for encoding data of type `T` into a JSON string
 /// and decoding a JSON string back into an object of type `T`.
+/// 
+/// {@endtemplate}
 class JsonUtils<T> {
+  /// {@macro json_utils}
   JsonUtils._();
   static JsonUtils instance = JsonUtils._();
 
+  /// {@macro json_utils}
   JsonUtils();
 
   Map<Type, JsonUtilsDecoder<dynamic>> _adapters = {};

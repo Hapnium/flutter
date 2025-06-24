@@ -14,6 +14,16 @@ import '../../messaging/implementations/secure_messaging.dart';
 import '../secure_key_service.dart';
 import 'secure_key.dart';
 
+/// {@template secure_key_factory}
+/// Default implementation of the [SecureKeyService] interface.
+///
+/// Provides methods to:
+/// - Generate elliptic curve key pairs deterministically from an identifier
+/// - Encrypt messages using EC public key
+/// - Decrypt messages using EC private key
+///
+/// Utilizes PointyCastle for cryptographic operations.
+/// {@endtemplate}
 class SecureKeyFactory extends SecureKey implements SecureKeyService {
   @override
   String decrypt({required String message, required String privateKey}) {

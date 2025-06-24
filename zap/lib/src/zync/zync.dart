@@ -20,6 +20,7 @@ import 'zync_interface.dart';
 /// It takes a ZyncResponse object as a parameter and returns void.
 typedef ZyncMessage = void Function(ZyncResponse response);
 
+/// {@template zync}
 /// Zync is a high-level WebSocket client wrapper that provides real-time
 /// communication capabilities with authentication, session management, and
 /// standardized message handling.
@@ -71,6 +72,8 @@ typedef ZyncMessage = void Function(ZyncResponse response);
 /// final realtime = Zync(config: config);
 /// await realtime.connect();
 /// ```
+/// 
+/// {@endtemplate}
 class Zync implements ZyncInterface {
   /// Configuration object containing all settings for the Zync client.
   final ZyncConfig config;
@@ -84,6 +87,8 @@ class Zync implements ZyncInterface {
   /// Factory constructor that implements singleton pattern.
   /// 
   /// Throws [ZapException] if an instance already exists with different configuration.
+  /// 
+  /// {@macro zync}
   factory Zync({required ZyncConfig config}) {
     if (_instance != null) {
       throw ZapException(
@@ -99,6 +104,8 @@ class Zync implements ZyncInterface {
   /// Gets the current singleton instance.
   /// 
   /// Throws [ZapException] if no instance has been created yet.
+  /// 
+  /// {@macro zync}
   static Zync get instance {
     if (_instance == null) {
       throw ZapException("No Zync instance found. Create an instance first using Zync(config: config).");
@@ -294,7 +301,7 @@ class Zync implements ZyncInterface {
         );
       }
 
-      // Notify data stream
+      // Tappy data stream
       if (!_dataStreamController.isClosed) {
         _dataStreamController.add(response);
       }

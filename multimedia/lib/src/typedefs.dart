@@ -34,8 +34,8 @@ typedef MediumItemBuilder = Widget Function(BuildContext context, Medium medium,
 /// Callback to build an selected indicator.
 typedef SelectedIndicator = Widget Function(int index);
 
-/// Callback to notify when the layout changes.
+/// Callback to tappy when the layout changes.
 typedef OnMultimediaLayoutChanged = void Function(bool isGrid);
 
-/// Callback to notify when the grid count changes.
+/// Callback to tappy when the grid count changes.
 typedef OnMultimediaGridChanged = void Function(int count);

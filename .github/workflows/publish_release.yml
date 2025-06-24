@@ -15,7 +15,7 @@ jobs:
           zap,
           tracing,
           secure,
-          notify,
+          tappy,
           smart,
           gallery,
           hapnium,

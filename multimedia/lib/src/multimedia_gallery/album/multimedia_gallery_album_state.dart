@@ -116,6 +116,16 @@ class _MultimediaGalleryAlbumState extends State<MultimediaGalleryAlbum> {
   }
 
   void _handleSelectedMedium(Medium medium) {
+    if(parent.maxSize != null && medium.size != null && medium.size!.isGreaterThan(parent.maxSize!)) {
+      parent.onErrorReceived?.call("Selected asset exceeds the maximum desired size ${parent.maxSize?.toFileSize}", false);
+      return;
+    }
+
+    if(parent.minSize != null && medium.size != null && medium.size!.isLessThan(parent.minSize!)) {
+      parent.onErrorReceived?.call("Selected asset is below the desired minimum size ${parent.minSize?.toFileSize}", false);
+      return;
+    }
+
     if(multipleAllowed) {
       List<Medium> list = List.from(_selected);
       int index = list.findIndex((i) => i.id.equals(medium.id));

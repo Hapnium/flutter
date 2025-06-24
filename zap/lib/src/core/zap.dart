@@ -9,6 +9,7 @@ import 'zap_socket.dart';
 import 'zap_interface.dart';
 import '../definitions.dart';
 
+/// {@template zap}
 /// Core configuration class for the Zap network client with cancellation support.
 ///
 /// This class extends [ZapInterface] and acts as the base implementation for
@@ -38,11 +39,15 @@ import '../definitions.dart';
 /// // Cancel if needed
 /// cancelToken.cancel('Operation aborted');
 /// ```
+/// 
+/// {@endtemplate}
 class Zap extends ZapInterface {
   /// Creates a new instance of the Zap network client with optional configuration.
   ///
   /// - [config] contains all configuration options for the client including
   ///   timeouts, authentication, SSL settings, and base URL configuration.
+  /// 
+  /// {@macro zap}
   Zap({super.zapConfig, super.zapClient, super.zapSockets});
 
   /// Set of active cancel tokens for tracking ongoing requests

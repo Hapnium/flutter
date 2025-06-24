@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hapnium/hapnium.dart';
 
+/// {@template heartbeat}
 /// A widget which adds a heartbeat effect to its contents.
+/// 
+/// {@endtemplate}
 class HeartBeating extends StatefulWidget {
   /// The item to apply the heartbeat effect to.
   final Widget? child;
@@ -9,6 +12,7 @@ class HeartBeating extends StatefulWidget {
   /// The number of beats per minutes. Defaults to 70.
   final Integer beatsPerMinute;
 
+  /// {@macro heartbeat}
   HeartBeating({super.key, this.child, this.beatsPerMinute = 70}) {
     assert(beatsPerMinute > 0, 'beatsPerMinute must be greater than 0.');
   }

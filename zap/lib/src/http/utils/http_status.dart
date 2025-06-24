@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names, constant_identifier_names
 
+/// {@template http_status}
 /// A utility class representing HTTP status codes and their interpretation.
 ///
 /// Use this to check common HTTP response conditions like unauthorized access,
@@ -19,6 +20,8 @@
 ///   // Handle successful response
 /// }
 /// ```
+/// 
+/// {@endtemplate}
 class HttpStatus {
   /// The HTTP status code. If null, indicates a connection or network error.
   final int code;
@@ -30,6 +33,8 @@ class HttpStatus {
   final String description;
 
   /// Creates a new HTTP status code with the given name, numeric value, and description.
+  /// 
+  /// {@macro http_status}
   const HttpStatus._(this.name, this.code, this.description);
 
   /// Static map to store all status codes for lookup

@@ -1,3 +1,4 @@
+/// {@template smart_share_config}
 /// Configuration class for the SmartShare widget, defining which sharing options are enabled and the content to be shared.
 ///
 /// This class allows you to customize the behavior of the SmartShare widget by
@@ -46,6 +47,8 @@
 /// * `enableCopyLink`: Whether to enable "Copy Link" functionality. Defaults to `true`.
 /// * `message`: The message to be shared across the enabled platforms. Defaults to an empty string.
 /// * `data`: The data to be copied when the "Copy Link" option is used. Defaults to an empty string.
+/// 
+/// {@endtemplate}
 class SmartShareConfig {
   /// Enables or disables sharing via WhatsApp. Defaults to `true`.
   final bool enableWhatsApp;
@@ -85,19 +88,7 @@ class SmartShareConfig {
   /// Allows you to configure the sharing options and content. All parameters
   /// are optional and have default values.
   ///
-  /// **Parameters:**
-  ///
-  /// * [enableWhatsApp]: Whether to enable WhatsApp sharing. Defaults to `true`.
-  /// * [enableSnapchat]: Whether to enable Snapchat sharing. Defaults to `true`.
-  /// * [enableInstagram]: Whether to enable Instagram sharing. Defaults to `true`.
-  /// * [enableTwitter]: Whether to enable Twitter sharing. Defaults to `true`.
-  /// * [enableFacebook]: Whether to enable Facebook sharing. Defaults to `true`.
-  /// * [enableMoreOptions]: Whether to enable "More Options" sharing. Defaults to `true`.
-  /// * [enableCopyLink]: Whether to enable "Copy Link" functionality. Defaults to `true`.
-  /// * [message]: The message to be shared. Defaults to an empty string.
-  /// * [data]: The data to be copied. Defaults to an empty string.
-  /// * [linkFirst]: Whether to link the first part of the message. Defaults to `true`.
-  /// * [addSpacingBetweenContent]: Whether to add spacing between content. Defaults to `true`.
+  /// {@macro smart_share_config}
   const SmartShareConfig({
     this.enableWhatsApp = true,
     this.enableSnapchat = true,

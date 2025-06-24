@@ -12,6 +12,12 @@ import 'socket_interface.dart';
 import 'socket_notifier.dart';
 import '../../enums/socket_status.dart';
 
+/// {@template io_socket}
+/// 
+/// This is `dart:io` WebSocket implementation.
+/// It is used when the app is running on mobile/server/desktop.
+/// 
+/// {@endtemplate}
 class BaseWebSocket extends SocketInterface {
   /// Underlying WebSocket instance from the `dart:io` package.
   WebSocket? socket;
@@ -25,6 +31,9 @@ class BaseWebSocket extends SocketInterface {
   /// The current connection status.
   SocketStatus? connectionStatus;
 
+  /// Creates a new [BaseWebSocket] instance.
+  /// 
+  /// {@macro io_socket}
   BaseWebSocket(
     super.url, {
     super.ping = const Duration(seconds: 5),
@@ -52,18 +61,18 @@ class BaseWebSocket extends SocketInterface {
       connectionStatus = SocketStatus.connected;
 
       socket!.listen((data) {
-        socketNotifier!.notifyData(data);
+        socketNotifier!.tappyData(data);
       }, onError: (err) {
-        socketNotifier!.notifyError(SocketClose(err.toString(), 1005));
+        socketNotifier!.tappyError(SocketClose(err.toString(), 1005));
       }, onDone: () {
         connectionStatus = SocketStatus.closed;
-        socketNotifier!.notifyClose(SocketClose('Connection Closed', socket!.closeCode));
+        socketNotifier!.tappyClose(SocketClose('Connection Closed', socket!.closeCode));
       }, cancelOnError: true);
 
       return;
     } on SocketException catch (e) {
       connectionStatus = SocketStatus.closed;
-      socketNotifier!.notifyError(SocketClose(e.osError!.message, e.osError!.errorCode));
+      socketNotifier!.tappyError(SocketClose(e.osError!.message, e.osError!.errorCode));
       
       return;
     }

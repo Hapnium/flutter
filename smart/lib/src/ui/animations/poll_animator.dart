@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hapnium/hapnium.dart';
 
+/// {@template poll_animator}
 /// A widget that animates a poll progress bar with customizable appearance and duration.
 ///
 /// [PollAnimator] displays two bars:
@@ -8,6 +9,8 @@ import 'package:hapnium/hapnium.dart';
 /// - The progress bar (animated to the percentage of completion).
 ///
 /// This widget also allows adding a child widget (e.g., text or icons) to overlay the progress bar.
+/// 
+/// {@endtemplate}
 class PollAnimator extends StatelessWidget {
   /// The overall decoration of the progress bar, including borders and gradients.
   ///
@@ -70,6 +73,8 @@ class PollAnimator extends StatelessWidget {
   ///
   /// The animation of the progress bar is controlled by [animatedDuration], while
   /// the animation of the background bar is controlled by [duration].
+  /// 
+  /// {@macro poll_animator}
   const PollAnimator({
     super.key,
     this.decoration,

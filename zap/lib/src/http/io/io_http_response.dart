@@ -8,10 +8,18 @@ import '../interface/redirect_info.dart';
 import 'io_http_headers.dart';
 import 'io_redirect_info.dart';
 
+/// {@template io_http_response}
 /// A `dart:io` implementation of `HttpClientResponse`
+/// 
+/// This class is used to wrap [io.HttpClientResponse] to implement [HttpClientResponse].
+/// 
+/// {@endtemplate}
 class IOHttpResponse implements HttpClientResponse {
-  IOHttpResponse({required io.HttpClientResponse response}) : _response = response;
+  /// The wrapped [io.HttpClientResponse].
   final io.HttpClientResponse _response;
+
+  /// {@macro io_http_response}
+  IOHttpResponse({required io.HttpClientResponse response}) : _response = response;
 
   @override
   Future<bool> any(bool Function(BodyBytes element) test) {

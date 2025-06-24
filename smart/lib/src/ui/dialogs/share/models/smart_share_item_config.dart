@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hapnium/hapnium.dart';
 
+/// {@template smart_share_item_config}
 /// Configuration class for customizing the appearance and behavior of share items in a SmartShare widget.
 ///
 /// This class encapsulates various styling options for individual share items,
 /// allowing developers to easily customize their look and feel.
+/// 
+/// {@endtemplate}
 class SmartShareItemConfig {
   /// Determines whether to display the label of the share item.
   ///
@@ -64,7 +67,7 @@ class SmartShareItemConfig {
 
   /// Creates a [SmartShareItemConfig] instance.
   ///
-  /// Allows customization of various styling properties for share items.
+  /// {@macro smart_share_item_config}
   const SmartShareItemConfig({
     this.showLabel = true,
     this.color,
