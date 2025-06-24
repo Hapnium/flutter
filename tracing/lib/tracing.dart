@@ -78,7 +78,10 @@ library logger;
 
 import 'src/default_tracing_listener.dart';
 import 'src/enums/log_level.dart';
+import 'src/enums/log_type.dart';
+import 'src/log_printer.dart';
 import 'src/tracing_listener.dart';
+import 'src/models/log_config.dart';
 
 /// ENUMS & Interfaces exported for external use.
 export 'src/enums/log_level.dart';
@@ -86,7 +89,9 @@ export 'src/enums/log_step.dart';
 export 'src/enums/log_type.dart';
 export 'src/log_printer.dart';
 export 'src/tracing_listener.dart';
+export 'src/models/log_config.dart';
 
+/// {@template tracing}
 /// A flexible and extensible logging interface.
 ///
 /// The [Tracing] class provides structured and leveled logging functionality
@@ -106,12 +111,31 @@ export 'src/tracing_listener.dart';
 /// console.info('Server started');
 /// console.error('Unexpected error occurred', error: e, stackTrace: s);
 /// ```
+///
+/// {@endtemplate}
 class Tracing {
   /// The current log listener responsible for handling the log output logic.
   ///
   /// You can override this with a custom [TracingListener] via [addListener()]
   /// to modify how logs are formatted or where they are sent (e.g., file, console, remote server).
-  TracingListener listener = DefaultTracingListener();
+  late TracingListener listener;
+
+  /// {@macro tracing}
+  Tracing({
+    LogLevel level = LogLevel.INFO,
+    LogPrinter? printer,
+    LogType type = LogType.SIMPLE,
+    void Function(String)? output,
+    String name = "",
+    LogConfig? config,
+  }) : listener = DefaultTracingListener(
+    level: level,
+    printer: printer,
+    type: type,
+    output: output,
+    name: name,
+    config: config,
+  );
 
   /// Replaces the current [TracingListener] with a custom implementation.
   ///

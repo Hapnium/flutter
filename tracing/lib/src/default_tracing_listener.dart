@@ -1,10 +1,13 @@
 import 'enums/log_level.dart';
+import 'enums/log_type.dart';
+import 'log_printer.dart';
+import 'models/log_config.dart';
 import 'tracing_listener.dart';
 
-/// {@template default_application_log_listener}
-/// A default implementation of [ApplicationLogListener] that outputs logs to the console.
+/// {@template default_log_listener}
+/// A default implementation of [TracingListener] that outputs logs to the console.
 ///
-/// [DefaultApplicationLogListener] provides a simple and human-readable logging mechanism
+/// [DefaultTracingListener] provides a simple and human-readable logging mechanism
 /// by printing log messages to the standard output (`stdout`). Each log entry is timestamped,
 /// tagged, and categorized by [LogLevel].
 ///
@@ -47,4 +50,14 @@ import 'tracing_listener.dart';
 /// ```
 ///
 /// {@endtemplate}
-class DefaultTracingListener extends TracingListener { }
+class DefaultTracingListener extends TracingListener {
+  /// {@macro default_logger_listener}
+  DefaultTracingListener({
+    LogLevel level = LogLevel.INFO,
+    LogPrinter? printer,
+    LogType type = LogType.SIMPLE,
+    void Function(String)? output,
+    String name = "",
+    LogConfig? config,
+  }) : super(level: level, printer: printer, type: type, output: output, name: name, config: config);
+}

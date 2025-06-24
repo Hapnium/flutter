@@ -1,6 +1,7 @@
 import 'enums/log_level.dart';
 import 'enums/log_type.dart';
 import 'log_printer.dart';
+import 'models/log_config.dart';
 import 'models/log_record.dart';
 import 'printers/flat_printer.dart';
 import 'printers/flat_structured_printer.dart';
@@ -70,29 +71,30 @@ abstract class TracingListener {
     LogType type = LogType.SIMPLE,
     void Function(String)? output,
     String name = "",
-  }) : _level = level, _printer = printer ?? _getPrinter(type), _output = output, _name = name;
+    LogConfig? config
+  }) : _level = level, _printer = printer ?? _getPrinter(type, config ?? LogConfig()), _output = output, _name = name;
 
   /// {@macro application_log_listener}
   /// 
   /// Gets the printer based on the type.
-  static LogPrinter _getPrinter(LogType type) {
+  static LogPrinter _getPrinter(LogType type, LogConfig config) {
     switch (type) {
       case LogType.PRETTY:
-        return PrettyPrinter();
+        return PrettyPrinter(config: config);
       case LogType.PRETTY_STRUCTURED:
-        return PrettyStructuredPrinter();
+        return PrettyStructuredPrinter(config: config);
       case LogType.FLAT:
-        return FlatPrinter();
+        return FlatPrinter(config: config);
       case LogType.FLAT_STRUCTURED:
-        return FlatStructuredPrinter();
+        return FlatStructuredPrinter(config: config);
       case LogType.PREFIX:
-        return PrefixPrinter();
+        return PrefixPrinter(config: config);
       case LogType.FMT:
-        return FmtPrinter();
+        return FmtPrinter(config: config);
       case LogType.HYBRID:
-        return HybridPrinter();
+        return HybridPrinter(config: config);
       case LogType.SIMPLE:
-        return SimplePrinter();
+        return SimplePrinter(config: config);
     }
   }
 

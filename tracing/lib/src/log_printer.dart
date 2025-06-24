@@ -124,6 +124,7 @@ abstract class LogPrinter {
         buffer.writeln('$nextIndent"$key": ${_buildFormattedText(val, indentLevel + 1)}${i < entries.length - 1 ? ',' : ''}');
       }
       buffer.write('$indent}');
+
       return buffer.toString();
     }
 
