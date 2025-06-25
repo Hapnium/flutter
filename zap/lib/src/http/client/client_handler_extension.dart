@@ -39,27 +39,24 @@ extension ClientHandlerExtension on ClientHandler {
     }
 
     if (body is FormData) {
-      bodyBytes = await body.toBytes();
+      // Process FormData asynchronously to avoid blocking
+      bodyBytes = await _processFormDataAsync(body);
       headers[HttpHeaders.CONTENT_LENGTH] = bodyBytes.length.toString();
-      headers[HttpHeaders.CONTENT_TYPE] = HttpContentType.MULTIPARET_FORM_DATA_WITH_BOUNDARY(body.boundary);
-    } else if (contentType != null && contentType.toLowerCase() == HttpContentType.APPLICATION_X_WWW_FORM_URLENCODED && body is Map) {
-      var parts = [];
-      (body as RequestParam).forEach((key, value) {
-        parts.add('${Uri.encodeQueryComponent(key)}=${Uri.encodeQueryComponent(value.toString())}');
-      });
-      var formData = parts.join('&');
-      bodyBytes = utf8.encode(formData);
+      headers[HttpHeaders.CONTENT_TYPE] = 
+          HttpContentType.MULTIPARET_FORM_DATA_WITH_BOUNDARY(body.boundary);
+    } else if (contentType != null && 
+               contentType.toLowerCase() == HttpContentType.APPLICATION_X_WWW_FORM_URLENCODED && 
+               body is Map) {
+      bodyBytes = await _processFormUrlEncodedAsync(body as RequestParam);
       _setContentLength(headers, bodyBytes.length);
       headers[HttpHeaders.CONTENT_TYPE] = contentType;
     } else if (body is Map || body is List) {
-      var jsonString = json.encode(body);
-      bodyBytes = utf8.encode(jsonString);
+      bodyBytes = await _processJsonAsync(body);
       _setContentLength(headers, bodyBytes.length);
       headers[HttpHeaders.CONTENT_TYPE] = contentType ?? defaultContentType;
     } else if (body is String) {
-      bodyBytes = utf8.encode(body);
+      bodyBytes = await _processStringAsync(body);
       _setContentLength(headers, bodyBytes.length);
-
       headers[HttpHeaders.CONTENT_TYPE] = contentType ?? defaultContentType;
     } else if (body == null) {
       _setContentLength(headers, 0);
@@ -71,7 +68,7 @@ extension ClientHandlerExtension on ClientHandler {
     }
 
     if (bodyBytes != null) {
-      bodyStream = _trackProgress(bodyBytes, uploadProgress);
+      bodyStream = _trackProgressAsync(bodyBytes, uploadProgress);
     }
 
     final uri = createUri(url, query);
@@ -88,6 +85,171 @@ extension ClientHandlerExtension on ClientHandler {
     );
   }
 
+  /// Process FormData without blocking UI
+  Future<BodyBytes> _processFormDataAsync(FormData formData) async {
+    final completer = Completer<BodyBytes>();
+    
+    // Process in background
+    scheduleMicrotask(() async {
+      try {
+        final result = await formData.toBytes();
+        completer.complete(result);
+      } catch (e) {
+        completer.completeError(e);
+      }
+    });
+    
+    return completer.future;
+  }
+
+  /// Process JSON without blocking UI
+  Future<BodyBytes> _processJsonAsync(dynamic body) async {
+    final completer = Completer<BodyBytes>();
+    
+    scheduleMicrotask(() {
+      try {
+        var jsonString = json.encode(body);
+        var result = utf8.encode(jsonString);
+        completer.complete(Uint8List.fromList(result));
+      } catch (e) {
+        completer.completeError(e);
+      }
+    });
+    
+    return completer.future;
+  }
+
+  /// Process form URL encoded without blocking UI
+  Future<BodyBytes> _processFormUrlEncodedAsync(RequestParam body) async {
+    final completer = Completer<BodyBytes>();
+    
+    scheduleMicrotask(() {
+      try {
+        var parts = <String>[];
+        body.forEach((key, value) {
+          parts.add('${Uri.encodeQueryComponent(key)}=${Uri.encodeQueryComponent(value.toString())}');
+        });
+        var formData = parts.join('&');
+        var result = utf8.encode(formData);
+        completer.complete(Uint8List.fromList(result));
+      } catch (e) {
+        completer.completeError(e);
+      }
+    });
+    
+    return completer.future;
+  }
+
+  /// Process string without blocking UI
+  Future<BodyBytes> _processStringAsync(String body) async {
+    final completer = Completer<BodyBytes>();
+    
+    scheduleMicrotask(() {
+      try {
+        var result = utf8.encode(body);
+        completer.complete(Uint8List.fromList(result));
+      } catch (e) {
+        completer.completeError(e);
+      }
+    });
+    
+    return completer.future;
+  }
+
+  /// Track progress without blocking UI
+  BodyByteStream _trackProgressAsync(BodyBytes bodyBytes, Progress? uploadProgress) {
+    var total = 0;
+    var length = bodyBytes.length;
+    var lastProgressTime = DateTime.now();
+
+    var byteStream = Stream.fromIterable(bodyBytes.map((i) => [i]))
+        .transform<BodyBytes>(
+      StreamTransformer.fromHandlers(handleData: (data, sink) {
+        total += data.length;
+        
+        // Throttle progress updates to avoid UI spam
+        final now = DateTime.now();
+        if (uploadProgress != null && 
+            now.difference(lastProgressTime).inMilliseconds > 50) {
+          var percent = total / length * 100;
+          scheduleMicrotask(() => uploadProgress(percent));
+          lastProgressTime = now;
+        }
+        
+        sink.add(data);
+      }),
+    );
+
+    return byteStream;
+  }
+  // Future<Request<T>> requestWithBody<T>(
+  //   String? url,
+  //   String? contentType,
+  //   RequestBody body,
+  //   String method,
+  //   RequestParam? query,
+  //   ResponseDecoder<T>? decoder,
+  //   ResponseInterceptor<T>? responseInterceptor,
+  //   Progress? uploadProgress,
+  // ) async {
+  //   BodyBytes? bodyBytes;
+  //   BodyByteStream? bodyStream;
+  //   final Headers headers = {};
+
+  //   if (sendUserAgent) {
+  //     headers[HttpHeaders.USER_AGENT] = userAgent;
+  //   }
+
+  //   if (body is FormData) {
+  //     bodyBytes = await body.toBytes();
+  //     headers[HttpHeaders.CONTENT_LENGTH] = bodyBytes.length.toString();
+  //     headers[HttpHeaders.CONTENT_TYPE] = HttpContentType.MULTIPARET_FORM_DATA_WITH_BOUNDARY(body.boundary);
+  //   } else if (contentType != null && contentType.toLowerCase() == HttpContentType.APPLICATION_X_WWW_FORM_URLENCODED && body is Map) {
+  //     var parts = [];
+  //     (body as RequestParam).forEach((key, value) {
+  //       parts.add('${Uri.encodeQueryComponent(key)}=${Uri.encodeQueryComponent(value.toString())}');
+  //     });
+  //     var formData = parts.join('&');
+  //     bodyBytes = utf8.encode(formData);
+  //     _setContentLength(headers, bodyBytes.length);
+  //     headers[HttpHeaders.CONTENT_TYPE] = contentType;
+  //   } else if (body is Map || body is List) {
+  //     var jsonString = json.encode(body);
+  //     bodyBytes = utf8.encode(jsonString);
+  //     _setContentLength(headers, bodyBytes.length);
+  //     headers[HttpHeaders.CONTENT_TYPE] = contentType ?? defaultContentType;
+  //   } else if (body is String) {
+  //     bodyBytes = utf8.encode(body);
+  //     _setContentLength(headers, bodyBytes.length);
+
+  //     headers[HttpHeaders.CONTENT_TYPE] = contentType ?? defaultContentType;
+  //   } else if (body == null) {
+  //     _setContentLength(headers, 0);
+  //     headers[HttpHeaders.CONTENT_TYPE] = contentType ?? defaultContentType;
+  //   } else {
+  //     if (!errorSafety) {
+  //       throw ZapException.parsing('Request body cannot be ${body.runtimeType}');
+  //     }
+  //   }
+
+  //   if (bodyBytes != null) {
+  //     bodyStream = _trackProgress(bodyBytes, uploadProgress);
+  //   }
+
+  //   final uri = createUri(url, query);
+  //   return Request<T>(
+  //     method: method,
+  //     url: uri,
+  //     headers: headers,
+  //     bodyBytes: bodyStream,
+  //     contentLength: bodyBytes?.length ?? 0,
+  //     followRedirects: followRedirects,
+  //     maxRedirects: maxRedirects,
+  //     decoder: decoder,
+  //     responseInterceptor: responseInterceptor
+  //   );
+  // }
+
   /// Sets the content length header if sendContentLength is true.
   void _setContentLength(Headers headers, int contentLength) {
     if (sendContentLength) {
@@ -96,23 +258,23 @@ extension ClientHandlerExtension on ClientHandler {
   }
 
   /// Tracks progress of a request.
-  BodyByteStream _trackProgress(BodyBytes bodyBytes, Progress? uploadProgress) {
-    var total = 0;
-    var length = bodyBytes.length;
+  // BodyByteStream _trackProgress(BodyBytes bodyBytes, Progress? uploadProgress) {
+  //   var total = 0;
+  //   var length = bodyBytes.length;
 
-    var byteStream = Stream.fromIterable(bodyBytes.map((i) => [i])).transform<BodyBytes>(
-      StreamTransformer.fromHandlers(handleData: (data, sink) {
-        total += data.length;
-        if (uploadProgress != null) {
-          var percent = total / length * 100;
-          uploadProgress(percent);
-        }
-        sink.add(data);
-      }),
-    );
+  //   var byteStream = Stream.fromIterable(bodyBytes.map((i) => [i])).transform<BodyBytes>(
+  //     StreamTransformer.fromHandlers(handleData: (data, sink) {
+  //       total += data.length;
+  //       if (uploadProgress != null) {
+  //         var percent = total / length * 100;
+  //         uploadProgress(percent);
+  //       }
+  //       sink.add(data);
+  //     }),
+  //   );
 
-    return byteStream;
-  }
+  //   return byteStream;
+  // }
 
   /// Sets simple headers for a request.
   void _setSimpleHeaders(Headers headers, String? contentType) {

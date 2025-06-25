@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/services.dart' show Uint8List;
+
 import '../../definitions.dart';
 import '../../enums/exception_type.dart';
 import '../../exceptions/controller_advice.dart';
