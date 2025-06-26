@@ -39,9 +39,11 @@ extension ClientHandlerExtension on ClientHandler {
     }
 
     if (body is FormData) {
-      // Use streaming approach for FormData to avoid loading everything into memory
-      bodyStream = await _processFormDataStream(body, uploadProgress);
-      contentLength = await body.lengthAsync; // Get async length
+      // Get content length first
+      contentLength = await body.lengthAsync;
+      
+      // Create progress-tracked stream
+      bodyStream = await _processFormDataStreamWithProgress(body, uploadProgress, contentLength);
       headers[HttpHeaders.CONTENT_TYPE] = HttpContentType.MULTIPARET_FORM_DATA_WITH_BOUNDARY(body.boundary);
     } else if (contentType != null && 
                contentType.toLowerCase() == HttpContentType.APPLICATION_X_WWW_FORM_URLENCODED && 
@@ -88,33 +90,53 @@ extension ClientHandlerExtension on ClientHandler {
     );
   }
 
-  /// Process FormData as a stream (most efficient for large files)
-  Future<BodyByteStream> _processFormDataStream(FormData formData, Progress? uploadProgress) async {
-    // Get the finalized stream directly - this is already async and non-blocking
-    final formDataStream = formData.finalize();
-    
+  /// Process FormData with proper progress tracking
+  Future<BodyByteStream> _processFormDataStreamWithProgress(FormData formData, Progress? uploadProgress, int totalLength) async {
     if (uploadProgress == null) {
-      return formDataStream.cast<List<int>>();
+      return formData.finalize().cast<List<int>>();
     }
 
-    // Add progress tracking to the stream
-    return _addProgressToStream(formDataStream, await formData.lengthAsync, uploadProgress);
+    // Convert FormData to bytes first to ensure we can track progress properly
+    final formDataBytes = await formData.toBytes();
+    
+    // Create chunked stream with progress tracking
+    return _createChunkedProgressStream(formDataBytes, uploadProgress);
   }
 
-  /// Add progress tracking to a stream
-  BodyByteStream _addProgressToStream(Stream<Uint8List> stream, int totalLength, Progress uploadProgress) {
+  /// Create a chunked stream with accurate progress tracking
+  BodyByteStream _createChunkedProgressStream(BodyBytes bodyBytes, Progress uploadProgress) {
     var uploadedBytes = 0;
+    final totalBytes = bodyBytes.length;
     var lastProgressTime = DateTime.now();
+    
+    // Use smaller chunks for more granular progress updates
+    const chunkSize = 4096; // 4KB chunks for better progress granularity
+    final chunks = <List<int>>[];
+    
+    // Split into chunks
+    for (var i = 0; i < bodyBytes.length; i += chunkSize) {
+      final end = (i + chunkSize < bodyBytes.length) ? i + chunkSize : bodyBytes.length;
+      chunks.add(bodyBytes.sublist(i, end));
+    }
 
-    return stream.transform<List<int>>(
+    // Report initial progress
+    scheduleMicrotask(() => uploadProgress(0.0));
+
+    return Stream.fromIterable(chunks).asyncMap((chunk) async {
+      // Add small delay to allow progress tracking
+      await Future.delayed(Duration(milliseconds: 1));
+      return chunk;
+    }).transform<List<int>>(
       StreamTransformer.fromHandlers(
-        handleData: (Uint8List data, EventSink<List<int>> sink) {
+        handleData: (List<int> data, EventSink<List<int>> sink) {
           uploadedBytes += data.length;
           
-          // Throttle progress updates to avoid UI spam (max 20 updates per second)
+          // Calculate progress percentage
+          final percent = totalBytes > 0 ? (uploadedBytes / totalBytes * 100) : 0.0;
+          
+          // Throttle progress updates (max 20 updates per second)
           final now = DateTime.now();
           if (now.difference(lastProgressTime).inMilliseconds > 50) {
-            final percent = totalLength > 0 ? (uploadedBytes / totalLength * 100) : 0.0;
             scheduleMicrotask(() => uploadProgress(percent.clamp(0.0, 100.0)));
             lastProgressTime = now;
           }
@@ -139,7 +161,7 @@ extension ClientHandlerExtension on ClientHandler {
       return Stream.value(bodyBytes);
     }
 
-    return _trackProgressAsync(bodyBytes, uploadProgress);
+    return _createChunkedProgressStream(bodyBytes, uploadProgress);
   }
 
   /// Process JSON without blocking UI
@@ -155,51 +177,6 @@ extension ClientHandlerExtension on ClientHandler {
   /// Process string without blocking UI
   Future<BodyBytes> _processStringAsync(String body) async {
     return await compute(_encodeString, body);
-  }
-
-  /// Track progress without blocking UI (for non-FormData)
-  BodyByteStream _trackProgressAsync(BodyBytes bodyBytes, Progress? uploadProgress) {
-    if (uploadProgress == null) {
-      return Stream.value(bodyBytes);
-    }
-
-    var total = 0;
-    var length = bodyBytes.length;
-    var lastProgressTime = DateTime.now();
-
-    // Split bytes into chunks for better progress tracking
-    const chunkSize = 8192; // 8KB chunks
-    final chunks = <List<int>>[];
-    
-    for (var i = 0; i < bodyBytes.length; i += chunkSize) {
-      final end = (i + chunkSize < bodyBytes.length) ? i + chunkSize : bodyBytes.length;
-      chunks.add(bodyBytes.sublist(i, end));
-    }
-
-    return Stream.fromIterable(chunks).transform<List<int>>(
-      StreamTransformer.fromHandlers(
-        handleData: (List<int> data, EventSink<List<int>> sink) async {
-          total += data.length;
-          
-          // Throttle progress updates
-          final now = DateTime.now();
-          if (now.difference(lastProgressTime).inMilliseconds > 50) {
-            var percent = total / length * 100;
-            scheduleMicrotask(() => uploadProgress(percent.clamp(0.0, 100.0)));
-            lastProgressTime = now;
-          }
-          
-          sink.add(data);
-          
-          // Yield control to keep UI responsive
-          await Future.delayed(Duration.zero);
-        },
-        handleDone: (EventSink<List<int>> sink) {
-          scheduleMicrotask(() => uploadProgress(100.0));
-          sink.close();
-        },
-      ),
-    );
   }
 
   /// Sets simple headers for a request.
