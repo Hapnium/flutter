@@ -136,7 +136,8 @@ final class Flux implements FluxInterface {
         endpoint,
         headers: headers, 
         query: query,
-        cancelToken: cancelToken
+        cancelToken: cancelToken,
+        decoder: config.decoder
       ), HttpMethod.DELETE, endpoint, useAuth, token);
     } finally {
       if(config.disposeOnCompleted) {
