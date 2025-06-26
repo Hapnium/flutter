@@ -3,7 +3,7 @@ part of 'zap_client.dart';
 extension ClientHandlerExtension on ClientHandler {
   ControllerAdvice get _adviser => controllerAdvice ?? ControllerAdvice();
 
-  /// Create a request with body
+  /// Create a request with body (optimized for async FormData)
   /// 
   /// This method is used to create a request with a body, which is useful for
   /// making HTTP requests with a body, such as POST or PUT requests.
@@ -30,8 +30,8 @@ extension ClientHandlerExtension on ClientHandler {
     ResponseInterceptor<T>? responseInterceptor,
     Progress? uploadProgress,
   ) async {
-    BodyBytes? bodyBytes;
     BodyByteStream? bodyStream;
+    int contentLength = 0;
     final Headers headers = {};
 
     if (sendUserAgent) {
@@ -39,27 +39,29 @@ extension ClientHandlerExtension on ClientHandler {
     }
 
     if (body is FormData) {
-      // Process FormData asynchronously to avoid blocking
-      bodyBytes = await _processFormDataAsync(body);
-      headers[HttpHeaders.CONTENT_LENGTH] = bodyBytes.length.toString();
-      headers[HttpHeaders.CONTENT_TYPE] = 
-          HttpContentType.MULTIPARET_FORM_DATA_WITH_BOUNDARY(body.boundary);
+      // Use streaming approach for FormData to avoid loading everything into memory
+      bodyStream = await _processFormDataStream(body, uploadProgress);
+      contentLength = await body.lengthAsync; // Get async length
+      headers[HttpHeaders.CONTENT_TYPE] = HttpContentType.MULTIPARET_FORM_DATA_WITH_BOUNDARY(body.boundary);
     } else if (contentType != null && 
                contentType.toLowerCase() == HttpContentType.APPLICATION_X_WWW_FORM_URLENCODED && 
                body is Map) {
-      bodyBytes = await _processFormUrlEncodedAsync(body as RequestParam);
-      _setContentLength(headers, bodyBytes.length);
+      final bodyBytes = await _processFormUrlEncodedAsync(body as RequestParam);
+      bodyStream = _createProgressStream(bodyBytes, uploadProgress);
+      contentLength = bodyBytes.length;
       headers[HttpHeaders.CONTENT_TYPE] = contentType;
     } else if (body is Map || body is List) {
-      bodyBytes = await _processJsonAsync(body);
-      _setContentLength(headers, bodyBytes.length);
+      final bodyBytes = await _processJsonAsync(body);
+      bodyStream = _createProgressStream(bodyBytes, uploadProgress);
+      contentLength = bodyBytes.length;
       headers[HttpHeaders.CONTENT_TYPE] = contentType ?? defaultContentType;
     } else if (body is String) {
-      bodyBytes = await _processStringAsync(body);
-      _setContentLength(headers, bodyBytes.length);
+      final bodyBytes = await _processStringAsync(body);
+      bodyStream = _createProgressStream(bodyBytes, uploadProgress);
+      contentLength = bodyBytes.length;
       headers[HttpHeaders.CONTENT_TYPE] = contentType ?? defaultContentType;
     } else if (body == null) {
-      _setContentLength(headers, 0);
+      contentLength = 0;
       headers[HttpHeaders.CONTENT_TYPE] = contentType ?? defaultContentType;
     } else {
       if (!errorSafety) {
@@ -67,8 +69,9 @@ extension ClientHandlerExtension on ClientHandler {
       }
     }
 
-    if (bodyBytes != null) {
-      bodyStream = _trackProgressAsync(bodyBytes, uploadProgress);
+    // Set content length
+    if (sendContentLength && contentLength > 0) {
+      headers[HttpHeaders.CONTENT_LENGTH] = contentLength.toString();
     }
 
     final uri = createUri(url, query);
@@ -77,7 +80,7 @@ extension ClientHandlerExtension on ClientHandler {
       url: uri,
       headers: headers,
       bodyBytes: bodyStream,
-      contentLength: bodyBytes?.length ?? 0,
+      contentLength: contentLength,
       followRedirects: followRedirects,
       maxRedirects: maxRedirects,
       decoder: decoder,
@@ -85,196 +88,119 @@ extension ClientHandlerExtension on ClientHandler {
     );
   }
 
-  /// Process FormData without blocking UI
-  Future<BodyBytes> _processFormDataAsync(FormData formData) async {
-    final completer = Completer<BodyBytes>();
+  /// Process FormData as a stream (most efficient for large files)
+  Future<BodyByteStream> _processFormDataStream(FormData formData, Progress? uploadProgress) async {
+    // Get the finalized stream directly - this is already async and non-blocking
+    final formDataStream = formData.finalize();
     
-    // Process in background
-    scheduleMicrotask(() async {
-      try {
-        final result = await formData.toBytes();
-        completer.complete(result);
-      } catch (e) {
-        completer.completeError(e);
-      }
-    });
-    
-    return completer.future;
+    if (uploadProgress == null) {
+      return formDataStream.cast<List<int>>();
+    }
+
+    // Add progress tracking to the stream
+    return _addProgressToStream(formDataStream, await formData.lengthAsync, uploadProgress);
+  }
+
+  /// Add progress tracking to a stream
+  BodyByteStream _addProgressToStream(Stream<Uint8List> stream, int totalLength, Progress uploadProgress) {
+    var uploadedBytes = 0;
+    var lastProgressTime = DateTime.now();
+
+    return stream.transform<List<int>>(
+      StreamTransformer.fromHandlers(
+        handleData: (Uint8List data, EventSink<List<int>> sink) {
+          uploadedBytes += data.length;
+          
+          // Throttle progress updates to avoid UI spam (max 20 updates per second)
+          final now = DateTime.now();
+          if (now.difference(lastProgressTime).inMilliseconds > 50) {
+            final percent = totalLength > 0 ? (uploadedBytes / totalLength * 100) : 0.0;
+            scheduleMicrotask(() => uploadProgress(percent.clamp(0.0, 100.0)));
+            lastProgressTime = now;
+          }
+          
+          sink.add(data);
+        },
+        handleDone: (EventSink<List<int>> sink) {
+          // Ensure 100% progress is reported
+          scheduleMicrotask(() => uploadProgress(100.0));
+          sink.close();
+        },
+        handleError: (Object error, StackTrace stackTrace, EventSink<List<int>> sink) {
+          sink.addError(error, stackTrace);
+        },
+      ),
+    );
+  }
+
+  /// Create a progress-tracked stream from bytes
+  BodyByteStream _createProgressStream(BodyBytes bodyBytes, Progress? uploadProgress) {
+    if (uploadProgress == null) {
+      return Stream.value(bodyBytes);
+    }
+
+    return _trackProgressAsync(bodyBytes, uploadProgress);
   }
 
   /// Process JSON without blocking UI
   Future<BodyBytes> _processJsonAsync(dynamic body) async {
-    final completer = Completer<BodyBytes>();
-    
-    scheduleMicrotask(() {
-      try {
-        var jsonString = json.encode(body);
-        var result = utf8.encode(jsonString);
-        completer.complete(Uint8List.fromList(result));
-      } catch (e) {
-        completer.completeError(e);
-      }
-    });
-    
-    return completer.future;
+    return await compute(_encodeJson, body);
   }
 
   /// Process form URL encoded without blocking UI
   Future<BodyBytes> _processFormUrlEncodedAsync(RequestParam body) async {
-    final completer = Completer<BodyBytes>();
-    
-    scheduleMicrotask(() {
-      try {
-        var parts = <String>[];
-        body.forEach((key, value) {
-          parts.add('${Uri.encodeQueryComponent(key)}=${Uri.encodeQueryComponent(value.toString())}');
-        });
-        var formData = parts.join('&');
-        var result = utf8.encode(formData);
-        completer.complete(Uint8List.fromList(result));
-      } catch (e) {
-        completer.completeError(e);
-      }
-    });
-    
-    return completer.future;
+    return await compute(_encodeFormUrlEncoded, body);
   }
 
   /// Process string without blocking UI
   Future<BodyBytes> _processStringAsync(String body) async {
-    final completer = Completer<BodyBytes>();
-    
-    scheduleMicrotask(() {
-      try {
-        var result = utf8.encode(body);
-        completer.complete(Uint8List.fromList(result));
-      } catch (e) {
-        completer.completeError(e);
-      }
-    });
-    
-    return completer.future;
+    return await compute(_encodeString, body);
   }
 
-  /// Track progress without blocking UI
+  /// Track progress without blocking UI (for non-FormData)
   BodyByteStream _trackProgressAsync(BodyBytes bodyBytes, Progress? uploadProgress) {
+    if (uploadProgress == null) {
+      return Stream.value(bodyBytes);
+    }
+
     var total = 0;
     var length = bodyBytes.length;
     var lastProgressTime = DateTime.now();
 
-    var byteStream = Stream.fromIterable(bodyBytes.map((i) => [i]))
-        .transform<BodyBytes>(
-      StreamTransformer.fromHandlers(handleData: (data, sink) {
-        total += data.length;
-        
-        // Throttle progress updates to avoid UI spam
-        final now = DateTime.now();
-        if (uploadProgress != null && 
-            now.difference(lastProgressTime).inMilliseconds > 50) {
-          var percent = total / length * 100;
-          scheduleMicrotask(() => uploadProgress(percent));
-          lastProgressTime = now;
-        }
-        
-        sink.add(data);
-      }),
-    );
-
-    return byteStream;
-  }
-  // Future<Request<T>> requestWithBody<T>(
-  //   String? url,
-  //   String? contentType,
-  //   RequestBody body,
-  //   String method,
-  //   RequestParam? query,
-  //   ResponseDecoder<T>? decoder,
-  //   ResponseInterceptor<T>? responseInterceptor,
-  //   Progress? uploadProgress,
-  // ) async {
-  //   BodyBytes? bodyBytes;
-  //   BodyByteStream? bodyStream;
-  //   final Headers headers = {};
-
-  //   if (sendUserAgent) {
-  //     headers[HttpHeaders.USER_AGENT] = userAgent;
-  //   }
-
-  //   if (body is FormData) {
-  //     bodyBytes = await body.toBytes();
-  //     headers[HttpHeaders.CONTENT_LENGTH] = bodyBytes.length.toString();
-  //     headers[HttpHeaders.CONTENT_TYPE] = HttpContentType.MULTIPARET_FORM_DATA_WITH_BOUNDARY(body.boundary);
-  //   } else if (contentType != null && contentType.toLowerCase() == HttpContentType.APPLICATION_X_WWW_FORM_URLENCODED && body is Map) {
-  //     var parts = [];
-  //     (body as RequestParam).forEach((key, value) {
-  //       parts.add('${Uri.encodeQueryComponent(key)}=${Uri.encodeQueryComponent(value.toString())}');
-  //     });
-  //     var formData = parts.join('&');
-  //     bodyBytes = utf8.encode(formData);
-  //     _setContentLength(headers, bodyBytes.length);
-  //     headers[HttpHeaders.CONTENT_TYPE] = contentType;
-  //   } else if (body is Map || body is List) {
-  //     var jsonString = json.encode(body);
-  //     bodyBytes = utf8.encode(jsonString);
-  //     _setContentLength(headers, bodyBytes.length);
-  //     headers[HttpHeaders.CONTENT_TYPE] = contentType ?? defaultContentType;
-  //   } else if (body is String) {
-  //     bodyBytes = utf8.encode(body);
-  //     _setContentLength(headers, bodyBytes.length);
-
-  //     headers[HttpHeaders.CONTENT_TYPE] = contentType ?? defaultContentType;
-  //   } else if (body == null) {
-  //     _setContentLength(headers, 0);
-  //     headers[HttpHeaders.CONTENT_TYPE] = contentType ?? defaultContentType;
-  //   } else {
-  //     if (!errorSafety) {
-  //       throw ZapException.parsing('Request body cannot be ${body.runtimeType}');
-  //     }
-  //   }
-
-  //   if (bodyBytes != null) {
-  //     bodyStream = _trackProgress(bodyBytes, uploadProgress);
-  //   }
-
-  //   final uri = createUri(url, query);
-  //   return Request<T>(
-  //     method: method,
-  //     url: uri,
-  //     headers: headers,
-  //     bodyBytes: bodyStream,
-  //     contentLength: bodyBytes?.length ?? 0,
-  //     followRedirects: followRedirects,
-  //     maxRedirects: maxRedirects,
-  //     decoder: decoder,
-  //     responseInterceptor: responseInterceptor
-  //   );
-  // }
-
-  /// Sets the content length header if sendContentLength is true.
-  void _setContentLength(Headers headers, int contentLength) {
-    if (sendContentLength) {
-      headers[HttpHeaders.CONTENT_LENGTH] = '$contentLength';
+    // Split bytes into chunks for better progress tracking
+    const chunkSize = 8192; // 8KB chunks
+    final chunks = <List<int>>[];
+    
+    for (var i = 0; i < bodyBytes.length; i += chunkSize) {
+      final end = (i + chunkSize < bodyBytes.length) ? i + chunkSize : bodyBytes.length;
+      chunks.add(bodyBytes.sublist(i, end));
     }
+
+    return Stream.fromIterable(chunks).transform<List<int>>(
+      StreamTransformer.fromHandlers(
+        handleData: (List<int> data, EventSink<List<int>> sink) async {
+          total += data.length;
+          
+          // Throttle progress updates
+          final now = DateTime.now();
+          if (now.difference(lastProgressTime).inMilliseconds > 50) {
+            var percent = total / length * 100;
+            scheduleMicrotask(() => uploadProgress(percent.clamp(0.0, 100.0)));
+            lastProgressTime = now;
+          }
+          
+          sink.add(data);
+          
+          // Yield control to keep UI responsive
+          await Future.delayed(Duration.zero);
+        },
+        handleDone: (EventSink<List<int>> sink) {
+          scheduleMicrotask(() => uploadProgress(100.0));
+          sink.close();
+        },
+      ),
+    );
   }
-
-  /// Tracks progress of a request.
-  // BodyByteStream _trackProgress(BodyBytes bodyBytes, Progress? uploadProgress) {
-  //   var total = 0;
-  //   var length = bodyBytes.length;
-
-  //   var byteStream = Stream.fromIterable(bodyBytes.map((i) => [i])).transform<BodyBytes>(
-  //     StreamTransformer.fromHandlers(handleData: (data, sink) {
-  //       total += data.length;
-  //       if (uploadProgress != null) {
-  //         var percent = total / length * 100;
-  //         uploadProgress(percent);
-  //       }
-  //       sink.add(data);
-  //     }),
-  //   );
-
-  //   return byteStream;
-  // }
 
   /// Sets simple headers for a request.
   void _setSimpleHeaders(Headers headers, String? contentType) {
@@ -621,4 +547,23 @@ extension ClientHandlerExtension on ClientHandler {
         );
     }
   }
+}
+
+// Isolate functions for compute()
+BodyBytes _encodeJson(dynamic body) {
+  final jsonString = json.encode(body);
+  return Uint8List.fromList(utf8.encode(jsonString));
+}
+
+BodyBytes _encodeFormUrlEncoded(RequestParam body) {
+  final parts = <String>[];
+  body.forEach((key, value) {
+    parts.add('${Uri.encodeQueryComponent(key)}=${Uri.encodeQueryComponent(value.toString())}');
+  });
+  final formData = parts.join('&');
+  return Uint8List.fromList(utf8.encode(formData));
+}
+
+BodyBytes _encodeString(String body) {
+  return Uint8List.fromList(utf8.encode(body));
 }
