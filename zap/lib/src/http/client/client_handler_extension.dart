@@ -31,7 +31,6 @@ extension ClientHandlerExtension on ClientHandler {
     Progress? uploadProgress,
   ) async {
     BodyByteStream? bodyStream;
-    BodyBytes? bodyBytes;
     int contentLength = 0;
     final Headers headers = {};
 
@@ -42,20 +41,23 @@ extension ClientHandlerExtension on ClientHandler {
     if (body is FormData) {
       // Get content length first
       contentLength = await body.lengthAsync;
-      bodyBytes = await body.toBytes();
+      bodyStream = await _processFormDataStreamWithProgress(body, uploadProgress, contentLength);
       headers[HttpHeaders.CONTENT_TYPE] = HttpContentType.MULTIPARET_FORM_DATA_WITH_BOUNDARY(body.boundary);
     } else if (contentType != null && 
                contentType.toLowerCase() == HttpContentType.APPLICATION_X_WWW_FORM_URLENCODED && 
                body is Map) {
-      bodyBytes = await _processFormUrlEncodedAsync(body as RequestParam);
+      final bodyBytes = await _processFormUrlEncodedAsync(body as RequestParam);
+      bodyStream = _trackProgress(bodyBytes, uploadProgress);
       contentLength = bodyBytes.length;
       headers[HttpHeaders.CONTENT_TYPE] = contentType;
     } else if (body is Map || body is List) {
-      bodyBytes = await _processJsonAsync(body);
+      final bodyBytes = await _processJsonAsync(body);
+      bodyStream = _trackProgress(bodyBytes, uploadProgress);
       contentLength = bodyBytes.length;
       headers[HttpHeaders.CONTENT_TYPE] = contentType ?? defaultContentType;
     } else if (body is String) {
-      bodyBytes = await _processStringAsync(body);
+      final bodyBytes = await _processStringAsync(body);
+      bodyStream = _trackProgress(bodyBytes, uploadProgress);
       contentLength = bodyBytes.length;
       headers[HttpHeaders.CONTENT_TYPE] = contentType ?? defaultContentType;
     } else if (body == null) {
@@ -72,10 +74,6 @@ extension ClientHandlerExtension on ClientHandler {
       headers[HttpHeaders.CONTENT_LENGTH] = contentLength.toString();
     }
 
-    if (bodyBytes != null) {
-      bodyStream = _trackProgress(bodyBytes, uploadProgress);
-    }
-
     final uri = createUri(url, query);
     return Request<T>(
       method: method,
@@ -90,22 +88,104 @@ extension ClientHandlerExtension on ClientHandler {
     );
   }
 
+  /// Process FormData with proper progress tracking
+  Future<BodyByteStream> _processFormDataStreamWithProgress(FormData formData, Progress? uploadProgress, int totalLength) async {
+    if (uploadProgress == null) {
+      return formData.finalize().cast<List<int>>();
+    }
+
+    // Convert FormData to bytes first to ensure we can track progress properly
+    final formDataBytes = await formData.toBytes();
+    
+    // Create chunked stream with progress tracking
+    return _trackProgress(formDataBytes, uploadProgress);
+  }
+
   BodyByteStream _trackProgress(BodyBytes bodyBytes, Progress? uploadProgress) {
+    if (uploadProgress == null) {
+      return Stream.value(bodyBytes);
+    }
+
     var total = 0;
     var length = bodyBytes.length;
+    var lastProgressTime = DateTime.now();
+    var isCancelled = false;
 
-    var byteStream = Stream.fromIterable(bodyBytes.map((i) => [i])).transform<BodyBytes>(
-      StreamTransformer.fromHandlers(handleData: (data, sink) {
-        total += data.length;
-        if (uploadProgress != null) {
-          var percent = total / length * 100;
-          uploadProgress(percent);
-        }
-        sink.add(data);
-      }),
+    // Use reasonable chunk size instead of individual bytes
+    const chunkSize = 8192; // 8KB chunks
+    final chunks = <List<int>>[];
+    
+    // Split into chunks
+    for (var i = 0; i < bodyBytes.length; i += chunkSize) {
+      final end = (i + chunkSize < bodyBytes.length) ? i + chunkSize : bodyBytes.length;
+      chunks.add(bodyBytes.sublist(i, end));
+    }
+
+    // Report initial progress
+    scheduleMicrotask(() {
+      if (!isCancelled) uploadProgress(0.0);
+    });
+
+    late StreamController<List<int>> controller;
+    late StreamSubscription subscription;
+
+    controller = StreamController<List<int>>(
+      onCancel: () {
+        isCancelled = true;
+        subscription.cancel();
+      },
     );
 
-    return byteStream;
+    // Create stream from chunks with async processing
+    subscription = Stream.fromIterable(chunks)
+      .asyncMap((chunk) async {
+        if (isCancelled) return <int>[];
+        // Small delay to prevent UI blocking
+        await Future.delayed(Duration.zero);
+        return chunk;
+      })
+      .listen((List<int> data) {
+          if (isCancelled) return;
+          
+          total += data.length;
+          
+          // Calculate progress percentage
+          final percent = length > 0 ? (total / length * 100) : 0.0;
+          
+          // Throttle progress updates to avoid UI spam
+          final now = DateTime.now();
+          if (now.difference(lastProgressTime).inMilliseconds > 16) { // ~60fps
+            scheduleMicrotask(() {
+              if (!isCancelled) uploadProgress(percent.clamp(0.0, 100.0));
+            });
+            lastProgressTime = now;
+          }
+          
+          if (!controller.isClosed) {
+            controller.add(data);
+          }
+        },
+        onDone: () {
+          if (!isCancelled) {
+            // Ensure 100% progress is reported
+            scheduleMicrotask(() {
+              if (!isCancelled) uploadProgress(100.0);
+            });
+          }
+          if (!controller.isClosed) {
+            controller.close();
+          }
+        },
+        onError: (error, stackTrace) {
+          isCancelled = true;
+          if (!controller.isClosed) {
+            controller.addError(error, stackTrace);
+          }
+        },
+        cancelOnError: true,
+      );
+
+    return controller.stream;
   }
 
   /// Process JSON without blocking UI
