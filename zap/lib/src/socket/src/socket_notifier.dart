@@ -94,7 +94,7 @@ class SocketNotifier {
   /// Notifies all registered close listeners with [err].
   ///
   /// Usually called when the WebSocket connection is closed.
-  void tappyClose(SocketClose err) {
+  void notifyClose(SocketClose err) {
     for (var item in _onCloses!) {
       item(err);
     }
@@ -104,7 +104,7 @@ class SocketNotifier {
   ///
   /// If the message is a string, it is also parsed to check for
   /// named event dispatching via [_tryOn].
-  void tappyData(dynamic data) {
+  void notifyData(dynamic data) {
     for (var item in _onMessages!) {
       item(data);
     }
@@ -116,7 +116,7 @@ class SocketNotifier {
   /// Notifies all registered error listeners with [err].
   ///
   /// Should be called when a socket-related error occurs.
-  void tappyError(SocketClose err) {
+  void notifyError(SocketClose err) {
     for (var item in _onErrors!) {
       item(err);
     }

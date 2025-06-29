@@ -427,7 +427,7 @@ class _TextAutoSizingState extends State<TextAutoSizing> {
     }
   }
 
-  void _tappySync() {
+  void _notifySync() {
     setState(() {});
   }
 
@@ -467,11 +467,11 @@ class TextAutoSizingController {
 
     if (oldFontSize != _fontSize) {
       _widgetsNotified = false;
-      scheduleMicrotask(_tappyListeners);
+      scheduleMicrotask(_notifyListeners);
     }
   }
 
-  void _tappyListeners() {
+  void _notifyListeners() {
     if (_widgetsNotified) {
       return;
     } else {
@@ -480,7 +480,7 @@ class TextAutoSizingController {
 
     for (final textState in _listeners.keys) {
       if (textState.mounted) {
-        textState._tappySync();
+        textState._notifySync();
       }
     }
   }

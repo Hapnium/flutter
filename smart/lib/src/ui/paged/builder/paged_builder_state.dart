@@ -49,6 +49,9 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
 
   /// Avoids duplicate requests on rebuilds.
   bool _hasRequestedNextPage = false;
+  
+  /// Track the current page key to prevent duplicate requests for the same page
+  PageKeyType? _currentRequestedPageKey;
 
   @override
   void didUpdateWidget(covariant PagedBuilder<PageKeyType, ItemType> oldWidget) {
@@ -59,7 +62,6 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
     } else if(oldWidget.controller.itemList.notEquals(widget.controller.itemList)) {
       setState(() {});
     }
-
     super.didUpdateWidget(oldWidget);
   }
 
@@ -69,13 +71,15 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
       listenable: pagingController,
       listener: () {
         final status = pagingController.value.status;
-
-        if (status.equals(PagedStatus.loadingFirstPage)) {
-          pagingController.tappyPageRequestListeners(pagingController.firstPageKey);
+        
+        if (status.isLoadingFirstPage) {
+          pagingController.notifyPageRequestListeners(pagingController.firstPageKey);
         }
-
-        if (status.equals(PagedStatus.ongoing)) {
+        
+        // Reset the request flag when a new page is successfully loaded or an error occurs
+        if (status.isOngoing || status.isCompleted || status.isSubsequentPageError) {
           _hasRequestedNextPage = false;
+          _currentRequestedPageKey = null;
         }
       },
       child: ValueListenableBuilder<Paged<PageKeyType, ItemType>>(
@@ -96,15 +100,14 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
               default:
                 child = noItemsFoundBuilder;
             }
-
             return child(context);
           }
 
           int count = itemCount + (PagedHelper.canAddExtra(state.status) ? 1 : 0);
           IndexedWidgetBuilder builder = (BuildContext context, int index) => childItemBuilder(context, index, state, count);
           bool showExtra = state.status.isSubsequentPageError
-            || state.status.isCompleted
-            || (state.status.isOngoing && _hasRequestedNextPage);
+              || state.status.isCompleted
+              || (state.status.isOngoing && _hasRequestedNextPage);
 
           return childBuilder(count, state.status, showExtra, builder);
         },
@@ -117,22 +120,28 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
     bool isExtraWidget = index.equals(count - 1) && PagedHelper.canAddExtra(state.status);
 
     if(isExtraWidget.isFalse) {
-      if (!_hasRequestedNextPage) {
+      // Only trigger next page request if we haven't already requested it and we're not currently loading
+      if (!_hasRequestedNextPage && !state.status.isLoadingFirstPage && !state.status.isOngoing) {
         int newPageRequestTriggerIndex = max(0, itemCount - invisibleItemsThreshold);
         bool isBuildingTriggerIndexItem = index.equals(newPageRequestTriggerIndex);
 
-        if (hasNextPage && isBuildingTriggerIndexItem) {
+        if (hasNextPage && 
+            isBuildingTriggerIndexItem && 
+            (_currentRequestedPageKey == null || _currentRequestedPageKey != nextKey)) {
+          
           // Schedules the request for the end of this frame.
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            pagingController.tappyPageRequestListeners(nextKey as PageKeyType);
+            // Double-check that we still need to make the request
+            if (!_hasRequestedNextPage && hasNextPage && (_currentRequestedPageKey == null || _currentRequestedPageKey != nextKey)) {
+              _hasRequestedNextPage = true;
+              _currentRequestedPageKey = nextKey;
+              pagingController.notifyPageRequestListeners(nextKey as PageKeyType);
+            }
           });
-
-          _hasRequestedNextPage = true;
         }
       }
 
       final itemList = pagingController.itemList;
-
       ItemMetadata<ItemType> metadata = ItemMetadata(
         isFirst: index.equals(0),
         isLast: index.equals(itemCount - 1),

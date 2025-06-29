@@ -13,11 +13,11 @@ class Sx<T> {
   set value(T newValue) {
     if (_value != newValue) {
       _value = newValue;
-      _tappyListeners();
+      _notifyListeners();
     }
   }
 
-  void _tappyListeners() {
+  void _notifyListeners() {
     for (var listener in _listeners) {
       listener();
     }

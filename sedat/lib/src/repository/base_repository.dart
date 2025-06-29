@@ -137,17 +137,17 @@ abstract class BaseRepository<Result, Insert> implements RepositoryService<Resul
   /// that emits the current data and any subsequent changes to the data in the
   /// Hive box.
   void _startListening() {
-    _tappyListeners(get()); // Emit the current data
+    _notifyListeners(get()); // Emit the current data
 
     _subscription = _box.watch(key: _key).listen((event) {
       if (event.deleted) {
         if(_defaultValue != null) {
-          _tappyListeners(_defaultValue!);
+          _notifyListeners(_defaultValue!);
         } else {
-          _tappyListeners(fromStore(null));
+          _notifyListeners(fromStore(null));
         }
       } else {
-        _tappyListeners(fromStore(event.value)); // Emit the new value
+        _notifyListeners(fromStore(event.value)); // Emit the new value
       }
     });
   }
@@ -156,7 +156,7 @@ abstract class BaseRepository<Result, Insert> implements RepositoryService<Resul
   /// 
   /// This method emits the given [result] to the stream controller, which
   /// notifies any listeners of the change.
-  void _tappyListeners(Result result) {
+  void _notifyListeners(Result result) {
     _controller.add(result);
   }
 
@@ -211,7 +211,7 @@ abstract class BaseRepository<Result, Insert> implements RepositoryService<Resul
       result = item;
     }
 
-    _tappyListeners(result);
+    _notifyListeners(result);
     return result;
   }
 
@@ -587,7 +587,7 @@ abstract class BaseRepository<Result, Insert> implements RepositoryService<Resul
     _throwIfNotInitialized();
     
     await _box.delete(_key);
-    _tappyListeners(fromStore(null));
+    _notifyListeners(fromStore(null));
 
     runDelete();
     return Optional.empty<Result>();

@@ -61,18 +61,18 @@ class BaseWebSocket extends SocketInterface {
       connectionStatus = SocketStatus.connected;
 
       socket!.listen((data) {
-        socketNotifier!.tappyData(data);
+        socketNotifier!.notifyData(data);
       }, onError: (err) {
-        socketNotifier!.tappyError(SocketClose(err.toString(), 1005));
+        socketNotifier!.notifyError(SocketClose(err.toString(), 1005));
       }, onDone: () {
         connectionStatus = SocketStatus.closed;
-        socketNotifier!.tappyClose(SocketClose('Connection Closed', socket!.closeCode));
+        socketNotifier!.notifyClose(SocketClose('Connection Closed', socket!.closeCode));
       }, cancelOnError: true);
 
       return;
     } on SocketException catch (e) {
       connectionStatus = SocketStatus.closed;
-      socketNotifier!.tappyError(SocketClose(e.osError!.message, e.osError!.errorCode));
+      socketNotifier!.notifyError(SocketClose(e.osError!.message, e.osError!.errorCode));
       
       return;
     }

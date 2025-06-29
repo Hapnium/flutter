@@ -372,7 +372,7 @@ extension ClientHandlerExtension on ClientHandler {
       zapException = ZapException(e.toString(), request.url);
     }
 
-    // Always tappy the adviser about the exception
+    // Always notify the adviser about the exception
     _adviser.onException(zapException);
 
     // If errorSafety is disabled, rethrow the exception

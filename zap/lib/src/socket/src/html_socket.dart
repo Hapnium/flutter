@@ -92,23 +92,23 @@ class BaseWebSocket extends SocketInterface {
       });
 
       socket!.onMessage.listen((event) {
-        socketNotifier!.tappyData(event.data);
+        socketNotifier!.notifyData(event.data);
       });
 
       socket!.onClose.listen((e) {
         _t?.cancel();
 
         connectionStatus = SocketStatus.closed;
-        socketNotifier!.tappyClose(SocketClose(e.reason, e.code));
+        socketNotifier!.notifyClose(SocketClose(e.reason, e.code));
       });
       socket!.onError.listen((event) {
         _t?.cancel();
-        socketNotifier!.tappyError(SocketClose(event.toString(), 0));
+        socketNotifier!.notifyError(SocketClose(event.toString(), 0));
         connectionStatus = SocketStatus.closed;
       });
     } on Exception catch (e) {
       _t?.cancel();
-      socketNotifier!.tappyError(SocketClose(e.toString(), 500));
+      socketNotifier!.notifyError(SocketClose(e.toString(), 500));
       connectionStatus = SocketStatus.closed;
       //  close(500, e.toString());
     }

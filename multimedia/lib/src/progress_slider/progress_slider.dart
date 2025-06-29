@@ -97,7 +97,7 @@ class ProgressSlider extends LeafRenderObjectWidget {
   /// A callback when the user is moving the thumb.
   ///
   /// This will be called repeatedly as the thumb position changes. This
-  /// provides you with the [ThumbDragDetails], which tappy you of the global
+  /// provides you with the [ThumbDragDetails], which notify you of the global
   /// and local positions of the drag event as well as the current thumb
   /// duration. The current thumb duration will not go beyond [total] or less
   /// that `Duration.zero` so you can use this information to clamp the drag
