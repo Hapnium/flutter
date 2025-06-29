@@ -4,6 +4,7 @@ export 'src/utilities/typedefs.dart';
 
 /// UTILS
 export 'src/utilities/utils/sizing.dart';
+export 'src/utilities/utils/google_map_style.dart';
 export 'src/utilities/utils/input_validator.dart';
 export 'src/utilities/utils/widget_utils.dart';
 export 'src/utilities/utils/smart_utils.dart';
