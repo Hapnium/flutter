@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hapnium/hapnium.dart';
 import 'package:smart/enums.dart';
 import 'package:smart/extensions.dart';
+import 'package:tracing/tracing.dart' show console;
 
 import '../helpers/listenable_listener.dart';
 import '../helpers/paged_helper.dart';

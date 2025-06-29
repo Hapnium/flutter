@@ -68,6 +68,7 @@ class SmartAvatar extends BaseAvatar {
     this.textWeight,
     this.textColor,
     this.defaultIcon,
+    super.image,
     super.onClick,
     super.backgroundColorBuilder,
     super.foregroundColorBuilder,
@@ -113,6 +114,7 @@ class SmartAvatar extends BaseAvatar {
     super.maxRadius,
     super.isLightTheme,
     super.showLogs,
+    super.image,
     this.applyPadding = true,
     this.padding
   }) : super(
@@ -145,6 +147,7 @@ class SmartAvatar extends BaseAvatar {
     super.onForegroundImageError,
     super.isLightTheme,
     super.showLogs,
+    super.image,
     super.alignment,
     super.rectangleBorderRadius,
     super.rectangleDecoration,
@@ -164,7 +167,9 @@ class SmartAvatar extends BaseAvatar {
   @override
   Widget? avatar(BuildContext context) {
     if(super.foregroundImageBuilder.isNotNull) {
-      return null;
+      if(super.image.isNotNull && super.image!.isNotEmpty) {
+        return null;
+      }
     }
 
     final backgroundColor = (fullName.isNotNull || firstName.isNotNull || lastName.isNotNull)

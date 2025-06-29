@@ -21,7 +21,7 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
   WidgetBuilder get firstPageProgressBuilder => delegate.firstPageProgressIndicatorBuilder ?? (_) => PagedFirstPageProgressIndicator();
 
   @protected
-  WidgetBuilder get newPageProgressBuilder => delegate.newPageProgressIndicatorBuilder ?? (_) => PagedNewPageProgressIndicator();
+  WidgetBuilder get newPageProgressBuilder => delegate.newPageErrorIndicatorBuilder ?? (_) => PagedNewPageProgressIndicator();
 
   @protected
   WidgetBuilder get noItemsFoundBuilder => delegate.noItemsFoundIndicatorBuilder ?? (_) => PagedNoItemsFoundIndicator();
@@ -72,12 +72,14 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
       listener: () {
         final status = pagingController.value.status;
         
-        if (status.isLoadingFirstPage) {
+        if (status.equals(PagedStatus.loadingFirstPage)) {
           pagingController.notifyPageRequestListeners(pagingController.firstPageKey);
         }
         
         // Reset the request flag when a new page is successfully loaded or an error occurs
-        if (status.isOngoing || status.isCompleted || status.isSubsequentPageError) {
+        if (status.equals(PagedStatus.ongoing) || 
+            status.equals(PagedStatus.completed) || 
+            status.equals(PagedStatus.subsequentPageError)) {
           _hasRequestedNextPage = false;
           _currentRequestedPageKey = null;
         }
@@ -120,26 +122,8 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
     bool isExtraWidget = index.equals(count - 1) && PagedHelper.canAddExtra(state.status);
 
     if(isExtraWidget.isFalse) {
-      // Only trigger next page request if we haven't already requested it and we're not currently loading
-      if (!_hasRequestedNextPage && !state.status.isLoadingFirstPage && !state.status.isOngoing) {
-        int newPageRequestTriggerIndex = max(0, itemCount - invisibleItemsThreshold);
-        bool isBuildingTriggerIndexItem = index.equals(newPageRequestTriggerIndex);
-
-        if (hasNextPage && 
-            isBuildingTriggerIndexItem && 
-            (_currentRequestedPageKey == null || _currentRequestedPageKey != nextKey)) {
-          
-          // Schedules the request for the end of this frame.
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            // Double-check that we still need to make the request
-            if (!_hasRequestedNextPage && hasNextPage && (_currentRequestedPageKey == null || _currentRequestedPageKey != nextKey)) {
-              _hasRequestedNextPage = true;
-              _currentRequestedPageKey = nextKey;
-              pagingController.notifyPageRequestListeners(nextKey as PageKeyType);
-            }
-          });
-        }
-      }
+      // Check if we should trigger next page request
+      _checkAndTriggerNextPageRequest(index, state);
 
       final itemList = pagingController.itemList;
       ItemMetadata<ItemType> metadata = ItemMetadata(
@@ -163,5 +147,45 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
       default:
         return SizedBox.shrink();
     }
+  }
+
+  /// Checks if we should trigger a next page request and does so if needed
+  void _checkAndTriggerNextPageRequest(int index, Paged<PageKeyType, ItemType> state) {
+    // Don't request if we already have a pending request
+    if (_hasRequestedNextPage) return;
+    
+    // Don't request if we're currently loading
+    if (state.status.isLoadingFirstPage || state.status.isOngoing) return;
+    
+    // Don't request if there's no next page
+    if (!hasNextPage) return;
+    
+    // Check if we've reached the trigger point
+    int newPageRequestTriggerIndex = max(0, itemCount - invisibleItemsThreshold);
+    bool isBuildingTriggerIndexItem = index.equals(newPageRequestTriggerIndex);
+    
+    if (!isBuildingTriggerIndexItem) return;
+    
+    // Don't request if we've already requested this page key
+    if (_currentRequestedPageKey != null && _currentRequestedPageKey == nextKey) return;
+    
+    // All conditions met - schedule the request
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Final check before making the request
+      if (!_hasRequestedNextPage && 
+          hasNextPage && 
+          state.status.isLoadingFirstPage.isFalse &&
+          state.status.isOngoing.isFalse &&
+          (_currentRequestedPageKey == null || _currentRequestedPageKey != nextKey)) {
+        
+        if (pagingController.showLog) {
+          console.log("Requesting next page with key: $nextKey", tag: pagingController.logContext);
+        }
+        
+        _hasRequestedNextPage = true;
+        _currentRequestedPageKey = nextKey;
+        pagingController.notifyPageRequestListeners(nextKey as PageKeyType);
+      }
+    });
   }
 }

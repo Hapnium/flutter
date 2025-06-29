@@ -24,6 +24,11 @@ import '../export.dart';
 /// 
 /// {@endtemplate}
 abstract class BaseAvatar extends StatelessWidget {
+  /// Optional image url to display.
+  /// 
+  /// This is used in the [foregroundImageBuilder] if it is not provided.
+  final String? image;
+
   /// The size of the avatar, expressed as the radius (half the diameter).
   ///
   /// If [radius] is specified, then neither [minRadius] nor [maxRadius] may be
@@ -151,6 +156,7 @@ abstract class BaseAvatar extends StatelessWidget {
     super.key,
     this.foregroundImageBuilder,
     required this.radius,
+    this.image,
     this.backgroundColorBuilder,
     this.onClick,
     this.foregroundColorBuilder,
@@ -180,7 +186,7 @@ abstract class BaseAvatar extends StatelessWidget {
   }
 
   Widget _default(BuildContext context) {
-    String fallback = isLightTheme ? SmartAnimAssets.darkWallpaper : SmartAnimAssets.lightWallpaper;
+    String fallback = image.isNotNull ? image! : isLightTheme ? SmartAnimAssets.darkWallpaper : SmartAnimAssets.lightWallpaper;
 
     final Color? foregroundColor = foregroundColorBuilder.isNotNull ? foregroundColorBuilder!(context) : null;
     final ImageProvider? foreground = foregroundImageBuilder.isNotNull ? foregroundImageBuilder!(context, fallback) : null;
