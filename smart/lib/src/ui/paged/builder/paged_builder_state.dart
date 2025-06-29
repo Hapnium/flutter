@@ -42,7 +42,7 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
   PageKeyType? get nextKey => pagingController.nextPageKey;
 
   @protected
-  bool get hasNextPage => nextKey.isNotNull;
+  bool get hasNextPage => nextKey.isNotNull && nextKey.notEquals(pagingController.firstPageKey);
 
   @protected
   PagedChildBuilder<PageKeyType, ItemType> get childBuilder => widget.childBuilder;
@@ -59,6 +59,7 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
     } else if(oldWidget.controller.itemList.notEquals(widget.controller.itemList)) {
       setState(() {});
     }
+
     super.didUpdateWidget(oldWidget);
   }
 
@@ -68,16 +69,12 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
       listenable: pagingController,
       listener: () {
         final status = pagingController.value.status;
-        
-        // Handle first page loading
+
         if (status.equals(PagedStatus.loadingFirstPage)) {
           pagingController.notifyPageRequestListeners(pagingController.firstPageKey);
         }
-        
-        // Reset request flag when page loads successfully or fails
-        if (status.equals(PagedStatus.ongoing) || 
-            status.equals(PagedStatus.completed) || 
-            status.equals(PagedStatus.subsequentPageError)) {
+
+        if (status.equals(PagedStatus.ongoing)) {
           _hasRequestedNextPage = false;
         }
       },
@@ -99,14 +96,15 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
               default:
                 child = noItemsFoundBuilder;
             }
+
             return child(context);
           }
 
           int count = itemCount + (PagedHelper.canAddExtra(state.status) ? 1 : 0);
           IndexedWidgetBuilder builder = (BuildContext context, int index) => childItemBuilder(context, index, state, count);
           bool showExtra = state.status.isSubsequentPageError
-              || state.status.isCompleted
-              || (state.status.isOngoing && _hasRequestedNextPage);
+            || state.status.isCompleted
+            || (state.status.isOngoing && _hasRequestedNextPage);
 
           return childBuilder(count, state.status, showExtra, builder);
         },
@@ -119,23 +117,20 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
     bool isExtraWidget = index.equals(count - 1) && PagedHelper.canAddExtra(state.status);
 
     if(isExtraWidget.isFalse) {
-      // Check if we should request next page
-      if (!_hasRequestedNextPage && hasNextPage) {
+      if (!_hasRequestedNextPage) {
         int newPageRequestTriggerIndex = max(0, itemCount - invisibleItemsThreshold);
         bool isBuildingTriggerIndexItem = index.equals(newPageRequestTriggerIndex);
 
-        if (isBuildingTriggerIndexItem) {
-          // Schedule the request for the end of this frame
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!_hasRequestedNextPage && hasNextPage) {
-              _hasRequestedNextPage = true;
-              pagingController.notifyPageRequestListeners(nextKey as PageKeyType);
-            }
-          });
+        if (hasNextPage && isBuildingTriggerIndexItem) {
+          if (!_hasRequestedNextPage) {
+            _hasRequestedNextPage = true;
+            pagingController.notifyPageRequestListeners(nextKey as PageKeyType);
+          }
         }
       }
 
       final itemList = pagingController.itemList;
+
       ItemMetadata<ItemType> metadata = ItemMetadata(
         isFirst: index.equals(0),
         isLast: index.equals(itemCount - 1),
