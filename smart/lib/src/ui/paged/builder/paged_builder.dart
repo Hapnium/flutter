@@ -1,11 +1,10 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Page;
 import 'package:flutter/foundation.dart';
 import 'package:hapnium/hapnium.dart';
 import 'package:smart/enums.dart';
 import 'package:smart/extensions.dart';
-import 'package:tracing/tracing.dart' show console;
 
 import '../helpers/listenable_listener.dart';
 import '../helpers/paged_helper.dart';
@@ -22,8 +21,8 @@ part 'paged_builder_state.dart';
 /// data using a [PagedController]. It supports vertical and horizontal scrolling
 /// and provides various customization options.
 ///
-/// - [PageKeyType] represents the type of key used for pagination.
-/// - [ItemType] represents the type of data displayed in the list.
+/// - [Page] represents the type of key used for pagination.
+/// - [Item] represents the type of data displayed in the list.
 ///
 /// **Purpose:**
 ///
@@ -66,15 +65,15 @@ part 'paged_builder_state.dart';
 /// The [PagedBuilder] serves as a base class that can be used to build other
 /// list views like [ListView], [GridView], and more. It provides a flexible
 /// and extensible way to create paginated lists in Flutter.
-class PagedBuilder<PageKeyType, ItemType> extends StatefulWidget {
+class PagedBuilder<Page, Item> extends StatefulWidget {
   /// The controller responsible for managing pagination.
-  final PagedController<PageKeyType, ItemType> controller;
+  final PagedController<Page, Item> controller;
 
   /// The builder delegate used to create list items.
-  final PagedChildBuilderDelegate<ItemType> builderDelegate;
+  final PagedChildBuilderDelegate<Item> builderDelegate;
 
   /// A builder function to create the scrollable widget (e.g., ListView, GridView).
-  final PagedChildBuilder<PageKeyType, ItemType> childBuilder;
+  final PagedChildBuilder<Page, Item> childBuilder;
 
   /// Creates a [PagedBuilder] with pagination support.
   ///
@@ -87,7 +86,7 @@ class PagedBuilder<PageKeyType, ItemType> extends StatefulWidget {
   });
 
   @override
-  State<PagedBuilder<PageKeyType, ItemType>> createState() => _PagedBuilderState<PageKeyType, ItemType>();
+  State<PagedBuilder<Page, Item>> createState() => _PagedBuilderState<Page, Item>();
 
   /// Debug properties for [PagedBuilder].
   ///
@@ -97,6 +96,6 @@ class PagedBuilder<PageKeyType, ItemType> extends StatefulWidget {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty('controller', controller));
     properties.add(DiagnosticsProperty('builderDelegate', builderDelegate));
-    properties.add(DiagnosticsProperty<PagedChildBuilder<PageKeyType, ItemType>>('childBuilder', childBuilder));
+    properties.add(DiagnosticsProperty<PagedChildBuilder<Page, Item>>('childBuilder', childBuilder));
   }
 }

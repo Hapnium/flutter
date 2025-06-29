@@ -1,6 +1,6 @@
 part of 'paged_list_view.dart';
 
-class _PagedListViewState<PageKeyType, ItemType> extends State<PagedListView<PageKeyType, ItemType>> {
+class _PagedListViewState<Page, Item> extends State<PagedListView<Page, Item>> {
   late final ScrollController _scrollController;
 
   @protected
@@ -36,7 +36,7 @@ class _PagedListViewState<PageKeyType, ItemType> extends State<PagedListView<Pag
   }
 
   @override
-  void didUpdateWidget(covariant PagedListView<PageKeyType, ItemType> oldWidget) {
+  void didUpdateWidget(covariant PagedListView<Page, Item> oldWidget) {
     if (oldWidget.scrollController != widget.scrollController) {
       setState(() {});
     } else if(oldWidget.separatorBuilder.notEquals(widget.separatorBuilder) || oldWidget.separatorStrategy.notEquals(widget.separatorStrategy)) {
@@ -57,7 +57,7 @@ class _PagedListViewState<PageKeyType, ItemType> extends State<PagedListView<Pag
 
   @override
   Widget build(BuildContext context) {
-    return PagedBuilder<PageKeyType, ItemType>(
+    return PagedBuilder<Page, Item>(
       controller: widget.controller,
       builderDelegate: widget.builderDelegate,
       childBuilder: (int itemCount, PagedStatus _, Boolean _b, IndexedWidgetBuilder childItemBuilder) {

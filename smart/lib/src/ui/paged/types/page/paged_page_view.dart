@@ -1,5 +1,5 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Page;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:hapnium/hapnium.dart';
@@ -19,8 +19,8 @@ part 'paged_page_view_state.dart';
 /// data using a [PagedController]. It supports horizontal and vertical page
 /// scrolling and provides various customization options.
 ///
-/// - [PageKeyType] represents the type of key used for pagination.
-/// - [ItemType] represents the type of data displayed in the page view.
+/// - [Page] represents the type of key used for pagination.
+/// - [Item] represents the type of data displayed in the page view.
 ///
 /// **Purpose:**
 ///
@@ -64,12 +64,12 @@ part 'paged_page_view_state.dart';
 ///
 /// The [PagedPageView] widget is a specialized version of the [PageView] widget
 /// that integrates with the [PagedController] for pagination support.
-class PagedPageView<PageKeyType, ItemType> extends StatefulWidget {
+class PagedPageView<Page, Item> extends StatefulWidget {
   /// The controller responsible for managing pagination.
-  final PagedController<PageKeyType, ItemType> controller;
+  final PagedController<Page, Item> controller;
 
   /// The builder delegate used to create list items.
-  final PagedChildBuilderDelegate<ItemType> builderDelegate;
+  final PagedChildBuilderDelegate<Item> builderDelegate;
 
   /// Controls whether the widget's pages will respond to
   /// [RenderObject.showOnScreen], which will allow for implicit accessibility
@@ -453,7 +453,7 @@ class PagedPageView<PageKeyType, ItemType> extends StatefulWidget {
       mainAxisSize = null;
 
   @override
-  State<PagedPageView<PageKeyType, ItemType>> createState() => _PagedPageViewState<PageKeyType, ItemType>();
+  State<PagedPageView<Page, Item>> createState() => _PagedPageViewState<Page, Item>();
 
   /// Debug properties for [PagedPageView].
   ///

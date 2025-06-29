@@ -1,11 +1,11 @@
 part of 'paged_builder.dart';
 
-class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageKeyType, ItemType>> {
+class _PagedBuilderState<Page, Item> extends State<PagedBuilder<Page, Item>> {
   @protected
-  PagedController<PageKeyType, ItemType> get pagingController => widget.controller;
+  PagedController<Page, Item> get pagingController => widget.controller;
 
   @protected
-  PagedChildBuilderDelegate<ItemType> get delegate => widget.builderDelegate;
+  PagedChildBuilderDelegate<Item> get delegate => widget.builderDelegate;
 
   @protected
   WidgetBuilder get firstPageErrorBuilder => delegate.firstPageErrorIndicatorBuilder ?? (_) => PagedFirstPageErrorIndicator(
@@ -30,7 +30,7 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
   WidgetBuilder get noMoreItemsBuilder => delegate.noMoreItemsIndicatorBuilder ?? (_) => SizedBox.shrink();
 
   @protected
-  ItemWidgetBuilder<ItemType> get itemBuilder => widget.builderDelegate.itemBuilder;
+  ItemWidgetBuilder<Item> get itemBuilder => widget.builderDelegate.itemBuilder;
 
   @protected
   int get invisibleItemsThreshold => pagingController.invisibleItemsThreshold ?? 3;
@@ -39,19 +39,19 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
   int get itemCount => pagingController.itemList?.length ?? 0;
 
   @protected
-  PageKeyType? get nextKey => pagingController.nextPageKey;
+  Page? get nextPage => pagingController.nextPage;
 
   @protected
-  bool get hasNextPage => nextKey.isNotNull && nextKey.notEquals(pagingController.firstPageKey);
+  bool get hasNextPage => nextPage.isNotNull && nextPage.notEquals(pagingController.firstPage);
 
   @protected
-  PagedChildBuilder<PageKeyType, ItemType> get childBuilder => widget.childBuilder;
+  PagedChildBuilder<Page, Item> get childBuilder => widget.childBuilder;
 
   /// Avoids duplicate requests on rebuilds.
   bool _hasRequestedNextPage = false;
 
   @override
-  void didUpdateWidget(covariant PagedBuilder<PageKeyType, ItemType> oldWidget) {
+  void didUpdateWidget(covariant PagedBuilder<Page, Item> oldWidget) {
     if(oldWidget.builderDelegate.notEquals(widget.builderDelegate)) {
       setState(() {});
     } else if(oldWidget.controller.notEquals(widget.controller)) {
@@ -70,17 +70,17 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
       listener: () {
         final status = pagingController.value.status;
 
-        if (status.equals(PagedStatus.loadingFirstPage)) {
-          pagingController.notifyPageRequestListeners(pagingController.firstPageKey);
+        if (status.isLoadingFirstPage) {
+          pagingController.notifyPageRequestListeners(pagingController.firstPage);
         }
 
-        if (status.equals(PagedStatus.ongoing)) {
+        if (status.isOngoing || status.isCompleted || status.isSubsequentPageError) {
           _hasRequestedNextPage = false;
         }
       },
-      child: ValueListenableBuilder<Paged<PageKeyType, ItemType>>(
+      child: ValueListenableBuilder<Paged<Page, Item>>(
         valueListenable: pagingController,
-        builder: (BuildContext context, Paged<PageKeyType, ItemType> state, _) {
+        builder: (BuildContext context, Paged<Page, Item> state, _) {
           if (itemCount.equals(0)) {
             WidgetBuilder child;
             switch (state.status) {
@@ -113,25 +113,28 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
   }
 
   @protected
-  Widget childItemBuilder(BuildContext context, int index, Paged<PageKeyType, ItemType> state, int count) {
+  Widget childItemBuilder(BuildContext context, int index, Paged<Page, Item> state, int count) {
     bool isExtraWidget = index.equals(count - 1) && PagedHelper.canAddExtra(state.status);
 
     if(isExtraWidget.isFalse) {
-      if (!_hasRequestedNextPage) {
+      if (!_hasRequestedNextPage && hasNextPage) {
         int newPageRequestTriggerIndex = max(0, itemCount - invisibleItemsThreshold);
         bool isBuildingTriggerIndexItem = index.equals(newPageRequestTriggerIndex);
 
-        if (hasNextPage && isBuildingTriggerIndexItem) {
-          if (!_hasRequestedNextPage) {
-            _hasRequestedNextPage = true;
-            pagingController.notifyPageRequestListeners(nextKey as PageKeyType);
-          }
+        if (isBuildingTriggerIndexItem) {
+          // Schedule the request for the end of this frame
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!_hasRequestedNextPage && hasNextPage) {
+              _hasRequestedNextPage = true;
+              pagingController.notifyPageRequestListeners(nextPage as Page);
+            }
+          });
         }
       }
 
       final itemList = pagingController.itemList;
 
-      ItemMetadata<ItemType> metadata = ItemMetadata(
+      ItemMetadata<Item> metadata = ItemMetadata(
         isFirst: index.equals(0),
         isLast: index.equals(itemCount - 1),
         index: index,

@@ -1,5 +1,5 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Page;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:hapnium/hapnium.dart';
@@ -19,8 +19,8 @@ part 'paged_grid_view_state.dart';
 /// data using a [PagedController]. It supports vertical and horizontal scrolling
 /// and provides various customization options.
 ///
-/// - [PageKeyType] represents the type of key used for pagination.
-/// - [ItemType] represents the type of data displayed in the grid.
+/// - [Page] represents the type of key used for pagination.
+/// - [Item] represents the type of data displayed in the grid.
 ///
 /// **Purpose:**
 ///
@@ -66,7 +66,7 @@ part 'paged_grid_view_state.dart';
 ///
 /// The [PagedGridView] widget is a specialized version of the [GridView] widget
 /// that integrates with the [PagedController] for pagination support.
-class PagedGridView<PageKeyType, ItemType> extends StatefulWidget {
+class PagedGridView<Page, Item> extends StatefulWidget {
   /// A delegate that controls the layout of the children within the PagedGridView.
   ///
   /// The [PagedGridView].builder, and [PagedGridView].separator constructors let you
@@ -74,10 +74,10 @@ class PagedGridView<PageKeyType, ItemType> extends StatefulWidget {
   final SliverGridDelegate gridDelegate;
 
   /// The controller responsible for managing pagination.
-  final PagedController<PageKeyType, ItemType> controller;
+  final PagedController<Page, Item> controller;
 
   /// The builder delegate used to create list items.
-  final PagedChildBuilderDelegate<ItemType> builderDelegate;
+  final PagedChildBuilderDelegate<Item> builderDelegate;
 
   /// The axis along which the list scrolls. Defaults to [Axis.vertical].
   final Axis scrollDirection;
@@ -267,7 +267,7 @@ class PagedGridView<PageKeyType, ItemType> extends StatefulWidget {
   }) : semanticChildCount = null;
 
   @override
-  State<PagedGridView<PageKeyType, ItemType>> createState() => _PagedGridViewState<PageKeyType, ItemType>();
+  State<PagedGridView<Page, Item>> createState() => _PagedGridViewState<Page, Item>();
 
   /// Debug properties for [PagedListView].
   ///

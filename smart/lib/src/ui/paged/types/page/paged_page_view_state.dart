@@ -1,10 +1,10 @@
 part of 'paged_page_view.dart';
 
-class _PagedPageViewState<PageKeyType, ItemType> extends State<PagedPageView<PageKeyType, ItemType>> {
+class _PagedPageViewState<Page, Item> extends State<PagedPageView<Page, Item>> {
   late final PageController _pageController;
 
   @protected
-  PagedController<PageKeyType, ItemType> get pagingController => widget.controller;
+  PagedController<Page, Item> get pagingController => widget.controller;
 
   @protected
   NullableIndexedWidgetBuilder? get separatorBuilder => widget.separatorBuilder;
@@ -13,7 +13,7 @@ class _PagedPageViewState<PageKeyType, ItemType> extends State<PagedPageView<Pag
   bool get hasSeparator => separatorBuilder.isNotNull;
 
   @protected
-  PagedChildBuilderDelegate<ItemType> get delegate => widget.builderDelegate;
+  PagedChildBuilderDelegate<Item> get delegate => widget.builderDelegate;
 
   @protected
   PagedItemSeparatorStrategy get strategy => widget.separatorStrategy ?? PagedHelper.defaultStrategy;
@@ -36,7 +36,7 @@ class _PagedPageViewState<PageKeyType, ItemType> extends State<PagedPageView<Pag
   }
 
   @override
-  void didUpdateWidget(covariant PagedPageView<PageKeyType, ItemType> oldWidget) {
+  void didUpdateWidget(covariant PagedPageView<Page, Item> oldWidget) {
     if (oldWidget.pageController != widget.pageController) {
       setState(() {});
     } else if(oldWidget.separatorBuilder.notEquals(widget.separatorBuilder) || oldWidget.separatorStrategy.notEquals(widget.separatorStrategy)) {
@@ -71,7 +71,7 @@ class _PagedPageViewState<PageKeyType, ItemType> extends State<PagedPageView<Pag
 
   @override
   Widget build(BuildContext context) {
-    return PagedBuilder<PageKeyType, ItemType>(
+    return PagedBuilder<Page, Item>(
       controller: widget.controller,
       builderDelegate: widget.builderDelegate,
       childBuilder: (int itemCount, PagedStatus status, Boolean showExtra, IndexedWidgetBuilder childItemBuilder) {

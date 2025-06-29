@@ -1,13 +1,13 @@
 part of 'paged_grid_view.dart';
 
-class _PagedGridViewState<PageKeyType, ItemType> extends State<PagedGridView<PageKeyType, ItemType>> {
+class _PagedGridViewState<Page, Item> extends State<PagedGridView<Page, Item>> {
   late final ScrollController _scrollController;
 
   @protected
-  PagedController<PageKeyType, ItemType> get pagingController => widget.controller;
+  PagedController<Page, Item> get pagingController => widget.controller;
 
   @protected
-  PagedChildBuilderDelegate<ItemType> get delegate => widget.builderDelegate;
+  PagedChildBuilderDelegate<Item> get delegate => widget.builderDelegate;
 
   @protected
   NullableIndexedWidgetBuilder? get separatorBuilder => widget.separatorBuilder;
@@ -37,7 +37,7 @@ class _PagedGridViewState<PageKeyType, ItemType> extends State<PagedGridView<Pag
   }
 
   @override
-  void didUpdateWidget(covariant PagedGridView<PageKeyType, ItemType> oldWidget) {
+  void didUpdateWidget(covariant PagedGridView<Page, Item> oldWidget) {
     if (oldWidget.scrollController != widget.scrollController) {
       setState(() {});
     } else if(oldWidget.separatorBuilder.notEquals(widget.separatorBuilder) || oldWidget.separatorStrategy.notEquals(widget.separatorStrategy)) {
@@ -58,7 +58,7 @@ class _PagedGridViewState<PageKeyType, ItemType> extends State<PagedGridView<Pag
 
   @override
   Widget build(BuildContext context) {
-    return PagedBuilder<PageKeyType, ItemType>(
+    return PagedBuilder<Page, Item>(
       controller: widget.controller,
       builderDelegate: widget.builderDelegate,
       childBuilder: (int itemCount, PagedStatus status, Boolean showExtra, IndexedWidgetBuilder childItemBuilder) {

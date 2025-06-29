@@ -1,5 +1,5 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Page;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:hapnium/hapnium.dart';
@@ -19,8 +19,8 @@ const Widget _defaultSpacing = const SizedBox.shrink();
 /// data using a [PagedController]. It supports vertical and horizontal scrolling
 /// and provides various customization options.
 ///
-/// - [PageKeyType] represents the type of key used for pagination.
-/// - [ItemType] represents the type of data displayed in the list.
+/// - [Page] represents the type of key used for pagination.
+/// - [Item] represents the type of data displayed in the list.
 ///
 /// **Purpose:**
 ///
@@ -64,12 +64,12 @@ const Widget _defaultSpacing = const SizedBox.shrink();
 ///
 /// The [PagedListView] widget is a specialized version of the [ListView] widget
 /// that integrates with the [PagedController] for pagination support.
-class PagedListView<PageKeyType, ItemType> extends StatefulWidget {
+class PagedListView<Page, Item> extends StatefulWidget {
   /// The controller responsible for managing pagination.
-  final PagedController<PageKeyType, ItemType> controller;
+  final PagedController<Page, Item> controller;
 
   /// The builder delegate used to create list items.
-  final PagedChildBuilderDelegate<ItemType> builderDelegate;
+  final PagedChildBuilderDelegate<Item> builderDelegate;
 
   /// The axis along which the list scrolls. Defaults to [Axis.vertical].
   final Axis scrollDirection;
@@ -217,7 +217,7 @@ class PagedListView<PageKeyType, ItemType> extends StatefulWidget {
   }) : itemExtent = null, semanticChildCount = null, itemExtentBuilder = null, prototypeItem = null;
 
   @override
-  State<PagedListView<PageKeyType, ItemType>> createState() => _PagedListViewState<PageKeyType, ItemType>();
+  State<PagedListView<Page, Item>> createState() => _PagedListViewState<Page, Item>();
 
   /// Debug properties for [PagedListView].
   ///

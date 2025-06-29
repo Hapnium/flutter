@@ -5,22 +5,26 @@ import 'package:smart/enums.dart';
 /// The current item's list, error, and next page key state for a paginated
 /// widget.
 @immutable
-class Paged<PageKeyType, ItemType> {
+class Paged<Page, Item> {
   const Paged({
-    this.nextPageKey,
+    this.nextPage,
     this.itemList,
     this.error,
     this.showLog = false,
+    this.previousPage,
   });
 
   /// List with all items loaded so far.
-  final List<ItemType>? itemList;
+  final List<Item>? itemList;
 
   /// The current error, if any.
   final dynamic error;
 
   /// The key for the next page to be fetched.
-  final PageKeyType? nextPageKey;
+  final Page? nextPage;
+
+  /// The key for the previous page.
+  final Page? previousPage;
 
   /// Whether to show logs or not.
   final bool showLog;
@@ -53,7 +57,7 @@ class Paged<PageKeyType, ItemType> {
   @override
   String toString() =>
       '${objectRuntimeType(this, 'Paged')}(itemList: \u2524'
-          '$itemList\u251C, error: $error, nextPageKey: $nextPageKey, showLog: $showLog)';
+          '$itemList\u251C, error: $error, nextPage: $nextPage, previousPage: $previousPage, showLog: $showLog)';
 
   @override
   bool operator ==(Object other) {
@@ -63,7 +67,8 @@ class Paged<PageKeyType, ItemType> {
     return other is Paged &&
         other.itemList == itemList &&
         other.error == error &&
-        other.nextPageKey == nextPageKey &&
+        other.nextPage == nextPage &&
+        other.previousPage == previousPage &&
         other.showLog == showLog;
   }
 
@@ -71,13 +76,14 @@ class Paged<PageKeyType, ItemType> {
   int get hashCode => Object.hash(
     itemList.hashCode,
     error.hashCode,
-    nextPageKey.hashCode,
+    nextPage.hashCode,
+    previousPage.hashCode,
     showLog.hashCode,
   );
 
   int? get _itemCount => itemList?.length;
 
-  bool get _hasNextPage => nextPageKey.isNotNull;
+  bool get _hasNextPage => nextPage.isNotNull;
 
   bool get _hasItems {
     final itemCount = _itemCount;
