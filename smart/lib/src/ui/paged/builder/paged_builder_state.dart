@@ -49,9 +49,6 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
 
   /// Avoids duplicate requests on rebuilds.
   bool _hasRequestedNextPage = false;
-  
-  /// Track the current page key to prevent duplicate requests for the same page
-  PageKeyType? _currentRequestedPageKey;
 
   @override
   void didUpdateWidget(covariant PagedBuilder<PageKeyType, ItemType> oldWidget) {
@@ -72,36 +69,16 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
       listener: () {
         final status = pagingController.value.status;
         
-        if (pagingController.showLog) {
-          console.log("Status changed to: $status, hasNextPage: $hasNextPage, nextKey: $nextKey", tag: pagingController.logContext);
-        }
-        
+        // Handle first page loading
         if (status.equals(PagedStatus.loadingFirstPage)) {
           pagingController.notifyPageRequestListeners(pagingController.firstPageKey);
         }
         
-        // Reset the request flag when a page load completes (success or error)
-        // But NOT when it's ongoing (which means currently loading)
-        if (status.equals(PagedStatus.completed) || 
-            status.equals(PagedStatus.subsequentPageError) ||
-            status.equals(PagedStatus.firstPageError) ||
-            status.equals(PagedStatus.noItemsFound)) {
+        // Reset request flag when page loads successfully or fails
+        if (status.equals(PagedStatus.ongoing) || 
+            status.equals(PagedStatus.completed) || 
+            status.equals(PagedStatus.subsequentPageError)) {
           _hasRequestedNextPage = false;
-          _currentRequestedPageKey = null;
-          
-          if (pagingController.showLog) {
-            console.log("Reset request flags due to status: $status", tag: pagingController.logContext);
-          }
-        }
-        
-        // Special case: when we transition from loading to ongoing (page loaded successfully)
-        if (status.equals(PagedStatus.ongoing) && _hasRequestedNextPage) {
-          _hasRequestedNextPage = false;
-          _currentRequestedPageKey = null;
-          
-          if (pagingController.showLog) {
-            console.log("Reset request flags - page loaded successfully", tag: pagingController.logContext);
-          }
         }
       },
       child: ValueListenableBuilder<Paged<PageKeyType, ItemType>>(
@@ -142,8 +119,21 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
     bool isExtraWidget = index.equals(count - 1) && PagedHelper.canAddExtra(state.status);
 
     if(isExtraWidget.isFalse) {
-      // Check if we should trigger next page request
-      _checkAndTriggerNextPageRequest(index, state);
+      // Check if we should request next page
+      if (!_hasRequestedNextPage && hasNextPage) {
+        int newPageRequestTriggerIndex = max(0, itemCount - invisibleItemsThreshold);
+        bool isBuildingTriggerIndexItem = index.equals(newPageRequestTriggerIndex);
+
+        if (isBuildingTriggerIndexItem) {
+          // Schedule the request for the end of this frame
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!_hasRequestedNextPage && hasNextPage) {
+              _hasRequestedNextPage = true;
+              pagingController.notifyPageRequestListeners(nextKey as PageKeyType);
+            }
+          });
+        }
+      }
 
       final itemList = pagingController.itemList;
       ItemMetadata<ItemType> metadata = ItemMetadata(
@@ -167,81 +157,5 @@ class _PagedBuilderState<PageKeyType, ItemType> extends State<PagedBuilder<PageK
       default:
         return SizedBox.shrink();
     }
-  }
-
-  /// Checks if we should trigger a next page request and does so if needed
-  void _checkAndTriggerNextPageRequest(int index, Paged<PageKeyType, ItemType> state) {
-    // Calculate trigger index
-    int newPageRequestTriggerIndex = max(0, itemCount - invisibleItemsThreshold);
-    bool isBuildingTriggerIndexItem = index.equals(newPageRequestTriggerIndex);
-    
-    if (pagingController.showLog && isBuildingTriggerIndexItem) {
-      console.log("Building trigger item at index $index (trigger: $newPageRequestTriggerIndex)", tag: pagingController.logContext);
-      console.log("Status: ${state.status}, hasNextPage: $hasNextPage, hasRequested: $_hasRequestedNextPage", tag: pagingController.logContext);
-      console.log("NextKey: $nextKey, CurrentRequested: $_currentRequestedPageKey", tag: pagingController.logContext);
-    }
-    
-    // Don't request if we already have a pending request
-    if (_hasRequestedNextPage) {
-      if (pagingController.showLog && isBuildingTriggerIndexItem) {
-        console.log("Skipping - already requested", tag: pagingController.logContext);
-      }
-      return;
-    }
-    
-    // Don't request if we're currently loading the first page
-    if (state.status.isLoadingFirstPage) {
-      if (pagingController.showLog && isBuildingTriggerIndexItem) {
-        console.log("Skipping - loading first page", tag: pagingController.logContext);
-      }
-      return;
-    }
-    
-    // Don't request if there's no next page
-    if (!hasNextPage) {
-      if (pagingController.showLog && isBuildingTriggerIndexItem) {
-        console.log("Skipping - no next page", tag: pagingController.logContext);
-      }
-      return;
-    }
-    
-    // Check if we've reached the trigger point
-    if (!isBuildingTriggerIndexItem) return;
-    
-    // Don't request if we've already requested this page key
-    if (_currentRequestedPageKey != null && _currentRequestedPageKey == nextKey) {
-      if (pagingController.showLog) {
-        console.log("Skipping - already requested this page key", tag: pagingController.logContext);
-      }
-      return;
-    }
-    
-    // All conditions met - schedule the request
-    if (pagingController.showLog) {
-      console.log("Scheduling next page request for key: $nextKey", tag: pagingController.logContext);
-    }
-    
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Final check before making the request
-      if (!_hasRequestedNextPage && 
-          hasNextPage && 
-          !pagingController.value.status.isLoadingFirstPage &&
-          (_currentRequestedPageKey == null || _currentRequestedPageKey != nextKey)) {
-        
-        if (pagingController.showLog) {
-          console.log("Executing next page request for key: $nextKey", tag: pagingController.logContext);
-        }
-        
-        _hasRequestedNextPage = true;
-        _currentRequestedPageKey = nextKey;
-        pagingController.notifyPageRequestListeners(nextKey as PageKeyType);
-      } else {
-        if (pagingController.showLog) {
-          console.log("Final check failed - not executing request", tag: pagingController.logContext);
-          console.log("hasRequested: $_hasRequestedNextPage, hasNextPage: $hasNextPage", tag: pagingController.logContext);
-          console.log("isLoadingFirstPage: ${pagingController.value.status.isLoadingFirstPage}", tag: pagingController.logContext);
-        }
-      }
-    });
   }
 }
