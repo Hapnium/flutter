@@ -103,6 +103,8 @@ export 'paged/controllers/paged_controller.dart';
 export 'paged/controllers/extensions.dart';
 
 export 'paged/builders/paged_builder.dart';
+export 'paged/builders/paged_layout_builder.dart';
+export 'paged/builders/paged_listener.dart';
 
 export 'paged/types/paged_list_view.dart';
 export 'paged/types/paged_grid_view.dart';

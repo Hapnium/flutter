@@ -4,7 +4,6 @@ import 'package:flutter/rendering.dart';
 import 'package:hapnium/hapnium.dart';
 
 import '../../export.dart';
-import '../builders/paged_listener.dart';
 import '../helpers/paged_helper.dart';
 
 /// A scrollable page view that supports pagination.
@@ -485,16 +484,12 @@ class PagedPageView<Page, Item> extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => PagedListener(
+  Widget build(BuildContext context) => PagedLayoutBuilder(
     controller: controller,
-    builder: (context, state, fetchNextPage) => PagedBuilder<Page, Item>(
-      paged: state,
-      fetchNextPage: fetchNextPage,
-      builderDelegate: builderDelegate,
-      completedBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder, context),
-      loadingBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder, context),
-      errorBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder, context),
-    )
+    builderDelegate: builderDelegate,
+    completedBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder, context),
+    loadingBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder, context),
+    errorBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder, context),
   );
 
   Widget _build(int count, WidgetBuilder? widgetBuilder, IndexedWidgetBuilder itemBuilder, BuildContext context) {

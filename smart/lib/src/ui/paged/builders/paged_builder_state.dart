@@ -2,7 +2,7 @@ part of 'paged_builder.dart';
 
 class _PagedBuilderState<Page, Item> extends State<PagedBuilder<Page, Item>> {
   @protected
-  Paged<Page, Item> get value => widget.paged;
+  Paged<Page, Item> get value => widget.state;
 
   @protected
   PagedBuilderDelegate<Item> get delegate => widget.builderDelegate;
@@ -65,7 +65,7 @@ class _PagedBuilderState<Page, Item> extends State<PagedBuilder<Page, Item>> {
 
   @override
   void didUpdateWidget(covariant PagedBuilder<Page, Item> oldWidget) {
-    if (oldWidget.paged.notEquals(widget.paged)) {
+    if (oldWidget.state.notEquals(widget.state)) {
       if (value.status.isLoadingFirstPage) {
         fetchNextPage();
       } else if (value.status.isOngoing) {
@@ -78,6 +78,7 @@ class _PagedBuilderState<Page, Item> extends State<PagedBuilder<Page, Item>> {
 
   @override
   Widget build(BuildContext context) {
+    print("DEBUGGING::::::: PAGED BUILDER STATE: State: $value");
     return PagedBuilderAnimator(
       animateTransitions: delegate.animateTransitions,
       transitionDuration: delegate.transitionDuration,

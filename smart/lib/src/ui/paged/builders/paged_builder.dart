@@ -104,7 +104,7 @@ class PagedBuilder<Page, Item> extends StatefulWidget {
   /// The paginated state including items, error, page info, etc.
   /// 
   /// The current paginated state, usually passed from a [PagedListener].
-  final Paged<Page, Item> paged;
+  final Paged<Page, Item> state;
 
   /// Callback triggered to fetch the next page.
   /// 
@@ -134,7 +134,7 @@ class PagedBuilder<Page, Item> extends StatefulWidget {
   /// {@macro paged_builder}
   const PagedBuilder({
     super.key,
-    required this.paged,
+    required this.state,
     required this.fetchNextPage,
     required this.builderDelegate,
     required this.loadingBuilder,
@@ -148,7 +148,7 @@ class PagedBuilder<Page, Item> extends StatefulWidget {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty('paged', paged));
+    properties.add(DiagnosticsProperty('state', state));
     properties.add(DiagnosticsProperty('fetchNextPage', fetchNextPage));
     properties.add(DiagnosticsProperty('builderDelegate', builderDelegate));
     properties.add(DiagnosticsProperty<PagedWidgetBuilder>('loadingBuilder', loadingBuilder));

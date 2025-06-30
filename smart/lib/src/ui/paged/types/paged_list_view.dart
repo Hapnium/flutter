@@ -7,7 +7,6 @@ import 'package:hapnium/hapnium.dart';
 import 'package:smart/utilities.dart';
 
 import '../../export.dart';
-import '../builders/paged_listener.dart';
 import '../helpers/paged_helper.dart';
 
 const Widget _defaultSpacing = const SizedBox.shrink();
@@ -251,16 +250,12 @@ class PagedListView<Page, Item> extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => PagedListener(
+  Widget build(BuildContext context) => PagedLayoutBuilder(
     controller: controller,
-    builder: (context, state, fetchNextPage) => PagedBuilder<Page, Item>(
-      paged: state,
-      fetchNextPage: fetchNextPage,
-      builderDelegate: builderDelegate,
-      completedBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder),
-      loadingBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder),
-      errorBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder),
-    )
+    builderDelegate: builderDelegate,
+    completedBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder),
+    loadingBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder),
+    errorBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder),
   );
 
   Widget _build(int count, WidgetBuilder? widgetBuilder, IndexedWidgetBuilder itemBuilder) {

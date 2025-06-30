@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:smart/extensions.dart';
 import 'package:tracing/tracing.dart' show console;
 
 import '../../export.dart';
@@ -152,7 +153,7 @@ class PagedController<Page, Item> extends ValueNotifier<Paged<Page, Item>> {
     Paged<Page, Item> state = value;
 
     try {
-      if (!state.hasNextPage) {
+      if (!state.hasNextPage && !state.status.isLoadingFirstPage) {
         if (showLog) console.log("No more pages to load", tag: LOG_CONTEXT);
         return;
       }
@@ -186,9 +187,12 @@ class PagedController<Page, Item> extends ValueNotifier<Paged<Page, Item>> {
     } finally {
       if (currentOp == operation) {
         value = state.copyWith(isLoading: false);
+        print("DEBUGGING:::::: PAGED CONTROLLER: Value: $value");
         operation = null;
+        if (showLog) console.log("Finished page request", tag: LOG_CONTEXT);
+      } else {
+        if (showLog) console.log("Operation cancelled", tag: LOG_CONTEXT);
       }
-      if (showLog) console.log("Finished page request", tag: LOG_CONTEXT);
     }
   }
 
