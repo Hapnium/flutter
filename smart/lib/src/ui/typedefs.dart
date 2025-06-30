@@ -337,7 +337,7 @@ typedef PagedChildBuilder<PageKeyType, ItemType> = Widget Function(
 ///
 /// **Usage:**
 ///
-/// This typedef is used in conjunction with [PagedChildBuilderDelegate] to customize the
+/// This typedef is used in conjunction with [PagedBuilderDelegate] to customize the
 /// insertion of separators between items in a paginated list. It allows for flexible
 /// separator logic, such as inserting separators only between specific types of items
 /// or based on certain conditions.

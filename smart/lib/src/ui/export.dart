@@ -101,15 +101,15 @@ export 'layouts/models/permission_consent.dart';
 /// PAGED
 export 'paged/controllers/paged_controller.dart';
 
-export 'paged/builder/paged_builder.dart';
+export 'paged/builders/paged_builder.dart';
 
-export 'paged/types/list/paged_list_view.dart';
-export 'paged/types/grid/paged_grid_view.dart';
-export 'paged/types/page/paged_page_view.dart';
-export 'paged/types/staggered/paged_staggered_view.dart';
+export 'paged/types/paged_list_view.dart';
+export 'paged/types/paged_grid_view.dart';
+export 'paged/types/paged_page_view.dart';
+export 'paged/types/paged_staggered_view.dart';
 
 export 'paged/models/paged.dart';
-export 'paged/models/paged_child_builder_delegate.dart';
+export 'paged/models/paged_builder_delegate.dart';
 
 export 'paged/pull_to_refresh.dart';
 

@@ -1,17 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide Page;
-import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:hapnium/hapnium.dart';
-import 'package:smart/enums.dart' show PagedStatus;
-import 'package:smart/utilities.dart' show WidgetUtils;
-import 'package:smart/extensions.dart';
 
-import '../../../export.dart';
-import '../../helpers/paged_helper.dart';
-import '../../helpers/status_builders/new_page_indicators.dart';
-
-part 'paged_grid_view_state.dart';
+import '../../export.dart';
+import '../builders/paged_listener.dart';
+import '../helpers/paged_helper.dart';
 
 /// A scrollable grid view that supports pagination.
 ///
@@ -34,7 +28,7 @@ part 'paged_grid_view_state.dart';
 /// Use [PagedGridView] to create a scrollable grid that fetches and displays
 /// data in pages. Provide a [PagedController] to manage the pagination logic,
 /// a [SliverGridDelegate] to define the grid layout, and a
-/// [PagedChildBuilderDelegate] to define how grid items are built.
+/// [PagedBuilderDelegate] to define how grid items are built.
 ///
 /// **Example:**
 ///
@@ -52,8 +46,8 @@ part 'paged_grid_view_state.dart';
 ///
 /// You can customize the appearance and behavior of the [PagedGridView] by
 /// providing a custom [ScrollController], [SliverGridDelegate],
-/// [PagedChildBuilderDelegate], and [PagedController]. The
-/// [PagedChildBuilderDelegate] allows you to define how grid items are built,
+/// [PagedBuilderDelegate], and [PagedController]. The
+/// [PagedBuilderDelegate] allows you to define how grid items are built,
 /// while the [PagedController] manages the pagination logic.
 ///
 /// **Separated Grids:**
@@ -66,7 +60,7 @@ part 'paged_grid_view_state.dart';
 ///
 /// The [PagedGridView] widget is a specialized version of the [GridView] widget
 /// that integrates with the [PagedController] for pagination support.
-class PagedGridView<Page, Item> extends StatefulWidget {
+class PagedGridView<Page, Item> extends StatelessWidget {
   /// A delegate that controls the layout of the children within the PagedGridView.
   ///
   /// The [PagedGridView].builder, and [PagedGridView].separator constructors let you
@@ -77,7 +71,7 @@ class PagedGridView<Page, Item> extends StatefulWidget {
   final PagedController<Page, Item> controller;
 
   /// The builder delegate used to create list items.
-  final PagedChildBuilderDelegate<Item> builderDelegate;
+  final PagedBuilderDelegate<Item> builderDelegate;
 
   /// The axis along which the list scrolls. Defaults to [Axis.vertical].
   final Axis scrollDirection;
@@ -266,9 +260,6 @@ class PagedGridView<Page, Item> extends StatefulWidget {
     this.findChildIndexCallback,
   }) : semanticChildCount = null;
 
-  @override
-  State<PagedGridView<Page, Item>> createState() => _PagedGridViewState<Page, Item>();
-
   /// Debug properties for [PagedListView].
   ///
   /// This helps in debugging by providing insights into the widget’s properties.
@@ -301,5 +292,82 @@ class PagedGridView<Page, Item> extends StatefulWidget {
     properties.add(FlagProperty('addSemanticIndexes', value: addSemanticIndexes, ifTrue: 'adds semantic indexes'));
     properties.add(DiagnosticsProperty<ChildIndexGetter?>('findChildIndexCallback', findChildIndexCallback));
     properties.add(FlagProperty('applySeparatorToLastItem', value: applySeparatorToLastItem, ifTrue: 'apply separator to last item'));
+  }
+
+  @override
+  Widget build(BuildContext context) => PagedListener(
+    controller: controller,
+    builder: (context, state, fetchNextPage) => PagedBuilder<Page, Item>(
+      paged: state,
+      fetchNextPage: fetchNextPage,
+      builderDelegate: builderDelegate,
+      completedBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder, context),
+      loadingBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder, context),
+      errorBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder, context),
+    )
+  );
+
+  Widget _build(int count, WidgetBuilder? widgetBuilder, IndexedWidgetBuilder itemBuilder, BuildContext context) {
+    bool hasSeparator = separatorBuilder.isNotNull;
+    PagedItemSeparatorStrategy strategy = separatorStrategy ?? PagedHelper.defaultStrategy;
+    int totalSeparators = hasSeparator
+        ? PagedHelper.calculateTotalSeparators(strategy, separatorBuilder, context, count)
+        : 0;
+    int totalItemCount = (widgetBuilder != null ? count - 1 : count) + totalSeparators;
+    // bool canShowSeparator(int index) => hasSeparator && totalSeparators.isGt(0) && strategy(index);
+
+    bool canShowSeparator(int index) {
+      final isLast = index == totalItemCount - 1;
+      return hasSeparator && totalSeparators.isGt(0) && strategy(index) && (applySeparatorToLastItem || !isLast);
+    }
+
+    Widget? child(BuildContext context, int index) {
+      int itemIndex = PagedHelper.getActualItemIndex(strategy, hasSeparator, index);
+
+      if (canShowSeparator(index)) {
+        return separatorBuilder!(context, itemIndex);
+      }
+
+      return itemBuilder(context, itemIndex);
+    }
+    
+    return CustomScrollView(
+      controller: scrollController,
+      scrollDirection: scrollDirection,
+      reverse: reverse,
+      primary: primary,
+      physics: physics,
+      shrinkWrap: shrinkWrap,
+      center: center,
+      anchor: anchor,
+      cacheExtent: cacheExtent,
+      semanticChildCount: semanticChildCount,
+      dragStartBehavior: dragStartBehavior,
+      keyboardDismissBehavior: keyboardDismissBehavior,
+      restorationId: restorationId,
+      clipBehavior: clipBehavior,
+      hitTestBehavior: hitTestBehavior,
+      scrollBehavior: scrollBehavior,
+      slivers: [
+        SliverGrid(
+          delegate: SliverChildBuilderDelegate(
+            child,
+            findChildIndexCallback: findChildIndexCallback,
+            childCount: totalItemCount,
+            addAutomaticKeepAlives: addAutomaticKeepAlives,
+            addRepaintBoundaries: addRepaintBoundaries,
+            addSemanticIndexes: addSemanticIndexes,
+            semanticIndexCallback: (Widget widget, int index) {
+              return canShowSeparator(index) ? null : PagedHelper.getActualItemIndex(strategy, hasSeparator, index);
+            },
+          ),
+          gridDelegate: gridDelegate,
+        ),
+
+        if(widgetBuilder != null) ...[
+          SliverToBoxAdapter(child: widgetBuilder(context)),
+        ]
+      ],
+    );
   }
 }

@@ -5,20 +5,20 @@
 /// or indicating that no items were found.
 enum PagedStatus {
   /// Indicates that the pagination operation has completed successfully.
-  completed,
+  COMPLETED,
 
   /// Indicates that no items were found during the pagination operation.
-  noItemsFound,
+  NO_ITEMS_FOUND,
 
   /// Indicates that the first page of data is currently being loaded.
-  loadingFirstPage,
+  LOADING_FIRST_PAGE,
 
   /// Indicates that the pagination operation is currently in progress.
-  ongoing,
+  ONGOING,
 
   /// Indicates that an error occurred while loading the first page of data.
-  firstPageError,
+  FIRST_PAGE_ERROR,
 
   /// Indicates that an error occurred while loading a subsequent page of data.
-  subsequentPageError,
+  SUBSEQUENT_PAGE_ERROR,
 }

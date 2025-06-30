@@ -1,15 +1,14 @@
+import 'dart:math' as math;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide Page;
-import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:hapnium/hapnium.dart';
-import 'package:smart/utilities.dart' show WidgetUtils;
-import 'package:smart/enums.dart' show PagedStatus;
+import 'package:smart/utilities.dart';
 
-import '../../../export.dart';
-import '../../helpers/paged_helper.dart';
-
-part 'paged_list_view_state.dart';
+import '../../export.dart';
+import '../builders/paged_listener.dart';
+import '../helpers/paged_helper.dart';
 
 const Widget _defaultSpacing = const SizedBox.shrink();
 
@@ -33,7 +32,7 @@ const Widget _defaultSpacing = const SizedBox.shrink();
 ///
 /// Use [PagedListView] to create a scrollable list that fetches and displays
 /// data in pages. Provide a [PagedController] to manage the pagination logic
-/// and a [PagedChildBuilderDelegate] to define how list items are built.
+/// and a [PagedBuilderDelegate] to define how list items are built.
 ///
 /// **Example:**
 ///
@@ -49,8 +48,8 @@ const Widget _defaultSpacing = const SizedBox.shrink();
 /// **Customization:**
 ///
 /// You can customize the appearance and behavior of the [PagedListView] by
-/// providing a custom [ScrollController], [PagedChildBuilderDelegate], and
-/// [PagedController]. The [PagedChildBuilderDelegate] allows you to define
+/// providing a custom [ScrollController], [PagedBuilderDelegate], and
+/// [PagedController]. The [PagedBuilderDelegate] allows you to define
 /// how list items are built, while the [PagedController] manages the
 /// pagination logic.
 ///
@@ -64,12 +63,12 @@ const Widget _defaultSpacing = const SizedBox.shrink();
 ///
 /// The [PagedListView] widget is a specialized version of the [ListView] widget
 /// that integrates with the [PagedController] for pagination support.
-class PagedListView<Page, Item> extends StatefulWidget {
+class PagedListView<Page, Item> extends StatelessWidget {
   /// The controller responsible for managing pagination.
   final PagedController<Page, Item> controller;
 
   /// The builder delegate used to create list items.
-  final PagedChildBuilderDelegate<Item> builderDelegate;
+  final PagedBuilderDelegate<Item> builderDelegate;
 
   /// The axis along which the list scrolls. Defaults to [Axis.vertical].
   final Axis scrollDirection;
@@ -216,9 +215,6 @@ class PagedListView<Page, Item> extends StatefulWidget {
     this.spacing = _defaultSpacing
   }) : itemExtent = null, semanticChildCount = null, itemExtentBuilder = null, prototypeItem = null;
 
-  @override
-  State<PagedListView<Page, Item>> createState() => _PagedListViewState<Page, Item>();
-
   /// Debug properties for [PagedListView].
   ///
   /// This helps in debugging by providing insights into the widget’s properties.
@@ -252,5 +248,102 @@ class PagedListView<Page, Item> extends StatefulWidget {
     properties.add(DiagnosticsProperty<PagedItemSeparatorStrategy?>('separatorStrategy', separatorStrategy));
     properties.add(DiagnosticsProperty<Widget>('spacing', spacing));
     properties.add(FlagProperty('applySeparatorToLastItem', value: applySeparatorToLastItem, ifTrue: 'apply separator to last item'));
+  }
+
+  @override
+  Widget build(BuildContext context) => PagedListener(
+    controller: controller,
+    builder: (context, state, fetchNextPage) => PagedBuilder<Page, Item>(
+      paged: state,
+      fetchNextPage: fetchNextPage,
+      builderDelegate: builderDelegate,
+      completedBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder),
+      loadingBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder),
+      errorBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder),
+    )
+  );
+
+  Widget _build(int count, WidgetBuilder? widgetBuilder, IndexedWidgetBuilder itemBuilder) {
+    PagedItemSeparatorStrategy strategy = separatorStrategy ?? PagedHelper.defaultStrategy;
+    int totalItems = math.max(0, count * 2 - (widgetBuilder != null ? 0 : 1));
+
+    Widget child(BuildContext context, int index, IndexedWidgetBuilder builder) {
+      if(WidgetUtils.hasContent(spacing)) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            builder(context, index),
+            spacing,
+          ]
+        );
+      } else {
+        return builder(context, index);
+      }
+    }
+    
+    return switch(separatorBuilder) {
+      null => ListView.builder(
+        controller: scrollController,
+        scrollDirection: scrollDirection,
+        reverse: reverse,
+        primary: primary,
+        physics: physics,
+        shrinkWrap: shrinkWrap,
+        padding: padding,
+        addAutomaticKeepAlives: addAutomaticKeepAlives,
+        addRepaintBoundaries: addRepaintBoundaries,
+        addSemanticIndexes: addSemanticIndexes,
+        cacheExtent: cacheExtent,
+        hitTestBehavior: hitTestBehavior,
+        findChildIndexCallback: findChildIndexCallback,
+        dragStartBehavior: dragStartBehavior,
+        keyboardDismissBehavior: keyboardDismissBehavior,
+        restorationId: restorationId,
+        clipBehavior: clipBehavior,
+        itemCount: totalItems,
+        itemBuilder: (context, index) {
+          if(index.equals(totalItems - 1) && widgetBuilder != null) {
+            return widgetBuilder(context);
+          }
+
+          return itemBuilder(context, index);
+        },
+      ),
+      _ => ListView.separated(
+        controller: scrollController,
+        scrollDirection: scrollDirection,
+        reverse: reverse,
+        primary: primary,
+        physics: physics,
+        shrinkWrap: shrinkWrap,
+        padding: padding,
+        addAutomaticKeepAlives: addAutomaticKeepAlives,
+        addRepaintBoundaries: addRepaintBoundaries,
+        addSemanticIndexes: addSemanticIndexes,
+        cacheExtent: cacheExtent,
+        hitTestBehavior: hitTestBehavior,
+        findChildIndexCallback: findChildIndexCallback,
+        dragStartBehavior: dragStartBehavior,
+        keyboardDismissBehavior: keyboardDismissBehavior,
+        restorationId: restorationId,
+        clipBehavior: clipBehavior,
+        itemCount: totalItems,
+        separatorBuilder: (context, index) {
+          if(strategy(index)) {
+            return child(context, index, separatorBuilder!);
+          } else {
+            return spacing;
+          }
+        },
+        itemBuilder: (context, index) {
+          if(index.equals(totalItems - 1) && widgetBuilder != null) {
+            return widgetBuilder(context);
+          }
+
+          return itemBuilder(context, index);
+        },
+      )
+    };
   }
 }

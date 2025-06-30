@@ -1,0 +1,144 @@
+import 'package:flutter/cupertino.dart';
+import '../../export.dart';
+
+/// {@template paged_child_builder_delegate}
+/// A delegate class used for building children and state indicators in a paginated list view.
+///
+/// You can define custom UI for various pagination states, including:
+/// - Item building
+/// - Loading indicators
+/// - Error states
+/// - Empty list states
+/// - End of list indicators
+///
+/// This delegate is commonly used with widgets like `PagedListView`, `PagedGridView`, etc.
+///
+/// Example:
+/// ```dart
+/// PagedBuilderDelegate<Product>(
+///   itemBuilder: (context, product, index) => ProductCard(product),
+///   firstPageProgressIndicatorBuilder: (context) => CircularProgressIndicator(),
+///   newPageProgressIndicatorBuilder: (context) => CupertinoActivityIndicator(),
+///   firstPageErrorIndicatorBuilder: (context) => Text("Failed to load items"),
+///   noItemsFoundIndicatorBuilder: (context) => Text("No products found."),
+/// )
+/// ```
+/// {@endtemplate}
+class PagedBuilderDelegate<Item>{
+  /// The number of invisible items remaining below the scroll viewport
+  /// that should trigger the loading of a new page.
+  ///
+  /// This is used for scroll-based pagination.
+  ///
+  /// Defaults to `3`.
+  ///
+  /// Example: If set to 3, then when the user scrolls within 3 items from
+  /// the bottom of the list, `fetchNextPage()` is triggered.
+  final int invisibleItemsThreshold;
+
+  /// Builds a widget for each item in the paginated list.
+  ///
+  /// This is a **required** function and should return the item widget at a given index.
+  ///
+  /// Example:
+  /// ```dart
+  /// itemBuilder: (context, item, index) => ListTile(title: Text(item.title)),
+  /// ```
+  final ItemWidgetBuilder<Item> itemBuilder;
+
+  /// Builds a loading indicator shown when the first page is being fetched.
+  ///
+  /// This is typically a spinner displayed while the initial data is loading.
+  ///
+  /// Return `null` to show nothing.
+  ///
+  /// Example:
+  /// ```dart
+  /// firstPageProgressIndicatorBuilder: (context) => Center(child: CircularProgressIndicator()),
+  /// ```
+  final WidgetBuilder? firstPageProgressIndicatorBuilder;
+
+  /// Builds a loading indicator shown when additional pages are being fetched.
+  ///
+  /// Appears at the bottom of the list while more items are loading.
+  ///
+  /// Return `null` to show nothing.
+  ///
+  /// Example:
+  /// ```dart
+  /// newPageProgressIndicatorBuilder: (context) => Center(child: CupertinoActivityIndicator()),
+  /// ```
+  final WidgetBuilder? newPageProgressIndicatorBuilder;
+
+  /// Builds a widget shown when the first page fails to load.
+  ///
+  /// Useful for showing retry buttons or error messages.
+  ///
+  /// Return `null` to skip showing an error UI.
+  ///
+  /// Example:
+  /// ```dart
+  /// firstPageErrorIndicatorBuilder: (context) => Center(child: Text("Failed to load data")),
+  /// ```
+  final WidgetBuilder? firstPageErrorIndicatorBuilder;
+
+  /// Builds a widget shown when loading a new page fails.
+  ///
+  /// Displayed at the bottom of the list if pagination fails mid-scroll.
+  ///
+  /// Return `null` to skip the error widget.
+  ///
+  /// Example:
+  /// ```dart
+  /// newPageErrorIndicatorBuilder: (context) => Center(child: Text("Could not load more")),
+  /// ```
+  final WidgetBuilder? newPageErrorIndicatorBuilder;
+
+  /// Builds a widget shown when the data source returns no items.
+  ///
+  /// This is only called if the first page returns an empty list.
+  ///
+  /// Return `null` to show nothing.
+  ///
+  /// Example:
+  /// ```dart
+  /// noItemsFoundIndicatorBuilder: (context) => Center(child: Text("Nothing here")),
+  /// ```
+  final WidgetBuilder? noItemsFoundIndicatorBuilder;
+
+  /// Builds a widget shown when there are no more pages to load.
+  ///
+  /// Typically shown as a footer or message indicating the end of content.
+  ///
+  /// Return `null` to omit this indicator.
+  ///
+  /// Example:
+  /// ```dart
+  /// noMoreItemsIndicatorBuilder: (context) => Center(child: Text("That's all!")),
+  /// ```
+  final WidgetBuilder? noMoreItemsIndicatorBuilder;
+
+  /// Whether status transitions should be animated.
+  /// 
+  /// Defaults to `true`.
+  final bool animateTransitions;
+
+  /// The duration of animated transitions when [animateTransitions] is `true`.
+  /// 
+  /// Defaults to `Duration(milliseconds: 300)`.
+  final Duration transitionDuration;
+
+  /// {@macro paged_child_builder_delegate}
+  const PagedBuilderDelegate({
+    required this.itemBuilder,
+    this.invisibleItemsThreshold = 3,
+    this.firstPageProgressIndicatorBuilder,
+    this.newPageProgressIndicatorBuilder,
+    this.firstPageErrorIndicatorBuilder,
+    this.newPageErrorIndicatorBuilder,
+    this.noItemsFoundIndicatorBuilder,
+    this.noMoreItemsIndicatorBuilder,
+    this.animateTransitions = true,
+    this.transitionDuration = const Duration(milliseconds: 300),
+  });
+}

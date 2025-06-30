@@ -1,17 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide Page;
-import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:hapnium/hapnium.dart';
-import 'package:smart/enums.dart' show PagedStatus;
-import 'package:smart/utilities.dart' show WidgetUtils;
-import 'package:smart/extensions.dart';
 
-import '../../../export.dart';
-import '../../helpers/paged_helper.dart';
-import '../../helpers/status_builders/new_page_indicators.dart';
-
-part 'paged_page_view_state.dart';
+import '../../export.dart';
+import '../builders/paged_listener.dart';
+import '../helpers/paged_helper.dart';
 
 /// A scrollable page view that supports pagination.
 ///
@@ -33,7 +27,7 @@ part 'paged_page_view_state.dart';
 ///
 /// Use [PagedPageView] to create a scrollable page view that fetches and displays
 /// data in pages. Provide a [PagedController] to manage the pagination logic
-/// and a [PagedChildBuilderDelegate] to define how page items are built.
+/// and a [PagedBuilderDelegate] to define how page items are built.
 ///
 /// **Example:**
 ///
@@ -49,8 +43,8 @@ part 'paged_page_view_state.dart';
 /// **Customization:**
 ///
 /// You can customize the appearance and behavior of the [PagedPageView] by
-/// providing a custom [PageController], [PagedChildBuilderDelegate], and
-/// [PagedController]. The [PagedChildBuilderDelegate] allows you to define
+/// providing a custom [PageController], [PagedBuilderDelegate], and
+/// [PagedController]. The [PagedBuilderDelegate] allows you to define
 /// how page items are built, while the [PagedController] manages the
 /// pagination logic.
 ///
@@ -64,12 +58,12 @@ part 'paged_page_view_state.dart';
 ///
 /// The [PagedPageView] widget is a specialized version of the [PageView] widget
 /// that integrates with the [PagedController] for pagination support.
-class PagedPageView<Page, Item> extends StatefulWidget {
+class PagedPageView<Page, Item> extends StatelessWidget {
   /// The controller responsible for managing pagination.
   final PagedController<Page, Item> controller;
 
   /// The builder delegate used to create list items.
-  final PagedChildBuilderDelegate<Item> builderDelegate;
+  final PagedBuilderDelegate<Item> builderDelegate;
 
   /// Controls whether the widget's pages will respond to
   /// [RenderObject.showOnScreen], which will allow for implicit accessibility
@@ -452,9 +446,6 @@ class PagedPageView<Page, Item> extends StatefulWidget {
       mainAxisAlignment = null,
       mainAxisSize = null;
 
-  @override
-  State<PagedPageView<Page, Item>> createState() => _PagedPageViewState<Page, Item>();
-
   /// Debug properties for [PagedPageView].
   ///
   /// This helps in debugging by providing insights into the widget’s properties.
@@ -491,5 +482,109 @@ class PagedPageView<Page, Item> extends StatefulWidget {
     properties.add(DiagnosticsProperty<FloatingConfig?>('floatConfig', floatConfig));
     properties.add(FlagProperty('useStack', value: useStack, ifTrue: 'useStack enabled'));
     properties.add(FlagProperty('applySeparatorToLastItem', value: applySeparatorToLastItem, ifTrue: 'applySeparatorToLastItem enabled'));
+  }
+
+  @override
+  Widget build(BuildContext context) => PagedListener(
+    controller: controller,
+    builder: (context, state, fetchNextPage) => PagedBuilder<Page, Item>(
+      paged: state,
+      fetchNextPage: fetchNextPage,
+      builderDelegate: builderDelegate,
+      completedBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder, context),
+      loadingBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder, context),
+      errorBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder, context),
+    )
+  );
+
+  Widget _build(int count, WidgetBuilder? widgetBuilder, IndexedWidgetBuilder itemBuilder, BuildContext context) {
+    bool hasSeparator = separatorBuilder.isNotNull;
+    PagedItemSeparatorStrategy strategy = separatorStrategy ?? PagedHelper.defaultStrategy;
+    int totalSeparators = hasSeparator
+        ? PagedHelper.calculateTotalSeparators(strategy, separatorBuilder, context, count)
+        : 0;
+    int totalItemCount = (widgetBuilder != null ? count - 1 : count) + totalSeparators;
+    // bool canShowSeparator(int index) => hasSeparator && totalSeparators.isGt(0) && strategy(index);
+
+    bool canShowSeparator(int index) {
+      final isLast = index == totalItemCount - 1;
+      return hasSeparator && totalSeparators.isGt(0) && strategy(index) && (applySeparatorToLastItem || !isLast);
+    }
+
+    Widget? child(BuildContext context, int index) {
+      Widget? child;
+
+      int itemIndex = PagedHelper.getActualItemIndex(strategy, hasSeparator, index);
+      bool isLastItem = index == totalItemCount - 1;
+
+      if (canShowSeparator(index)) {
+        child = separatorBuilder!(context, itemIndex);
+      } else {
+        child = itemBuilder(context, itemIndex);
+      }
+
+      if(child.isNotNull) {
+        if(useStack) {
+          final FloatingConfig config = floatConfig ?? FloatingConfig();
+          Positioned positioned(Widget child) => Positioned(
+            left: config.left,
+            right: config.right,
+            top: config.top,
+            bottom: config.bottom,
+            height: config.height,
+            width: config.width,
+            child: child,
+          );
+
+          return Stack(
+            fit: fit ?? StackFit.loose,
+            alignment: alignment ?? AlignmentDirectional.topStart,
+            clipBehavior: itemClipBehavior ?? Clip.hardEdge,
+            children: [
+              child!,
+              if(isLastItem && widgetBuilder != null) ...[
+                positioned(widgetBuilder(context))
+              ]
+            ],
+          );
+        } else {
+          return Column(
+            spacing: spacing ?? 0.0,
+            verticalDirection: verticalDirection ?? VerticalDirection.down,
+            textDirection: textDirection,
+            textBaseline: textBaseline,
+            mainAxisSize: mainAxisSize ?? MainAxisSize.max,
+            crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
+            mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.start,
+            children: [
+              Expanded(child: child!),
+              if(isLastItem && widgetBuilder != null) ...[
+                widgetBuilder(context)
+              ]
+            ]
+          );
+        }
+      }
+
+      return null;
+    }
+
+    return PageView.builder(
+      controller: pageController,
+      scrollDirection: scrollDirection,
+      reverse: reverse,
+      allowImplicitScrolling: allowImplicitScrolling,
+      onPageChanged: onPageChanged,
+      physics: physics,
+      dragStartBehavior: dragStartBehavior,
+      hitTestBehavior: hitTestBehavior,
+      restorationId: restorationId,
+      clipBehavior: clipBehavior,
+      scrollBehavior: scrollBehavior,
+      padEnds: padEnds,
+      pageSnapping: pageSnapping,
+      itemCount: totalItemCount,
+      itemBuilder: child,
+    );
   }
 }
