@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class PagedStaggeredView extends StatelessWidget {
-  const PagedStaggeredView({super.key});
+class PageableStaggeredView extends StatelessWidget {
+  const PageableStaggeredView({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -23,9 +23,6 @@ export 'src/extensions/enums/ui/otp_field_type.dart';
 export 'src/extensions/enums/ui/media_type.dart';
 export 'src/extensions/enums/ui/feedback_type.dart';
 
-export 'src/extensions/enums/ui/paged/pull_to_refresh_type.dart';
-export 'src/extensions/enums/ui/paged/paged_status.dart';
-
 /// OTHERS
 export 'src/extensions/others/color.dart';
 

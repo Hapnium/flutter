@@ -25,6 +25,3 @@ export 'src/enums/ui/loading_type.dart';
 export 'src/enums/ui/otp_field_type.dart';
 export 'src/enums/ui/media_type.dart';
 export 'src/enums/ui/feedback_type.dart';
-
-export 'src/enums/ui/paged/paged_status.dart';
-export 'src/enums/ui/paged/pull_to_refresh_type.dart';

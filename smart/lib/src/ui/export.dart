@@ -99,23 +99,24 @@ export 'layouts/models/cookie_consent.dart';
 export 'layouts/models/permission_consent.dart';
 
 /// PAGED
-export 'paged/controllers/paged_controller.dart';
-export 'paged/controllers/extensions.dart';
+export 'pageable/controller/pageable_controller.dart';
+export 'pageable/controller/extensions.dart';
 
-export 'paged/builders/paged_builder.dart';
-export 'paged/builders/paged_layout_builder.dart';
-export 'paged/builders/paged_listener.dart';
+export 'pageable/builders/pageable_builder.dart';
+export 'pageable/builders/pageable_layout_builder.dart';
+export 'pageable/builders/pageable_listener.dart';
 
-export 'paged/types/paged_list_view.dart';
-export 'paged/types/paged_grid_view.dart';
-export 'paged/types/paged_page_view.dart';
-export 'paged/types/paged_staggered_view.dart';
+export 'pageable/types/pageable_list_view.dart';
+export 'pageable/types/pageable_grid_view.dart';
+export 'pageable/types/pageable_page_view.dart';
+export 'pageable/types/pageable_staggered_view.dart';
 
-export 'paged/models/paged.dart';
-export 'paged/models/paged_request.dart';
-export 'paged/models/paged_builder_delegate.dart';
+export 'pageable/models/pageable.dart';
+export 'pageable/models/page_result.dart';
+export 'pageable/models/pageable_builder_delegate.dart';
 
-export 'paged/pull_to_refresh.dart';
+export 'pageable/pull_to_refresh/pull_to_refresh.dart';
+export 'pageable/pull_to_refresh/pull_to_refresh_type.dart';
 
 /// STEPPING
 export 'stepping/stepping.dart';

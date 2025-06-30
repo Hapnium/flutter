@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
+/// {@template pageable_builder_animator}
 /// A widget that provides optional animation transitions for paginated content.
 ///
-/// [PagedBuilderAnimator] is typically used inside a paginated list view,
+/// [PageableBuilderAnimator] is typically used inside a paginated list view,
 /// such as with [PagedBuilder], to smoothly animate changes between states
 /// (e.g., loading, error, data loaded).
 ///
@@ -14,7 +15,7 @@ import 'package:flutter/material.dart';
 ///
 /// ### Example
 /// ```dart
-/// PagedBuilderAnimator(
+/// PageableBuilderAnimator(
 ///   animateTransitions: true,
 ///   transitionDuration: Duration(milliseconds: 300),
 ///   child: _buildCurrentStateWidget(), // Could be loading/error/completed
@@ -27,7 +28,9 @@ import 'package:flutter/material.dart';
 /// - [child]: The widget to be displayed with or without animation.
 /// - [animateTransitions]: Whether to apply animation on state changes.
 /// - [transitionDuration]: The duration of the transition animation.
-class PagedBuilderAnimator extends StatelessWidget {
+/// 
+/// {@endtemplate}
+class PageableBuilderAnimator extends StatelessWidget {
   /// The widget to display, optionally animated.
   final Widget child;
 
@@ -37,11 +40,14 @@ class PagedBuilderAnimator extends StatelessWidget {
   /// The duration of the animation when [animateTransitions] is true.
   final Duration transitionDuration;
 
-  /// Creates a [PagedBuilderAnimator].
+  /// Creates a [PageableBuilderAnimator].
   ///
   /// If [animateTransitions] is false, the [child] will be returned without
   /// any animation.
-  const PagedBuilderAnimator({
+  /// 
+  /// {@macro pageable_builder_animator}
+  const PageableBuilderAnimator({
+    super.key,
     required this.child,
     required this.animateTransitions,
     required this.transitionDuration,

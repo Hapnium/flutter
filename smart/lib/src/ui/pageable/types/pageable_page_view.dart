@@ -3,13 +3,16 @@ import 'package:flutter/material.dart' hide Page;
 import 'package:flutter/rendering.dart';
 import 'package:hapnium/hapnium.dart';
 
-import '../../export.dart';
-import '../helpers/paged_helper.dart';
+import '../../models/floating_config.dart';
+import '../builders/pageable_layout_builder.dart';
+import '../controller/pageable_controller.dart';
+import '../helpers/pageable_helper.dart';
+import '../models/pageable_builder_delegate.dart';
 
 /// A scrollable page view that supports pagination.
 ///
-/// [PagedPageView] automatically handles fetching, displaying, and paginating
-/// data using a [PagedController]. It supports horizontal and vertical page
+/// [PageablePageView] automatically handles fetching, displaying, and paginating
+/// data using a [PageableController]. It supports horizontal and vertical page
 /// scrolling and provides various customization options.
 ///
 /// - [Page] represents the type of key used for pagination.
@@ -17,16 +20,16 @@ import '../helpers/paged_helper.dart';
 ///
 /// **Purpose:**
 ///
-/// The [PagedPageView] widget simplifies the creation of paginated page views by
+/// The [PageablePageView] widget simplifies the creation of paginated page views by
 /// abstracting the complexities of data fetching and display. It provides
 /// a flexible and efficient way to load and render large datasets in a
 /// scrollable page view with page-by-page navigation.
 ///
 /// **Usage:**
 ///
-/// Use [PagedPageView] to create a scrollable page view that fetches and displays
-/// data in pages. Provide a [PagedController] to manage the pagination logic
-/// and a [PagedBuilderDelegate] to define how page items are built.
+/// Use [PageablePageView] to create a scrollable page view that fetches and displays
+/// data in pages. Provide a [PageableController] to manage the pagination logic
+/// and a [PageableBuilderDelegate] to define how page items are built.
 ///
 /// **Example:**
 ///
@@ -41,28 +44,28 @@ import '../helpers/paged_helper.dart';
 ///
 /// **Customization:**
 ///
-/// You can customize the appearance and behavior of the [PagedPageView] by
-/// providing a custom [PageController], [PagedBuilderDelegate], and
-/// [PagedController]. The [PagedBuilderDelegate] allows you to define
-/// how page items are built, while the [PagedController] manages the
+/// You can customize the appearance and behavior of the [PageablePageView] by
+/// providing a custom [PageController], [PageableBuilderDelegate], and
+/// [PageableController]. The [PageableBuilderDelegate] allows you to define
+/// how page items are built, while the [PageableController] manages the
 /// pagination logic.
 ///
 /// **Separated Pages:**
 ///
-/// Use the [.separated] constructor to create a [PagedPageView] with separators
+/// Use the [.separated] constructor to create a [PageablePageView] with separators
 /// between pages. This constructor requires a [separatorBuilder] to define
 /// how separators are built.
 ///
 /// **Note:**
 ///
-/// The [PagedPageView] widget is a specialized version of the [PageView] widget
-/// that integrates with the [PagedController] for pagination support.
-class PagedPageView<Page, Item> extends StatelessWidget {
+/// The [PageablePageView] widget is a specialized version of the [PageView] widget
+/// that integrates with the [PageableController] for pagination support.
+class PageablePageView<Page, Item> extends StatelessWidget {
   /// The controller responsible for managing pagination.
-  final PagedController<Page, Item> controller;
+  final PageableController<Page, Item> controller;
 
   /// The builder delegate used to create list items.
-  final PagedBuilderDelegate<Item> builderDelegate;
+  final PageableBuilderDelegate<Item> builderDelegate;
 
   /// Controls whether the widget's pages will respond to
   /// [RenderObject.showOnScreen], which will allow for implicit accessibility
@@ -165,7 +168,7 @@ class PagedPageView<Page, Item> extends StatelessWidget {
   final NullableIndexedWidgetBuilder? separatorBuilder;
 
   /// A strategy function to determine when to show separators.
-  final PagedItemSeparatorStrategy? separatorStrategy;
+  final PageableSeparatorStrategy? separatorStrategy;
 
   /// How the children should be placed along the main axis.
   ///
@@ -305,10 +308,10 @@ class PagedPageView<Page, Item> extends StatelessWidget {
   /// Whether to apply a separator to the last item.
   final bool applySeparatorToLastItem;
 
-  /// Creates a [PagedPageView] with pagination support.
+  /// Creates a [PageablePageView] with pagination support.
   ///
   /// Use this constructor for a standard paged list without separators.
-  const PagedPageView.builder({
+  const PageablePageView.builder({
     super.key,
     required this.controller,
     required this.builderDelegate,
@@ -341,10 +344,10 @@ class PagedPageView<Page, Item> extends StatelessWidget {
     itemClipBehavior = null,
     applySeparatorToLastItem = false;
 
-  /// Creates a [PagedPageView] with pagination support and separators.
+  /// Creates a [PageablePageView] with pagination support and separators.
   ///
   /// Use this constructor when a separator is required between items.
-  const PagedPageView.separated({
+  const PageablePageView.separated({
     super.key,
     required this.controller,
     required this.builderDelegate,
@@ -373,10 +376,10 @@ class PagedPageView<Page, Item> extends StatelessWidget {
     this.applySeparatorToLastItem = false
   }) : useStack = false, alignment = null, fit = null, floatConfig = null, itemClipBehavior = null;
 
-  /// Creates a [PagedPageView] with pagination support.
+  /// Creates a [PageablePageView] with pagination support.
   ///
   /// Use this constructor for a standard paged list without separators.
-  const PagedPageView.stackBuilder({
+  const PageablePageView.stackBuilder({
     super.key,
     required this.controller,
     required this.builderDelegate,
@@ -409,10 +412,10 @@ class PagedPageView<Page, Item> extends StatelessWidget {
     applySeparatorToLastItem = false,
     mainAxisSize = null;
 
-  /// Creates a [PagedPageView] with pagination support and separators.
+  /// Creates a [PageablePageView] with pagination support and separators.
   ///
   /// Use this constructor when a separator is required between items.
-  const PagedPageView.stackSeparated({
+  const PageablePageView.stackSeparated({
     super.key,
     required this.controller,
     required this.builderDelegate,
@@ -445,7 +448,7 @@ class PagedPageView<Page, Item> extends StatelessWidget {
       mainAxisAlignment = null,
       mainAxisSize = null;
 
-  /// Debug properties for [PagedPageView].
+  /// Debug properties for [PageablePageView].
   ///
   /// This helps in debugging by providing insights into the widget’s properties.
   @override
@@ -462,7 +465,7 @@ class PagedPageView<Page, Item> extends StatelessWidget {
     properties.add(EnumProperty<Clip>('clipBehavior', clipBehavior));
     properties.add(DiagnosticsProperty<NullableIndexedWidgetBuilder?>('separatorBuilder', separatorBuilder));
     properties.add(EnumProperty<HitTestBehavior>('hitTestBehavior', hitTestBehavior));
-    properties.add(DiagnosticsProperty<PagedItemSeparatorStrategy?>('separatorStrategy', separatorStrategy));
+    properties.add(DiagnosticsProperty<PageableSeparatorStrategy?>('separatorStrategy', separatorStrategy));
     properties.add(FlagProperty('allowImplicitScrolling', value: allowImplicitScrolling, ifTrue: 'allowImplicitScrolling enabled'));
     properties.add(FlagProperty('pageSnapping', value: pageSnapping, ifTrue: 'pageSnapping enabled'));
     properties.add(FlagProperty('padEnds', value: padEnds, ifTrue: 'padEnds enabled'));
@@ -484,7 +487,7 @@ class PagedPageView<Page, Item> extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => PagedLayoutBuilder(
+  Widget build(BuildContext context) => PageableLayoutBuilder(
     controller: controller,
     builderDelegate: builderDelegate,
     completedBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder, context),
@@ -494,9 +497,9 @@ class PagedPageView<Page, Item> extends StatelessWidget {
 
   Widget _build(int count, WidgetBuilder? widgetBuilder, IndexedWidgetBuilder itemBuilder, BuildContext context) {
     bool hasSeparator = separatorBuilder.isNotNull;
-    PagedItemSeparatorStrategy strategy = separatorStrategy ?? PagedHelper.defaultStrategy;
+    PageableSeparatorStrategy strategy = separatorStrategy ?? PageableHelper.defaultStrategy;
     int totalSeparators = hasSeparator
-        ? PagedHelper.calculateTotalSeparators(strategy, separatorBuilder, context, count)
+        ? PageableHelper.calculateTotalSeparators(strategy, separatorBuilder, context, count)
         : 0;
     int totalItemCount = (widgetBuilder != null ? count - 1 : count) + totalSeparators;
     // bool canShowSeparator(int index) => hasSeparator && totalSeparators.isGt(0) && strategy(index);
@@ -509,7 +512,7 @@ class PagedPageView<Page, Item> extends StatelessWidget {
     Widget? child(BuildContext context, int index) {
       Widget? child;
 
-      int itemIndex = PagedHelper.getActualItemIndex(strategy, hasSeparator, index);
+      int itemIndex = PageableHelper.getActualItemIndex(strategy, hasSeparator, index);
       bool isLastItem = index == totalItemCount - 1;
 
       if (canShowSeparator(index)) {

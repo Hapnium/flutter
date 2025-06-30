@@ -1,6 +1,16 @@
-import '../../../../enums/ui/paged/pull_to_refresh_type.dart';
+/// Enum representing the refresh indicator type.
+///
+/// - [material]: Uses Material-style [RefreshIndicator] (default for Android, Web).
+/// - [cupertino]: Uses Cupertino-style [CupertinoSliverRefreshControl] (default for iOS).
+enum PullToRefreshType {
+  /// Uses Material-style [RefreshIndicator] (default for Android, Web).
+  material,
 
-/// Provides expressive boolean checks for [PullToRefreshType].
+  /// Uses Cupertino-style [CupertinoSliverRefreshControl] (default for iOS).
+  cupertino
+}
+
+// Provides expressive boolean checks for [PullToRefreshType].
 ///
 /// This extension simplifies status checks by replacing `==` comparisons
 /// with readable getters.

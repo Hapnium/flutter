@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hapnium/hapnium.dart';
 
-import '../../../../enums.dart';
+import 'pull_to_refresh_type.dart';
 
 /// A customizable pull-to-refresh widget that adapts to different platforms.
 ///

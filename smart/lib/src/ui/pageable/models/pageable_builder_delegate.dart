@@ -1,7 +1,16 @@
 import 'package:flutter/cupertino.dart';
-import '../../export.dart';
+import 'package:smart/ui.dart';
 
-/// {@template paged_child_builder_delegate}
+/// A typedef for constructing a widget for a specific item in a list.
+///
+/// This function takes in a `BuildContext`, metadata about the item, an optional
+/// extra index, and the current pagination status, and returns a `Widget`.
+///
+/// - [context] The `BuildContext` used for widget building.
+/// - [metadata] The metadata associated with the item.
+typedef ItemWidgetBuilder<ItemType> = Widget Function(BuildContext context, ItemMetadata<ItemType> metadata);
+
+/// {@template pageable_builder_delegate}
 /// A delegate class used for building children and state indicators in a paginated list view.
 ///
 /// You can define custom UI for various pagination states, including:
@@ -11,11 +20,11 @@ import '../../export.dart';
 /// - Empty list states
 /// - End of list indicators
 ///
-/// This delegate is commonly used with widgets like `PagedListView`, `PagedGridView`, etc.
+/// This delegate is commonly used with widgets like `PageableListView`, `PageableGridView`, etc.
 ///
 /// Example:
 /// ```dart
-/// PagedBuilderDelegate<Product>(
+/// PageableBuilderDelegate<Product>(
 ///   itemBuilder: (context, product, index) => ProductCard(product),
 ///   firstPageProgressIndicatorBuilder: (context) => CircularProgressIndicator(),
 ///   newPageProgressIndicatorBuilder: (context) => CupertinoActivityIndicator(),
@@ -24,7 +33,7 @@ import '../../export.dart';
 /// )
 /// ```
 /// {@endtemplate}
-class PagedBuilderDelegate<Item>{
+class PageableBuilderDelegate<Item> {
   /// The number of invisible items remaining below the scroll viewport
   /// that should trigger the loading of a new page.
   ///
@@ -128,8 +137,8 @@ class PagedBuilderDelegate<Item>{
   /// Defaults to `Duration(milliseconds: 300)`.
   final Duration transitionDuration;
 
-  /// {@macro paged_child_builder_delegate}
-  const PagedBuilderDelegate({
+  /// {@macro pageable_builder_delegate}
+  const PageableBuilderDelegate({
     required this.itemBuilder,
     this.invisibleItemsThreshold = 3,
     this.firstPageProgressIndicatorBuilder,

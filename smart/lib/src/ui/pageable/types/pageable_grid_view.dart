@@ -3,13 +3,15 @@ import 'package:flutter/material.dart' hide Page;
 import 'package:flutter/rendering.dart';
 import 'package:hapnium/hapnium.dart';
 
-import '../../export.dart';
-import '../helpers/paged_helper.dart';
+import '../builders/pageable_layout_builder.dart';
+import '../controller/pageable_controller.dart';
+import '../helpers/pageable_helper.dart';
+import '../models/pageable_builder_delegate.dart';
 
 /// A scrollable grid view that supports pagination.
 ///
-/// [PagedGridView] automatically handles fetching, displaying, and paginating
-/// data using a [PagedController]. It supports vertical and horizontal scrolling
+/// [PageableGridView] automatically handles fetching, displaying, and paginating
+/// data using a [PageableController]. It supports vertical and horizontal scrolling
 /// and provides various customization options.
 ///
 /// - [Page] represents the type of key used for pagination.
@@ -17,17 +19,17 @@ import '../helpers/paged_helper.dart';
 ///
 /// **Purpose:**
 ///
-/// The [PagedGridView] widget simplifies the creation of paginated grid views by
+/// The [PageableGridView] widget simplifies the creation of paginated grid views by
 /// abstracting the complexities of data fetching and display. It provides
 /// a flexible and efficient way to load and render large datasets in a
 /// scrollable grid view.
 ///
 /// **Usage:**
 ///
-/// Use [PagedGridView] to create a scrollable grid that fetches and displays
-/// data in pages. Provide a [PagedController] to manage the pagination logic,
+/// Use [PageableGridView] to create a scrollable grid that fetches and displays
+/// data in pages. Provide a [PageableController] to manage the pagination logic,
 /// a [SliverGridDelegate] to define the grid layout, and a
-/// [PagedBuilderDelegate] to define how grid items are built.
+/// [PageableBuilderDelegate] to define how grid items are built.
 ///
 /// **Example:**
 ///
@@ -43,34 +45,34 @@ import '../helpers/paged_helper.dart';
 ///
 /// **Customization:**
 ///
-/// You can customize the appearance and behavior of the [PagedGridView] by
+/// You can customize the appearance and behavior of the [PageableGridView] by
 /// providing a custom [ScrollController], [SliverGridDelegate],
-/// [PagedBuilderDelegate], and [PagedController]. The
-/// [PagedBuilderDelegate] allows you to define how grid items are built,
-/// while the [PagedController] manages the pagination logic.
+/// [PageableBuilderDelegate], and [PageableController]. The
+/// [PageableBuilderDelegate] allows you to define how grid items are built,
+/// while the [PageableController] manages the pagination logic.
 ///
 /// **Separated Grids:**
 ///
-/// Use the [.separated] constructor to create a [PagedGridView] with separators
+/// Use the [.separated] constructor to create a [PageableGridView] with separators
 /// between items. This constructor requires a [separatorBuilder] to define
 /// how separators are built.
 ///
 /// **Note:**
 ///
-/// The [PagedGridView] widget is a specialized version of the [GridView] widget
-/// that integrates with the [PagedController] for pagination support.
-class PagedGridView<Page, Item> extends StatelessWidget {
+/// The [PageableGridView] widget is a specialized version of the [GridView] widget
+/// that integrates with the [PageableController] for pagination support.
+class PageableGridView<Page, Item> extends StatelessWidget {
   /// A delegate that controls the layout of the children within the PagedGridView.
   ///
-  /// The [PagedGridView].builder, and [PagedGridView].separator constructors let you
+  /// The [PageableGridView].builder, and [PageableGridView].separator constructors let you
   /// specify this delegate explicitly. The other constructors create a gridDelegate implicitly.
   final SliverGridDelegate gridDelegate;
 
   /// The controller responsible for managing pagination.
-  final PagedController<Page, Item> controller;
+  final PageableController<Page, Item> controller;
 
   /// The builder delegate used to create list items.
-  final PagedBuilderDelegate<Item> builderDelegate;
+  final PageableBuilderDelegate<Item> builderDelegate;
 
   /// The axis along which the list scrolls. Defaults to [Axis.vertical].
   final Axis scrollDirection;
@@ -180,7 +182,7 @@ class PagedGridView<Page, Item> extends StatelessWidget {
   final HitTestBehavior hitTestBehavior;
 
   /// A strategy function to determine when to show separators.
-  final PagedItemSeparatorStrategy? separatorStrategy;
+  final PageableSeparatorStrategy? separatorStrategy;
 
   /// Whether to automatically keep items alive.
   final bool addAutomaticKeepAlives;
@@ -197,10 +199,10 @@ class PagedGridView<Page, Item> extends StatelessWidget {
   /// Whether to apply a separator to the last item.
   final bool applySeparatorToLastItem;
 
-  /// Creates a [PagedGridView] with pagination support.
+  /// Creates a [PageableGridView] with pagination support.
   ///
   /// Use this constructor for a standard paged list without separators.
-  const PagedGridView.builder({
+  const PageableGridView.builder({
     super.key,
     required this.controller,
     required this.gridDelegate,
@@ -227,10 +229,10 @@ class PagedGridView<Page, Item> extends StatelessWidget {
     this.findChildIndexCallback,
   }) : separatorBuilder = null, separatorStrategy = null, applySeparatorToLastItem = false;
 
-  /// Creates a [PagedGridView] with pagination support and separators.
+  /// Creates a [PageableGridView] with pagination support and separators.
   ///
   /// Use this constructor when a separator is required between items.
-  const PagedGridView.separated({
+  const PageableGridView.separated({
     super.key,
     required this.controller,
     required this.builderDelegate,
@@ -285,7 +287,7 @@ class PagedGridView<Page, Item> extends StatelessWidget {
     properties.add(DiagnosticsProperty<ScrollBehavior?>('scrollBehavior', scrollBehavior));
     properties.add(EnumProperty<HitTestBehavior>('hitTestBehavior', hitTestBehavior));
     properties.add(DiagnosticsProperty<SliverGridDelegate>('gridDelegate', gridDelegate));
-    properties.add(DiagnosticsProperty<PagedItemSeparatorStrategy?>('separatorStrategy', separatorStrategy));
+    properties.add(DiagnosticsProperty<PageableSeparatorStrategy?>('separatorStrategy', separatorStrategy));
     properties.add(FlagProperty('addAutomaticKeepAlives', value: addAutomaticKeepAlives, ifTrue: 'keeps alive'));
     properties.add(FlagProperty('addRepaintBoundaries', value: addRepaintBoundaries, ifTrue: 'adds repaint boundaries'));
     properties.add(FlagProperty('addSemanticIndexes', value: addSemanticIndexes, ifTrue: 'adds semantic indexes'));
@@ -294,7 +296,7 @@ class PagedGridView<Page, Item> extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => PagedLayoutBuilder(
+  Widget build(BuildContext context) => PageableLayoutBuilder(
     controller: controller,
     builderDelegate: builderDelegate,
     completedBuilder: (context, index, widgetBuilder, itemBuilder) => _build(index, widgetBuilder, itemBuilder, context),
@@ -304,9 +306,9 @@ class PagedGridView<Page, Item> extends StatelessWidget {
 
   Widget _build(int count, WidgetBuilder? widgetBuilder, IndexedWidgetBuilder itemBuilder, BuildContext context) {
     bool hasSeparator = separatorBuilder.isNotNull;
-    PagedItemSeparatorStrategy strategy = separatorStrategy ?? PagedHelper.defaultStrategy;
+    PageableSeparatorStrategy strategy = separatorStrategy ?? PageableHelper.defaultStrategy;
     int totalSeparators = hasSeparator
-        ? PagedHelper.calculateTotalSeparators(strategy, separatorBuilder, context, count)
+        ? PageableHelper.calculateTotalSeparators(strategy, separatorBuilder, context, count)
         : 0;
     int totalItemCount = (widgetBuilder != null ? count - 1 : count) + totalSeparators;
     // bool canShowSeparator(int index) => hasSeparator && totalSeparators.isGt(0) && strategy(index);
@@ -317,7 +319,7 @@ class PagedGridView<Page, Item> extends StatelessWidget {
     }
 
     Widget? child(BuildContext context, int index) {
-      int itemIndex = PagedHelper.getActualItemIndex(strategy, hasSeparator, index);
+      int itemIndex = PageableHelper.getActualItemIndex(strategy, hasSeparator, index);
 
       if (canShowSeparator(index)) {
         return separatorBuilder!(context, itemIndex);
@@ -353,7 +355,7 @@ class PagedGridView<Page, Item> extends StatelessWidget {
             addRepaintBoundaries: addRepaintBoundaries,
             addSemanticIndexes: addSemanticIndexes,
             semanticIndexCallback: (Widget widget, int index) {
-              return canShowSeparator(index) ? null : PagedHelper.getActualItemIndex(strategy, hasSeparator, index);
+              return canShowSeparator(index) ? null : PageableHelper.getActualItemIndex(strategy, hasSeparator, index);
             },
           ),
           gridDelegate: gridDelegate,
