@@ -66,31 +66,20 @@ typedef _PagedAsyncCallback<Page, Item> = FutureOr<List<Item>> Function(Page pag
 /// {@endtemplate}
 class PagedController<Page, Item> extends ValueNotifier<Paged<Page, Item>> {
   /// {@macro paged_controller}
+  /// 
+  /// [value] is the initial state of the controller, useful in restoring pagination from cache or serialized state.
+  /// 
+  /// [showLog] is whether debug logs are enabled.
+  /// 
+  /// [getNextPage] is the function that returns the next page key based on current pagination state.
+  /// 
+  /// [fetchPage] is the function that asynchronously returns a list of items for a given page key.
   PagedController({
+    Paged<Page, Item>? value,
     bool showLog = false,
     required _NextPageCallback<Page, Item> getNextPage,
     required _PagedAsyncCallback<Page, Item> fetchPage,
-  })  : _getNextPage = getNextPage, _fetchPage = fetchPage, super(Paged<Page, Item>(showLog: showLog));
-
-  /// Creates the controller from an existing state.
-  ///
-  /// Useful when restoring pagination from cache or serialized state.
-  ///
-  /// Example:
-  /// ```dart
-  /// final controller = PagedController.fromValue(
-  ///   cachedPagedState,
-  ///   getNextPage: ...,
-  ///   fetchPage: ...,
-  /// );
-  /// ```
-  /// 
-  /// {@macro paged_controller}
-  PagedController.fromValue(
-    Paged<Page, Item> value, {
-    required _NextPageCallback<Page, Item> getNextPage,
-    required _PagedAsyncCallback<Page, Item> fetchPage,
-  })  : _getNextPage = getNextPage, _fetchPage = fetchPage, super(value);
+  })  : _getNextPage = getNextPage, _fetchPage = fetchPage, super(value ?? Paged<Page, Item>(showLog: showLog));
 
   final _NextPageCallback<Page, Item> _getNextPage;
   final _PagedAsyncCallback<Page, Item> _fetchPage;
