@@ -171,12 +171,15 @@ class PagedController<Page, Item> extends ValueNotifier<Paged<Page, Item>> {
       final List<Item> newItems = result is Future ? await result : result;
 
       state = value; // Refresh state in case it was changed during fetch
+      final previousPage = state.nextPage;
+
       state = state.copyWith(
         pages: {
           ...?state.pages,
           nextKey: newItems,
         },
         nextPage: nextKey,
+        previousPage: previousPage,
       );
 
       if (showLog) console.log("Fetched ${newItems.length} items for $nextKey", tag: LOG_CONTEXT);

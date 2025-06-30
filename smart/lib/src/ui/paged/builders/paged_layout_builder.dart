@@ -2,7 +2,6 @@ import 'package:flutter/material.dart' hide Page;
 import 'package:flutter/rendering.dart';
 
 import '../../export.dart';
-import '../builders/paged_listener.dart';
 
 /// A base builder widget for creating paginated scrollable layouts.
 ///
@@ -87,16 +86,13 @@ class PagedLayoutBuilder<Page, Item> extends StatelessWidget {
   @override
   Widget build(BuildContext context) => PagedListener(
     controller: controller,
-    builder: (context, state, fetchNextPage) {
-      print("DEBUGGING::::::: PAGED LAYOUT BUILDER: State: $state");
-      return PagedBuilder<Page, Item>(
-        state: state,
-        fetchNextPage: fetchNextPage,
-        builderDelegate: builderDelegate,
-        completedBuilder: completedBuilder,
-        loadingBuilder: loadingBuilder,
-        errorBuilder: errorBuilder,
-      );
-    },
+    builder: (context, state, fetchNextPage) => PagedBuilder<Page, Item>(
+      state: state,
+      fetchNextPage: fetchNextPage,
+      builderDelegate: builderDelegate,
+      completedBuilder: completedBuilder,
+      loadingBuilder: loadingBuilder,
+      errorBuilder: errorBuilder,
+    ),
   );
 }

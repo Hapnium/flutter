@@ -123,7 +123,8 @@ class _PagedBuilderState<Page, Item> extends State<PagedBuilder<Page, Item>> {
       // This behaviour is okay because we make sure not to excessively request pages.
       final hasPassedTrigger = index >= triggerIndex;
 
-      if (hasNextPage && hasPassedTrigger) {
+      if (hasNextPage && index.equals(triggerIndex)) {
+        print("DEBUGGING::::::: PAGED BUILDER STATE: Triggered next page request with trigger index: $triggerIndex");
         _hasRequestedNextPage = true;
         fetchNextPage();
       }
