@@ -153,7 +153,7 @@ class PagedController<Page, Item> extends ValueNotifier<Paged<Page, Item>> {
     Paged<Page, Item> state = value;
 
     try {
-      if (!state.hasNextPage && !state.status.isLoadingFirstPage) {
+      if (!state.hasNextPage) {
         if (showLog) console.log("No more pages to load", tag: LOG_CONTEXT);
         return;
       }
