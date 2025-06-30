@@ -2,6 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:hapnium/hapnium.dart';
 import 'package:smart/enums.dart';
 
+/// {@template pageable}
+/// A map of fetched items grouped by their corresponding page keys.
+/// 
+/// This structure maintains an association between each page and the list of items it returned.
+/// It enables grouping or labeling items by their originating page.
+/// 
+/// {@endtemplate}
+typedef Pageable<Page, Item> = Map<Page, List<Item>>;
+
 /// {@template paged}
 /// A container that holds the current state of a paginated data fetch,
 /// including fetched items, pagination keys, errors, and status.
@@ -16,7 +25,7 @@ class Paged<Page, Item> {
   ///
   /// This structure maintains an association between each page and the list of items it returned.
   /// It enables grouping or labeling items by their originating page.
-  final Map<Page, List<Item>>? pages;
+  final Pageable<Page, Item>? pages;
 
   /// Any error that occurred during the last pagination request.
   final dynamic error;
@@ -65,7 +74,7 @@ class Paged<Page, Item> {
   /// 
   /// {@macro paged}
   Paged<Page, Item> copyWith({
-    Map<Page, List<Item>>? pages,
+    Pageable<Page, Item>? pages,
     dynamic error,
     Page? nextPage,
     Page? previousPage,
