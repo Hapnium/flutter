@@ -194,7 +194,10 @@ class _PageableBuilderState<PageKey, Item> extends State<PageableBuilder<PageKey
   @override
   void initState() {
     if(value.status.isInitial) {
-      widget.fetchFirstPage();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        widget.fetchFirstPage();
+      });
     }
 
     super.initState();
