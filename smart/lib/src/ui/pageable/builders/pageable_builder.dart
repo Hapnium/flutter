@@ -136,7 +136,7 @@ class PageableBuilder<PageKey, Item> extends StatefulWidget {
 }
 
 class _PageableBuilderState<PageKey, Item> extends State<PageableBuilder<PageKey, Item>> {
-  /// Avoids duplicate requests on rebuilds
+  /// Tracks if we've requested the next page for the current state
   bool _hasRequestedNextPage = false;
 
   @protected
@@ -190,8 +190,17 @@ class _PageableBuilderState<PageKey, Item> extends State<PageableBuilder<PageKey
 
   @override
   void didUpdateWidget(covariant PageableBuilder<PageKey, Item> oldWidget) {
+    // Reset the request flag when:
+    // 1. Status changes to a loaded state AND we have new items
+    // 2. Status becomes completed (no more pages)
+    // 3. There's an error (so we can retry)
     if (oldWidget.pageable != widget.pageable) {
-      if (value.status.isLoaded) {
+      final newStatus = value.status;
+      final oldItemCount = oldWidget.pageable.itemCount;
+      final newItemCount = value.itemCount;
+      
+      // Reset flag when we get new items or status changes significantly
+      if (newItemCount > oldItemCount || newStatus.isCompleted || newStatus.isLoadingMoreError || newStatus.isFirstPageError || newStatus.isLoaded) {
         _hasRequestedNextPage = false;
       }
     }
@@ -223,7 +232,8 @@ class _PageableBuilderState<PageKey, Item> extends State<PageableBuilder<PageKey
         PageableStatus.COMPLETED || PageableStatus.LOADED_PAGE => widget.completedBuilder(
           context,
           itemCount,
-          noMoreItemsBuilder,
+          // Only show "no more items" indicator when actually completed
+          value.status == PageableStatus.COMPLETED ? noMoreItemsBuilder : null,
           (context, index) => _buildItem(context, index, list),
         ),
       },
@@ -237,13 +247,22 @@ class _PageableBuilderState<PageKey, Item> extends State<PageableBuilder<PageKey
       return const SizedBox.shrink();
     }
 
-    // Trigger next page fetch when approaching the end
-    if (!_hasRequestedNextPage && hasNextPage) {
+    // Only trigger next page fetch if:
+    // 1. We haven't already requested it
+    // 2. There is a next page available
+    // 3. We're not currently loading
+    // 4. Status is not completed
+    if (!_hasRequestedNextPage && hasNextPage && !value.status.isLoadingMore && !value.status.isCompleted) {
       final maxIndex = max(0, itemCount - 1);
       final triggerIndex = max(0, maxIndex - invisibleItemsThreshold);
       
       if (index >= triggerIndex) {
         _hasRequestedNextPage = true;
+        
+        if(value.showLog) {
+          debugPrint('Triggering next page fetch at index $index (trigger: $triggerIndex, total: $itemCount)');
+        }
+
         fetchNextPage();
       }
     }

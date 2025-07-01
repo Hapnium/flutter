@@ -250,12 +250,14 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
       if (items.isEmpty) {
         // When first page is empty, it should be NO_ITEMS_FOUND
         newStatus = PageableStatus.NO_ITEMS_FOUND;
+        nextPageKey = null; // Ensure nextPageKey is null
         _log('No items found on first page');
       } else {
         // Check if this is the last page
         final isLastPage = _isLastPage(items);
         if (isLastPage) {
           newStatus = PageableStatus.COMPLETED;
+          nextPageKey = null; // Clear nextPageKey when completed
           _log('First page is also the last page (completed)');
         } else {
           newStatus = PageableStatus.LOADED_PAGE;
@@ -371,6 +373,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
       final isLastPage = _isLastPage(items);
       if (isLastPage) {
         newStatus = PageableStatus.COMPLETED;
+        newNextPageKey = null; // Clear the next page key when completed
         _log('Reached last page (completed)');
       } else {
         newStatus = PageableStatus.LOADED_PAGE;
@@ -458,11 +461,13 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
       
       if (items.isEmpty) {
         newStatus = PageableStatus.NO_ITEMS_FOUND;
+        nextPageKey = null;
         _log('No items found after refresh');
       } else {
         final isLastPage = _isLastPage(items);
         if (isLastPage) {
           newStatus = PageableStatus.COMPLETED;
+          nextPageKey = null;
           _log('Refresh completed - no more pages');
         } else {
           newStatus = PageableStatus.LOADED_PAGE;
