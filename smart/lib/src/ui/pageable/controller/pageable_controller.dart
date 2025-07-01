@@ -69,7 +69,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
   final NextPageKeyGenerator<PageKey, Item>? _nextPageKeyGenerator;
   
   /// Expected number of items per page, used for automatically detecting the last page.
-  final int? _pageSize;
+  final int _pageSize;
   
   /// Logger instance for debugging and tracing internal operations.
   ///
@@ -106,7 +106,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
     required PageableCallback<PageKey, Item> fetchPage,
     required PageKey getFirstPageKey,
     NextPageKeyGenerator<PageKey, Item>? getNextPageKey,
-    int? pageSize,
+    required int pageSize,
     bool showLog = true,
     PageableLogger? logger,
   })  : _pageFetcher = fetchPage,
@@ -142,7 +142,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
     required PageKey getFirstPageKey,
     NextPageKeyGenerator<PageKey, Item>? getNextPageKey,
     PageKey? nextPageKey,
-    int? pageSize,
+    required int pageSize,
     bool showLog = false,
     PageableLogger? logger,
   }) {
@@ -404,10 +404,8 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
   
   /// Auto-calculates if this is the last page based on page size
   bool _isLastPage(List<Item> items) {
-    // If no page size is specified, we can't determine if it's the last page
-    if (_pageSize == null) return false;
     // If items count is less than expected page size, it's the last page
-    return items.length < _pageSize!;
+    return items.length < _pageSize;
   }
   
   /// Refreshes the data by fetching the first page again.
@@ -438,7 +436,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
       
       // Update status to REFRESHING
       value = value.copyWith(
-        status: PageableStatus.LOADED_PAGE,
+        status: PageableStatus.LOADING_FIRST_PAGE,
         clearError: true,
       );
       
