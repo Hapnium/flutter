@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:smart/ui.dart' show ItemMetadata;
@@ -81,33 +79,52 @@ typedef PageableStatusWidgetBuilder<Item> = Widget Function(
 /// 
 /// {@endtemplate}
 class PageableBuilder<PageKey, Item> extends StatefulWidget {
-  /// The current pageable state holding loaded pages and metadata.
+  /// The current pageable state holding loaded pages and related metadata.
+  ///
+  /// This includes the list of loaded items, current page key, and status flags
+  /// such as whether more pages are available or if an error occurred.
   final Pageable<PageKey, Item> pageable;
 
   /// Callback to trigger fetching the first page of items.
+  ///
+  /// Typically used to initiate or refresh the entire list from the beginning.
   final VoidCallback fetchFirstPage;
 
   /// Callback to trigger fetching the next page of items.
+  ///
+  /// Invoked when the user scrolls to the bottom or when more data is required.
   final VoidCallback fetchNextPage;
 
-  /// Callback to retry loading after an error.
+  /// Callback to retry loading items after an error has occurred.
+  ///
+  /// Used when a previously failed fetch attempt should be retried.
   final VoidCallback retry;
 
-  /// Delegate responsible for building individual item widgets.
+  /// Delegate responsible for building widgets for each individual item.
+  ///
+  /// Used to render the list content based on the current pageable data.
   final PageableBuilderDelegate<Item> builderDelegate;
 
-  /// Builder for the loading state when more pages are being loaded.
+  /// Builder for the loading state shown when additional pages are being fetched.
+  ///
+  /// This can be used to show a loading spinner or placeholder at the end of the list.
   final PageableStatusWidgetBuilder<Item> loadingBuilder;
 
-  /// Builder for the error state when loading additional pages fails.
+  /// Builder for the error state shown when loading additional pages fails.
+  ///
+  /// Allows customization of the UI shown when a fetch operation encounters an error.
   final PageableStatusWidgetBuilder<Item> errorBuilder;
 
-  /// Builder for the completed state when no more pages are left to load.
+  /// Builder for the completed state when there are no more pages left to load.
+  ///
+  /// Use this to indicate to users that all content has been loaded.
   final PageableStatusWidgetBuilder<Item> completedBuilder;
 
   /// Creates a [PageableBuilder].
-  /// 
+  ///
   /// {@macro pageable_builder}
+  ///
+  /// All parameters are required and must not be null.
   const PageableBuilder({
     super.key,
     required this.pageable,
@@ -188,6 +205,9 @@ class _PageableBuilderState<PageKey, Item> extends State<PageableBuilder<PageKey
   @protected
   bool get hasNextPage => value.hasNextPage;
 
+  @protected
+  double get percentageThreshold => delegate.percentageThreshold / 100;
+
   @override
   void didUpdateWidget(covariant PageableBuilder<PageKey, Item> oldWidget) {
     // Reset the request flag when:
@@ -208,35 +228,67 @@ class _PageableBuilderState<PageKey, Item> extends State<PageableBuilder<PageKey
     super.didUpdateWidget(oldWidget);
   }
 
+  /// Handle scroll notifications to detect when we're near the end
+  bool _onScrollNotification(ScrollNotification notification) {
+    if (notification is ScrollUpdateNotification) {
+      if (!hasNextPage || _hasRequestedNextPage || value.status.isLoadingMore || value.status.isCompleted) {
+        return false;
+      }
+
+      final metrics = notification.metrics;
+      
+      // Calculate remaining scroll distance
+      final remainingDistance = metrics.maxScrollExtent - metrics.pixels;
+      
+      // Use viewport dimension as a more accurate threshold
+      final threshold = metrics.viewportDimension * percentageThreshold;
+      
+      if (remainingDistance <= threshold) {
+        _hasRequestedNextPage = true;
+        
+        if(value.showLog) {
+          debugPrint('Triggering next page fetch - remaining: $remainingDistance, threshold: $threshold, viewport: ${metrics.viewportDimension}');
+        }
+        
+        fetchNextPage();
+      }
+    }
+    
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return PageableBuilderAnimator(
-      animateTransitions: delegate.animateTransitions,
-      transitionDuration: delegate.transitionDuration,
-      child: switch (value.status) {
-        PageableStatus.LOADING_FIRST_PAGE => firstPageProgressBuilder(context),
-        PageableStatus.FIRST_PAGE_ERROR => firstPageErrorBuilder(context),
-        PageableStatus.NO_ITEMS_FOUND => noItemsFoundBuilder(context),
-        PageableStatus.LOADING_NEW_PAGE => widget.loadingBuilder(
-          context,
-          itemCount,
-          newPageProgressBuilder,
-          (context, index) => _buildItem(context, index, list),
-        ),
-        PageableStatus.NEW_PAGE_ERROR => widget.errorBuilder(
-          context,
-          itemCount,
-          newPageErrorBuilder,
-          (context, index) => _buildItem(context, index, list),
-        ),
-        PageableStatus.COMPLETED || PageableStatus.LOADED_PAGE => widget.completedBuilder(
-          context,
-          itemCount,
-          // Only show "no more items" indicator when actually completed
-          value.status == PageableStatus.COMPLETED ? noMoreItemsBuilder : null,
-          (context, index) => _buildItem(context, index, list),
-        ),
-      },
+    return NotificationListener<ScrollNotification>(
+      onNotification: _onScrollNotification,
+      child: PageableBuilderAnimator(
+        animateTransitions: delegate.animateTransitions,
+        transitionDuration: delegate.transitionDuration,
+        child: switch (value.status) {
+          PageableStatus.LOADING_FIRST_PAGE => firstPageProgressBuilder(context),
+          PageableStatus.FIRST_PAGE_ERROR => firstPageErrorBuilder(context),
+          PageableStatus.NO_ITEMS_FOUND => noItemsFoundBuilder(context),
+          PageableStatus.LOADING_NEW_PAGE => widget.loadingBuilder(
+            context,
+            itemCount,
+            newPageProgressBuilder,
+            (context, index) => _buildItem(context, index, list),
+          ),
+          PageableStatus.NEW_PAGE_ERROR => widget.errorBuilder(
+            context,
+            itemCount,
+            newPageErrorBuilder,
+            (context, index) => _buildItem(context, index, list),
+          ),
+          PageableStatus.COMPLETED || PageableStatus.LOADED_PAGE => widget.completedBuilder(
+            context,
+            itemCount,
+            // Only show "no more items" indicator when actually completed
+            value.status == PageableStatus.COMPLETED ? noMoreItemsBuilder : null,
+            (context, index) => _buildItem(context, index, list),
+          ),
+        },
+      ),
     );
   }
 
@@ -245,26 +297,6 @@ class _PageableBuilderState<PageKey, Item> extends State<PageableBuilder<PageKey
     // Handle indicator at the end
     if (index >= itemCount) {
       return const SizedBox.shrink();
-    }
-
-    // Only trigger next page fetch if:
-    // 1. We haven't already requested it
-    // 2. There is a next page available
-    // 3. We're not currently loading
-    // 4. Status is not completed
-    if (!_hasRequestedNextPage && hasNextPage && !value.status.isLoadingMore && !value.status.isCompleted) {
-      final maxIndex = max(0, itemCount - 1);
-      final triggerIndex = max(0, maxIndex - invisibleItemsThreshold);
-      
-      if (index >= triggerIndex) {
-        _hasRequestedNextPage = true;
-        
-        if(value.showLog) {
-          debugPrint('Triggering next page fetch at index $index (trigger: $triggerIndex, total: $itemCount)');
-        }
-
-        fetchNextPage();
-      }
     }
 
     ItemMetadata<Item> metadata = ItemMetadata(

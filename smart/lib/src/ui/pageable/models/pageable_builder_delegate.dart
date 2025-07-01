@@ -45,6 +45,13 @@ class PageableBuilderDelegate<Item> {
   /// the bottom of the list, `fetchNextPage()` is triggered.
   final int invisibleItemsThreshold;
 
+  /// The percentage of the viewport height that should trigger the loading of a new page.
+  ///
+  /// Defaults to `20`.
+  /// 
+  /// It must fall within the range of `0` to `100`.
+  final int percentageThreshold;
+
   /// Builds a widget for each item in the paginated list.
   ///
   /// This is a **required** function and should return the item widget at a given index.
@@ -140,6 +147,7 @@ class PageableBuilderDelegate<Item> {
   /// {@macro pageable_builder_delegate}
   const PageableBuilderDelegate({
     required this.itemBuilder,
+    this.percentageThreshold = 20,
     this.invisibleItemsThreshold = 3,
     this.firstPageProgressIndicatorBuilder,
     this.newPageProgressIndicatorBuilder,
@@ -149,5 +157,5 @@ class PageableBuilderDelegate<Item> {
     this.noMoreItemsIndicatorBuilder,
     this.animateTransitions = true,
     this.transitionDuration = const Duration(milliseconds: 300),
-  });
+  }) : assert(percentageThreshold >= 0 && percentageThreshold <= 100, 'percentageThreshold must be between 0 and 100');
 }
