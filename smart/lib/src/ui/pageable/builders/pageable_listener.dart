@@ -14,21 +14,22 @@ import '../models/pageable.dart';
 ///
 /// Parameters:
 /// - [context]: The current [BuildContext].
-/// - [state]: The current [Pageable] state containing loaded pages, next page key,
+/// - [pageable]: The current [Pageable] state containing loaded pages, next page key,
 ///   loading and error flags, etc.
+/// - [fetchFirstPage]: Callback to trigger fetching the first page of data.
 /// - [fetchNextPage]: Callback to trigger fetching the next page of data.
-/// - [onTryAgain]: Callback to retry a failed fetch request.
+/// - [retry]: Callback to retry a failed fetch request.
 ///
 /// Returns a [Widget] that reflects the current pagination state.
 ///
 /// Example:
 /// ```dart
-/// PageableLayoutWidgetBuilder<int, MyItem> builder = (context, controller) {
-///   if (controller.value.isLoading && controller.value.pages.isEmpty) {
+/// PageableLayoutWidgetBuilder<int, MyItem> builder = (context, pageable, fetchFirstPage, fetchNextPage, retry) {
+///   if (pageable.status.isLoadingFirstPage) {
 ///     return const CircularProgressIndicator();
-///   } else if (controller.value.hasError) {
+///   } else if (pageable.status.isFirstPageError) {
 ///     return ElevatedButton(
-///       onPressed: controller.retry,
+///       onPressed: retry,
 ///       child: const Text('Try Again'),
 ///     );
 ///   }
@@ -41,7 +42,13 @@ import '../models/pageable.dart';
 ///   );
 /// };
 /// ```
-typedef PageableLayoutWidgetBuilder<PageKey, Item> = Widget Function(BuildContext context, PageableController<PageKey, Item> controller);
+typedef PageableLayoutWidgetBuilder<PageKey, Item> = Widget Function(
+  BuildContext context,
+  Pageable<PageKey, Item> pageable,
+  VoidCallback fetchFirstPage,
+  VoidCallback fetchNextPage,
+  VoidCallback retry,
+);
 
 /// {@template pageable_listener}
 /// A widget that listens to a [PageableController] and rebuilds whenever the pagination state changes.
@@ -55,12 +62,12 @@ typedef PageableLayoutWidgetBuilder<PageKey, Item> = Widget Function(BuildContex
 /// ```dart
 /// PageableListener<int, Product>(
 ///   controller: controller,
-///   builder: (context, controller) {
-///     if (controller.value.status.isLoadingFirstPage) {
+///   builder: (context, pageable, fetchFirstPage, fetchNextPage, retry) {
+///     if (pageable.status.isLoadingFirstPage) {
 ///       return Center(child: CircularProgressIndicator());
 ///     }
 ///
-///     if (controller.value.status.isFirstPageError) {
+///     if (pageable.status.isFirstPageError) {
 ///       return Center(child: Text('Error: ${state.error}'));
 ///     }
 ///
@@ -100,7 +107,7 @@ class PageableListener<PageKey, Item> extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<Pageable<PageKey, Item>>(
       valueListenable: controller,
-      builder: (context, state, _) => builder(context, controller),
+      builder: (context, state, _) => builder(context, state, controller.fetchFirstPage, controller.fetchNextPage, controller.retry),
     );
   }
 }

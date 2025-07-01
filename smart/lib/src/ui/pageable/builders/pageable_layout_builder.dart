@@ -117,8 +117,11 @@ class PageableLayoutBuilder<PageKey, Item> extends StatelessWidget {
   @override
   Widget build(BuildContext context) => PageableListener(
     controller: controller,
-    builder: (context, controller) => PageableBuilder<PageKey, Item>(
-      controller: controller,
+    builder: (context, pageable, fetchFirstPage, fetchNextPage, retry) => PageableBuilder<PageKey, Item>(
+      pageable: pageable,
+      fetchFirstPage: fetchFirstPage,
+      fetchNextPage: fetchNextPage,
+      retry: retry,
       builderDelegate: builderDelegate,
       completedBuilder: completedBuilder,
       loadingBuilder: loadingBuilder,

@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:smart/ui.dart' show ItemMetadata;
 
-import '../controller/pageable_controller.dart';
 import '../models/pageable.dart';
 import '../models/pageable_status.dart';
 import '../models/pageable_builder_delegate.dart';
@@ -57,9 +56,10 @@ typedef PageableStatusWidgetBuilder<Item> = Widget Function(
 /// - [Item]: The type of items being paginated.
 ///
 /// Required parameters:
-/// - [state]: The current pageable state including loaded pages and metadata.
+/// - [pageable]: The current pageable state including loaded pages and metadata.
+/// - [fetchFirstPage]: Callback to trigger fetching the first page of items.
 /// - [fetchNextPage]: Callback to trigger fetching the next page of items.
-/// - [onTryAgain]: Callback to retry loading after an error.
+/// - [retry]: Callback to retry loading after an error.
 /// - [builderDelegate]: Provides [itemBuilder] for items rendering.
 /// - [loadingBuilder]: Builds the UI when loading more items (beyond the first page).
 /// - [errorBuilder]: Builds the UI when there is an error loading more items.
@@ -68,9 +68,10 @@ typedef PageableStatusWidgetBuilder<Item> = Widget Function(
 /// Example usage:
 /// ```dart
 /// PageableBuilder<int, MyItem>(
-///   state: pageableState,
+///   pageable: pageable,
+///   fetchFirstPage: () => controller.fetchFirstPage(),
 ///   fetchNextPage: () => controller.fetchNextPage(),
-///   onTryAgain: () => controller.retry(),
+///   retry: () => controller.retry(),
 ///   builderDelegate: MyItemDelegate(),
 ///   loadingBuilder: myLoadingBuilder,
 ///   errorBuilder: myErrorBuilder,
@@ -81,7 +82,16 @@ typedef PageableStatusWidgetBuilder<Item> = Widget Function(
 /// {@endtemplate}
 class PageableBuilder<PageKey, Item> extends StatefulWidget {
   /// The current pageable state holding loaded pages and metadata.
-  final PageableController<PageKey, Item> controller;
+  final Pageable<PageKey, Item> pageable;
+
+  /// Callback to trigger fetching the first page of items.
+  final VoidCallback fetchFirstPage;
+
+  /// Callback to trigger fetching the next page of items.
+  final VoidCallback fetchNextPage;
+
+  /// Callback to retry loading after an error.
+  final VoidCallback retry;
 
   /// Delegate responsible for building individual item widgets.
   final PageableBuilderDelegate<Item> builderDelegate;
@@ -100,8 +110,11 @@ class PageableBuilder<PageKey, Item> extends StatefulWidget {
   /// {@macro pageable_builder}
   const PageableBuilder({
     super.key,
-    required this.controller,
+    required this.pageable,
     required this.builderDelegate,
+    required this.fetchFirstPage,
+    required this.fetchNextPage,
+    required this.retry,
     required this.loadingBuilder,
     required this.errorBuilder,
     required this.completedBuilder,
@@ -112,7 +125,10 @@ class PageableBuilder<PageKey, Item> extends StatefulWidget {
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    properties.add(DiagnosticsProperty<PageableController<PageKey, Item>>('controller', controller));
+    properties.add(DiagnosticsProperty<Pageable<PageKey, Item>>('pageable', pageable));
+    properties.add(DiagnosticsProperty<VoidCallback>('fetchFirstPage', fetchFirstPage));
+    properties.add(DiagnosticsProperty<VoidCallback>('fetchNextPage', fetchNextPage));
+    properties.add(DiagnosticsProperty<VoidCallback>('retry', retry));
     properties.add(DiagnosticsProperty<PageableBuilderDelegate<Item>>('builderDelegate', builderDelegate));
     properties.add(DiagnosticsProperty<PageableStatusWidgetBuilder<Item>>('loadingBuilder', loadingBuilder));
     properties.add(DiagnosticsProperty<PageableStatusWidgetBuilder<Item>>('errorBuilder', errorBuilder));
@@ -127,10 +143,7 @@ class _PageableBuilderState<PageKey, Item> extends State<PageableBuilder<PageKey
   bool _hasRequestedNextPage = false;
 
   @protected
-  PageableController<PageKey, Item> get controller => widget.controller;
-
-  @protected
-  Pageable<PageKey, Item> get value => controller.pageable;
+  Pageable<PageKey, Item> get value => widget.pageable;
 
   @protected
   PageableBuilderDelegate<Item> get delegate => widget.builderDelegate;
@@ -138,17 +151,17 @@ class _PageableBuilderState<PageKey, Item> extends State<PageableBuilder<PageKey
   @protected
   VoidCallback get fetchNextPage => () => WidgetsBinding.instance.addPostFrameCallback((_) {
     if (!mounted) return;
-    controller.fetchNextPage();
+    widget.fetchNextPage();
   });
 
   @protected
   WidgetBuilder get firstPageErrorBuilder => delegate.firstPageErrorIndicatorBuilder ?? (_) => FirstPageErrorIndicator(
-    onTryAgain: controller.retry,
+    onTryAgain: widget.retry,
   );
 
   @protected
   WidgetBuilder get newPageErrorBuilder => delegate.newPageErrorIndicatorBuilder ?? (_) => NewPageErrorIndicator(
-    onTap: controller.retry,
+    onTap: widget.retry,
   );
 
   @protected
@@ -181,7 +194,7 @@ class _PageableBuilderState<PageKey, Item> extends State<PageableBuilder<PageKey
   @override
   void initState() {
     if(value.status.isInitial) {
-      controller.fetchFirstPage();
+      widget.fetchFirstPage();
     }
 
     super.initState();
@@ -189,7 +202,7 @@ class _PageableBuilderState<PageKey, Item> extends State<PageableBuilder<PageKey
 
   @override
   void didUpdateWidget(covariant PageableBuilder<PageKey, Item> oldWidget) {
-    if (oldWidget.controller != widget.controller) {
+    if (oldWidget.pageable != widget.pageable) {
       if (value.status.isLoaded) {
         _hasRequestedNextPage = false;
       }
