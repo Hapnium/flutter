@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show WidgetsBinding;
 import 'package:smart/exceptions.dart';
 
 import '../helpers/logger.dart';
@@ -115,14 +116,12 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
     
     _log('Initialized (firstPageKey: $_firstPageKey, pageSize: $pageSize, status: ${value.status})');
     
-    // if (_autoFetchFirstPage) {
-    //   // Schedule first page fetch for next frame to avoid build conflicts
-    //   WidgetsBinding.instance.addPostFrameCallback((_) {
-    //     if (!_isDisposed) {
-    //       fetchFirstPage();
-    //     }
-    //   });
-    // }
+    // Schedule first page fetch for next frame to avoid build conflicts
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _debugAssertNotDisposed();
+
+      fetchFirstPage();
+    });
   }
   
   /// Creates a controller from an existing list of page results.

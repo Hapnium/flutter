@@ -192,18 +192,6 @@ class _PageableBuilderState<PageKey, Item> extends State<PageableBuilder<PageKey
   bool get hasNextPage => value.hasNextPage;
 
   @override
-  void initState() {
-    if(value.status.isInitial) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        widget.fetchFirstPage();
-      });
-    }
-
-    super.initState();
-  }
-
-  @override
   void didUpdateWidget(covariant PageableBuilder<PageKey, Item> oldWidget) {
     if (oldWidget.pageable != widget.pageable) {
       if (value.status.isLoaded) {
@@ -220,8 +208,7 @@ class _PageableBuilderState<PageKey, Item> extends State<PageableBuilder<PageKey
       animateTransitions: delegate.animateTransitions,
       transitionDuration: delegate.transitionDuration,
       child: switch (value.status) {
-        PageableStatus.INITIAL => const SizedBox.shrink(),
-        PageableStatus.LOADING_FIRST_PAGE => firstPageProgressBuilder(context),
+        PageableStatus.LOADING_FIRST_PAGE || PageableStatus.INITIAL => firstPageProgressBuilder(context),
         PageableStatus.FIRST_PAGE_ERROR => firstPageErrorBuilder(context),
         PageableStatus.NO_ITEMS_FOUND => noItemsFoundBuilder(context),
         PageableStatus.LOADING_NEW_PAGE => widget.loadingBuilder(
