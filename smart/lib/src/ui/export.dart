@@ -111,6 +111,8 @@ export 'pageable/types/pageable_grid_view.dart';
 export 'pageable/types/pageable_page_view.dart';
 export 'pageable/types/pageable_staggered_view.dart';
 
+export 'pageable/helpers/pageable_helper.dart' show PageableSeparatorStrategy;
+
 export 'pageable/models/pageable.dart';
 export 'pageable/models/page_result.dart';
 export 'pageable/models/pageable_status.dart';

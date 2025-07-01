@@ -23,12 +23,12 @@ import '../models/pageable.dart';
 ///
 /// Example:
 /// ```dart
-/// PageableLayoutWidgetBuilder<int, MyItem> builder = (context, state, fetchNextPage, onTryAgain) {
-///   if (state.isLoading && state.pages.isEmpty) {
+/// PageableLayoutWidgetBuilder<int, MyItem> builder = (context, controller) {
+///   if (controller.value.isLoading && controller.value.pages.isEmpty) {
 ///     return const CircularProgressIndicator();
-///   } else if (state.hasError) {
+///   } else if (controller.value.hasError) {
 ///     return ElevatedButton(
-///       onPressed: onTryAgain,
+///       onPressed: controller.retry,
 ///       child: const Text('Try Again'),
 ///     );
 ///   }
@@ -41,12 +41,7 @@ import '../models/pageable.dart';
 ///   );
 /// };
 /// ```
-typedef PageableLayoutWidgetBuilder<PageKey, Item> = Widget Function(
-  BuildContext context,
-  Pageable<PageKey, Item> state,
-  VoidCallback fetchNextPage,
-  VoidCallback onTryAgain,
-);
+typedef PageableLayoutWidgetBuilder<PageKey, Item> = Widget Function(BuildContext context, PageableController<PageKey, Item> controller);
 
 /// {@template pageable_listener}
 /// A widget that listens to a [PageableController] and rebuilds whenever the pagination state changes.
@@ -60,12 +55,12 @@ typedef PageableLayoutWidgetBuilder<PageKey, Item> = Widget Function(
 /// ```dart
 /// PageableListener<int, Product>(
 ///   controller: controller,
-///   builder: (context, state, fetchNextPage) {
-///     if (state.status.isLoadingFirstPage) {
+///   builder: (context, controller) {
+///     if (controller.value.status.isLoadingFirstPage) {
 ///       return Center(child: CircularProgressIndicator());
 ///     }
 ///
-///     if (state.status.isFirstPageError) {
+///     if (controller.value.status.isFirstPageError) {
 ///       return Center(child: Text('Error: ${state.error}'));
 ///     }
 ///
@@ -105,7 +100,7 @@ class PageableListener<PageKey, Item> extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<Pageable<PageKey, Item>>(
       valueListenable: controller,
-      builder: (context, state, _) => builder(context, state, controller.fetchNextPage, controller.retry),
+      builder: (context, state, _) => builder(context, controller),
     );
   }
 }

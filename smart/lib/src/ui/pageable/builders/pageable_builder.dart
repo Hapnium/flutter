@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:smart/ui.dart' show ItemMetadata;
 
+import '../controller/pageable_controller.dart';
 import '../models/pageable.dart';
 import '../models/pageable_status.dart';
 import '../models/pageable_builder_delegate.dart';
@@ -80,13 +81,7 @@ typedef PageableStatusWidgetBuilder<Item> = Widget Function(
 /// {@endtemplate}
 class PageableBuilder<PageKey, Item> extends StatefulWidget {
   /// The current pageable state holding loaded pages and metadata.
-  final Pageable<PageKey, Item> state;
-
-  /// Callback to fetch the next page of items.
-  final VoidCallback fetchNextPage;
-
-  /// Callback to retry a failed request.
-  final VoidCallback onTryAgain;
+  final PageableController<PageKey, Item> controller;
 
   /// Delegate responsible for building individual item widgets.
   final PageableBuilderDelegate<Item> builderDelegate;
@@ -105,9 +100,7 @@ class PageableBuilder<PageKey, Item> extends StatefulWidget {
   /// {@macro pageable_builder}
   const PageableBuilder({
     super.key,
-    required this.state,
-    required this.onTryAgain,
-    required this.fetchNextPage,
+    required this.controller,
     required this.builderDelegate,
     required this.loadingBuilder,
     required this.errorBuilder,
@@ -119,11 +112,13 @@ class PageableBuilder<PageKey, Item> extends StatefulWidget {
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<Pageable<PageKey, Item>>('state', state));
-    properties.add(ObjectFlagProperty<VoidCallback>.has('fetchNextPage', fetchNextPage));
-    properties.add(ObjectFlagProperty<VoidCallback>.has('onTryAgain', onTryAgain));
+    properties.add(DiagnosticsProperty<PageableController<PageKey, Item>>('controller', controller));
     properties.add(DiagnosticsProperty<PageableBuilderDelegate<Item>>('builderDelegate', builderDelegate));
+    properties.add(DiagnosticsProperty<PageableStatusWidgetBuilder<Item>>('loadingBuilder', loadingBuilder));
+    properties.add(DiagnosticsProperty<PageableStatusWidgetBuilder<Item>>('errorBuilder', errorBuilder));
+    properties.add(DiagnosticsProperty<PageableStatusWidgetBuilder<Item>>('completedBuilder', completedBuilder));
+
+    super.debugFillProperties(properties);
   }
 }
 
@@ -132,7 +127,10 @@ class _PageableBuilderState<PageKey, Item> extends State<PageableBuilder<PageKey
   bool _hasRequestedNextPage = false;
 
   @protected
-  Pageable<PageKey, Item> get value => widget.state;
+  PageableController<PageKey, Item> get controller => widget.controller;
+
+  @protected
+  Pageable<PageKey, Item> get value => controller.pageable;
 
   @protected
   PageableBuilderDelegate<Item> get delegate => widget.builderDelegate;
@@ -140,17 +138,17 @@ class _PageableBuilderState<PageKey, Item> extends State<PageableBuilder<PageKey
   @protected
   VoidCallback get fetchNextPage => () => WidgetsBinding.instance.addPostFrameCallback((_) {
     if (!mounted) return;
-    widget.fetchNextPage();
+    controller.fetchNextPage();
   });
 
   @protected
   WidgetBuilder get firstPageErrorBuilder => delegate.firstPageErrorIndicatorBuilder ?? (_) => FirstPageErrorIndicator(
-    onTryAgain: widget.onTryAgain,
+    onTryAgain: controller.retry,
   );
 
   @protected
   WidgetBuilder get newPageErrorBuilder => delegate.newPageErrorIndicatorBuilder ?? (_) => NewPageErrorIndicator(
-    onTap: widget.onTryAgain,
+    onTap: controller.retry,
   );
 
   @protected
@@ -181,14 +179,23 @@ class _PageableBuilderState<PageKey, Item> extends State<PageableBuilder<PageKey
   bool get hasNextPage => value.hasNextPage;
 
   @override
+  void initState() {
+    if(value.status.isInitial) {
+      controller.fetchFirstPage();
+    }
+
+    super.initState();
+  }
+
+  @override
   void didUpdateWidget(covariant PageableBuilder<PageKey, Item> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    
-    if (oldWidget.state != widget.state) {
+    if (oldWidget.controller != widget.controller) {
       if (value.status.isLoaded) {
         _hasRequestedNextPage = false;
       }
     }
+
+    super.didUpdateWidget(oldWidget);
   }
 
   @override

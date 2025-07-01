@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' show WidgetsBinding;
+import 'package:smart/exceptions.dart';
 
 import '../helpers/logger.dart';
 import '../models/pageable.dart';
@@ -70,11 +71,6 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
   /// Expected number of items per page, used for automatically detecting the last page.
   final int? _pageSize;
   
-  /// Whether to automatically fetch the first page when the controller is initialized.
-  ///
-  /// Defaults to `true`.
-  final bool _autoFetchFirstPage;
-  
   /// Logger instance for debugging and tracing internal operations.
   ///
   /// If not provided, a default console logger is used when [showLog] is true.
@@ -108,28 +104,26 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
     required PageKey getFirstPageKey,
     NextPageKeyGenerator<PageKey, Item>? getNextPageKey,
     int? pageSize,
-    bool autoFetchFirstPage = true,
     bool showLog = true,
     PageableLogger? logger,
   })  : _pageFetcher = fetchPage,
         _firstPageKey = getFirstPageKey,
         _nextPageKeyGenerator = getNextPageKey,
         _pageSize = pageSize,
-        _autoFetchFirstPage = autoFetchFirstPage,
         _logger = logger ?? (showLog ? ConsolePageableLogger() : null),
         super(Pageable.initial(showLog: showLog, pageSize: pageSize))
   {
     
-    _log('Initialized (autoFetch: $autoFetchFirstPage, pageSize: $pageSize)');
+    _log('Initialized (firstPageKey: $_firstPageKey, pageSize: $pageSize, status: ${value.status})');
     
-    if (_autoFetchFirstPage) {
-      // Schedule first page fetch for next frame to avoid build conflicts
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!_isDisposed) {
-          fetchFirstPage();
-        }
-      });
-    }
+    // if (_autoFetchFirstPage) {
+    //   // Schedule first page fetch for next frame to avoid build conflicts
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     if (!_isDisposed) {
+    //       fetchFirstPage();
+    //     }
+    //   });
+    // }
   }
   
   /// Creates a controller from an existing list of page results.
@@ -152,7 +146,6 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
       getFirstPageKey: getFirstPageKey,
       getNextPageKey: getNextPageKey,
       pageSize: pageSize,
-      autoFetchFirstPage: false,
       showLog: showLog,
       logger: logger,
     );
@@ -182,13 +175,29 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
   
   /// Whether the controller can fetch the next page
   bool get canFetchNextPage => !isFetching && value.canLoadMore;
+
+  bool _debugAssertNotDisposed() {
+    assert(() {
+      if (_isDisposed) {
+        throw SmartException(
+          'A PageableController was used after being disposed.\nOnce you have '
+              'called dispose() on a PageableController, it can no longer be '
+              'used.\nIf you’re using a Future, it probably completed after '
+              'the disposal of the owning widget.\nMake sure dispose() has not '
+              'been called yet before using the PageableController.',
+        );
+      }
+      return true;
+    }());
+    return true;
+  }
   
   /// Fetches the first page of data.
   ///
   /// If a fetch is already ongoing, waits for it to complete instead of starting a new one.
   /// Updates the controller's state and handles errors accordingly.
   Future<void> fetchFirstPage() async {
-    if (_isDisposed) return;
+    _debugAssertNotDisposed();
     
     // Prevent multiple simultaneous first page fetches
     if (isFetching) {
@@ -219,7 +228,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
       
       final items = await _pageFetcher(firstPageKey);
       
-      if (_isDisposed) return;
+      _debugAssertNotDisposed();
       
       _log('First page fetched: ${items.length} items');
       
@@ -257,7 +266,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
       );
       
     } catch (error, stackTrace) {
-      if (_isDisposed) return;
+      _debugAssertNotDisposed();
       
       _log('Error fetching first page: $error');
       value = value.copyWith(
@@ -277,7 +286,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
   /// This method debounces rapid successive calls to avoid excessive fetching.
   Future<void> fetchNextPage() async {
     _log("Can load more: ${value.canLoadMore}");
-    if (_isDisposed) return;
+    _debugAssertNotDisposed();
     
     // Strict guards against excessive fetching
     if (!canFetchNextPage) {
@@ -333,7 +342,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
       
       final items = await _pageFetcher(nextPageKey);
       
-      if (_isDisposed) return;
+      _debugAssertNotDisposed();
       
       _log('Next page fetched: ${items.length} items');
       
@@ -374,7 +383,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
       );
       
     } catch (error, stackTrace) {
-      if (_isDisposed) return;
+      _debugAssertNotDisposed();
       
       _log('Error fetching next page: $error');
       value = value.copyWith(
@@ -397,7 +406,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
   ///
   /// Cancels ongoing fetches and resets the controller state.
   Future<void> refresh() async {
-    if (_isDisposed) return;
+    _debugAssertNotDisposed();
     
     // Cancel any ongoing operations
     _debounceTimer?.cancel();
@@ -420,7 +429,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
       
       final items = await _pageFetcher(firstPageKey);
       
-      if (_isDisposed) return;
+      _debugAssertNotDisposed();
       
       _log('Data refreshed: ${items.length} items');
       
@@ -457,7 +466,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
       );
       
     } catch (error, stackTrace) {
-      if (_isDisposed) return;
+      _debugAssertNotDisposed();
       
       _log('Error REFRESHING data: $error');
       value = value.copyWith(
@@ -477,7 +486,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
   /// If last failure was fetching the first page, retries first page fetch.
   /// If last failure was fetching next page, retries next page fetch.
   Future<void> retry() async {
-    if (_isDisposed) return;
+    _debugAssertNotDisposed();
     
     _log('Retrying last operation (status: ${value.status})');
     
@@ -490,7 +499,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
   
   /// Clears all data and resets to initial state
   void clear() {
-    if (_isDisposed) return;
+    _debugAssertNotDisposed();
     
     _log('Clearing all data');
     _debounceTimer?.cancel();
