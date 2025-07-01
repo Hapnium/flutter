@@ -29,11 +29,6 @@ typedef NextPageKeyGenerator<PageKey, Item> = PageKey? Function(
   int totalLoadedItems,
 );
 
-/// Function that generates the first page key to start pagination.
-///
-/// Returns the key representing the first page.
-typedef FirstPageKeyGenerator<PageKey> = PageKey Function();
-
 /// {@template pageable_controller}
 /// Controller that manages pagination state and data fetching logic.
 ///
@@ -64,7 +59,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
   final PageableCallback<PageKey, Item> _pageFetcher;
   
   /// Function that returns the initial page key for fetching the first page.
-  final FirstPageKeyGenerator<PageKey> _firstPageKeyGenerator;
+  final PageKey _firstPageKey;
   
   /// Optional function that generates the next page key given the current page key,
   /// the items fetched for the current page, and the total items loaded so far.
@@ -110,14 +105,14 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
   /// {@macro pageable_controller}
   PageableController({
     required PageableCallback<PageKey, Item> fetchPage,
-    required FirstPageKeyGenerator<PageKey> getFirstPageKey,
+    required PageKey getFirstPageKey,
     NextPageKeyGenerator<PageKey, Item>? getNextPageKey,
     int? pageSize,
     bool autoFetchFirstPage = true,
     bool showLog = true,
     PageableLogger? logger,
   })  : _pageFetcher = fetchPage,
-        _firstPageKeyGenerator = getFirstPageKey,
+        _firstPageKey = getFirstPageKey,
         _nextPageKeyGenerator = getNextPageKey,
         _pageSize = pageSize,
         _autoFetchFirstPage = autoFetchFirstPage,
@@ -145,7 +140,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
   factory PageableController.fromPages({
     required List<PageResult<PageKey, Item>> pages,
     required PageableCallback<PageKey, Item> fetchPage,
-    required FirstPageKeyGenerator<PageKey> getFirstPageKey,
+    required PageKey getFirstPageKey,
     NextPageKeyGenerator<PageKey, Item>? getNextPageKey,
     PageKey? nextPageKey,
     int? pageSize,
@@ -206,7 +201,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
     _currentFetchCompleter = Completer<void>();
     
     try {
-      final firstPageKey = _firstPageKeyGenerator();
+      final firstPageKey = _firstPageKey;
       
       // Check if this page is already being fetched
       if (_fetchingPages.contains(firstPageKey)) {
@@ -271,7 +266,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
         stackTrace: stackTrace,
       );
     } finally {
-      _fetchingPages.remove(_firstPageKeyGenerator());
+      _fetchingPages.remove(_firstPageKey);
       _currentFetchCompleter?.complete();
       _currentFetchCompleter = null;
     }
@@ -414,7 +409,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
     _currentFetchCompleter = Completer<void>();
     
     try {
-      final firstPageKey = _firstPageKeyGenerator();
+      final firstPageKey = _firstPageKey;
       _fetchingPages.add(firstPageKey);
       
       // Update status to REFRESHING
@@ -471,7 +466,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
         stackTrace: stackTrace,
       );
     } finally {
-      _fetchingPages.remove(_firstPageKeyGenerator());
+      _fetchingPages.remove(_firstPageKey);
       _currentFetchCompleter?.complete();
       _currentFetchCompleter = null;
     }
