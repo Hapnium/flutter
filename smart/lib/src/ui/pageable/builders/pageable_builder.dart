@@ -126,9 +126,6 @@ class PageableBuilder<PageKey, Item> extends StatefulWidget {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     properties.add(DiagnosticsProperty<Pageable<PageKey, Item>>('pageable', pageable));
-    properties.add(DiagnosticsProperty<VoidCallback>('fetchFirstPage', fetchFirstPage));
-    properties.add(DiagnosticsProperty<VoidCallback>('fetchNextPage', fetchNextPage));
-    properties.add(DiagnosticsProperty<VoidCallback>('retry', retry));
     properties.add(DiagnosticsProperty<PageableBuilderDelegate<Item>>('builderDelegate', builderDelegate));
     properties.add(DiagnosticsProperty<PageableStatusWidgetBuilder<Item>>('loadingBuilder', loadingBuilder));
     properties.add(DiagnosticsProperty<PageableStatusWidgetBuilder<Item>>('errorBuilder', errorBuilder));
@@ -208,7 +205,7 @@ class _PageableBuilderState<PageKey, Item> extends State<PageableBuilder<PageKey
       animateTransitions: delegate.animateTransitions,
       transitionDuration: delegate.transitionDuration,
       child: switch (value.status) {
-        PageableStatus.LOADING_FIRST_PAGE || PageableStatus.INITIAL => firstPageProgressBuilder(context),
+        PageableStatus.LOADING_FIRST_PAGE => firstPageProgressBuilder(context),
         PageableStatus.FIRST_PAGE_ERROR => firstPageErrorBuilder(context),
         PageableStatus.NO_ITEMS_FOUND => noItemsFoundBuilder(context),
         PageableStatus.LOADING_NEW_PAGE => widget.loadingBuilder(

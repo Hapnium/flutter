@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' show WidgetsBinding;
 import 'package:smart/exceptions.dart';
 
-import '../helpers/logger.dart';
+import '../helpers/pageable_logger.dart';
 import '../models/pageable.dart';
 import '../models/pageable_status.dart';
 import '../models/page_result.dart';
@@ -510,7 +510,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
   
   /// Logs a message if logging is enabled
   void _log(String message) {
-    _logger?.log(message, tag: '$runtimeType');
+    _logger?.log(message, tag: '$runtimeType ${runtimeType.hashCode}');
   }
   
   @override

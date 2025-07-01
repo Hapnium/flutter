@@ -112,6 +112,7 @@ export 'pageable/types/pageable_page_view.dart';
 export 'pageable/types/pageable_staggered_view.dart';
 
 export 'pageable/helpers/pageable_helper.dart' show PageableSeparatorStrategy;
+export 'pageable/helpers/pageable_logger.dart' hide ConsolePageableLogger;
 
 export 'pageable/models/pageable.dart';
 export 'pageable/models/page_result.dart';

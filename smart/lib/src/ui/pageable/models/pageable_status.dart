@@ -28,9 +28,6 @@
 /// }
 /// ```
 enum PageableStatus {
-  /// Initial state - no data loaded yet
-  INITIAL,
-
   /// Loading the first page
   LOADING_FIRST_PAGE,
 
@@ -55,9 +52,6 @@ enum PageableStatus {
 
 /// Extension providing convenient boolean getters for [PageableStatus].
 extension PageableStatusExtension on PageableStatus {
-  /// Whether the state is the initial state (no data loaded).
-  bool get isInitial => this == PageableStatus.INITIAL;
-
   /// Whether the first page is currently loading.
   bool get isLoadingFirstPage => this == PageableStatus.LOADING_FIRST_PAGE;
 

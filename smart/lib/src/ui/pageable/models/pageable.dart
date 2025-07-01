@@ -70,7 +70,7 @@ class Pageable<PageKey, Item> {
   }) {
     return Pageable<PageKey, Item>(
       pages: [],
-      status: PageableStatus.INITIAL,
+      status: PageableStatus.LOADING_FIRST_PAGE,
       showLog: showLog,
       pageSize: pageSize,
     );
@@ -196,7 +196,7 @@ class Pageable<PageKey, Item> {
   Pageable<PageKey, Item> reset() {
     return Pageable<PageKey, Item>(
       pages: [],
-      status: PageableStatus.INITIAL,
+      status: PageableStatus.LOADING_FIRST_PAGE,
       showLog: showLog,
       pageSize: pageSize,
     );
