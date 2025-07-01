@@ -113,6 +113,7 @@ export 'pageable/types/pageable_staggered_view.dart';
 
 export 'pageable/models/pageable.dart';
 export 'pageable/models/page_result.dart';
+export 'pageable/models/pageable_status.dart';
 export 'pageable/models/pageable_builder_delegate.dart';
 
 export 'pageable/pull_to_refresh/pull_to_refresh.dart';
