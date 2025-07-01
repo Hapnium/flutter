@@ -10,7 +10,7 @@
 /// The states include:
 /// - [INITIAL]: No data has been loaded yet.
 /// - [LOADING_FIRST_PAGE]: The first page is currently loading.
-/// - [LOADED_FIRST_PAGE]: The first page has loaded successfully with items.
+/// - [LOADED_PAGE]: The first page has loaded successfully with items.
 /// - [LOADING_NEW_PAGE]: Additional pages are currently loading.
 /// - [NO_ITEMS_FOUND]: The first page loaded but contained no items.
 /// - [FIRST_PAGE_ERROR]: An error occurred while loading the first page.
@@ -31,8 +31,8 @@ enum PageableStatus {
   /// Loading the first page
   LOADING_FIRST_PAGE,
 
-  /// First page loaded successfully with items
-  LOADED_FIRST_PAGE,
+  /// Page loaded successfully with items
+  LOADED_PAGE,
 
   /// Loading additional pages
   LOADING_NEW_PAGE,
@@ -55,13 +55,13 @@ extension PageableStatusExtension on PageableStatus {
   /// Whether the first page is currently loading.
   bool get isLoadingFirstPage => this == PageableStatus.LOADING_FIRST_PAGE;
 
-  /// Whether the first page has loaded successfully.
-  bool get isLoaded => this == PageableStatus.LOADED_FIRST_PAGE;
+  /// Whether the page has loaded successfully.
+  bool get isLoaded => this == PageableStatus.LOADED_PAGE || this == PageableStatus.COMPLETED;
 
   /// Whether additional pages are currently loading.
   bool get isLoadingMore => this == PageableStatus.LOADING_NEW_PAGE;
 
-  /// Whether the first page loaded but no items were found.
+  /// Whether the page loaded but no items were found.
   bool get isNoItemsFound => this == PageableStatus.NO_ITEMS_FOUND;
 
   /// Whether an error occurred while loading the first page.

@@ -79,7 +79,7 @@ class Pageable<PageKey, Item> {
   /// Creates a [Pageable] from an existing list of [PageResult]s.
   ///
   /// Automatically sets the status to [PageableStatus.NO_ITEMS_FOUND]
-  /// if no items are found, otherwise [PageableStatus.LOADED_FIRST_PAGE].
+  /// if no items are found, otherwise [PageableStatus.LOADED_PAGE].
   /// 
   /// {@macro pageable}
   factory Pageable.fromPages({
@@ -89,7 +89,7 @@ class Pageable<PageKey, Item> {
     int? pageSize,
   }) {
     final allItems = pages.expand((result) => result.items).toList();
-    final status = allItems.isEmpty ? PageableStatus.NO_ITEMS_FOUND : PageableStatus.LOADED_FIRST_PAGE;
+    final status = allItems.isEmpty ? PageableStatus.NO_ITEMS_FOUND : PageableStatus.LOADED_PAGE;
     
     return Pageable<PageKey, Item>(
       pages: List.from(pages),

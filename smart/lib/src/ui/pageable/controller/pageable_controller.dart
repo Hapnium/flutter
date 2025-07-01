@@ -87,6 +87,9 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
   
   /// Timer used to debounce successive fetchNextPage calls.
   Timer? _debounceTimer;
+
+  /// Whether the controller has been initialized.
+  bool _hasInitialized = false;
   
   /// Creates a [PageableController] with the given fetchers and configuration.
   ///
@@ -117,11 +120,15 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
     _log('Initialized (firstPageKey: $_firstPageKey, pageSize: $pageSize, status: ${value.status})');
     
     // Schedule first page fetch for next frame to avoid build conflicts
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _debugAssertNotDisposed();
-
-      fetchFirstPage();
-    });
+    // Only schedule first page fetch once
+    if (!_hasInitialized) {
+      _hasInitialized = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_isDisposed) {
+          fetchFirstPage();
+        }
+      });
+    }
   }
   
   /// Creates a controller from an existing list of page results.
@@ -241,14 +248,18 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
       PageKey? nextPageKey;
       
       if (items.isEmpty) {
+        // When first page is empty, it should be NO_ITEMS_FOUND
         newStatus = PageableStatus.NO_ITEMS_FOUND;
+        _log('No items found on first page');
       } else {
-        // Auto-calculate if this is the last page
+        // Check if this is the last page
         final isLastPage = _isLastPage(items);
         if (isLastPage) {
           newStatus = PageableStatus.COMPLETED;
+          _log('First page is also the last page (completed)');
         } else {
-          newStatus = PageableStatus.LOADED_FIRST_PAGE;
+          newStatus = PageableStatus.LOADED_PAGE;
+          _log('First page loaded, more pages available');
           // Generate next page key if generator is provided
           if (_nextPageKeyGenerator != null) {
             nextPageKey = _nextPageKeyGenerator!(firstPageKey, items, items.length);
@@ -283,7 +294,6 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
   ///
   /// This method debounces rapid successive calls to avoid excessive fetching.
   Future<void> fetchNextPage() async {
-    _log("Can load more: ${value.canLoadMore}");
     _debugAssertNotDisposed();
     
     // Strict guards against excessive fetching
@@ -361,15 +371,13 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
       final isLastPage = _isLastPage(items);
       if (isLastPage) {
         newStatus = PageableStatus.COMPLETED;
+        _log('Reached last page (completed)');
       } else {
-        newStatus = PageableStatus.LOADED_FIRST_PAGE;
+        newStatus = PageableStatus.LOADED_PAGE;
+        _log('More pages available');
         // Generate next page key if generator is provided
         if (_nextPageKeyGenerator != null) {
-          newNextPageKey = _nextPageKeyGenerator!(
-            nextPageKey, 
-            items, 
-            value.itemCount + items.length,
-          );
+          newNextPageKey = _nextPageKeyGenerator!(nextPageKey, items, value.itemCount + items.length);
         }
       }
       
@@ -396,7 +404,9 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
   
   /// Auto-calculates if this is the last page based on page size
   bool _isLastPage(List<Item> items) {
+    // If no page size is specified, we can't determine if it's the last page
     if (_pageSize == null) return false;
+    // If items count is less than expected page size, it's the last page
     return items.length < _pageSize!;
   }
   
@@ -405,6 +415,13 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
   /// Cancels ongoing fetches and resets the controller state.
   Future<void> refresh() async {
     _debugAssertNotDisposed();
+
+    // Prevent multiple simultaneous refresh operations
+    if (isFetching) {
+      _log('Refresh already in progress, waiting...');
+      await _currentFetchCompleter!.future;
+      return;
+    }
     
     // Cancel any ongoing operations
     _debounceTimer?.cancel();
@@ -421,7 +438,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
       
       // Update status to REFRESHING
       value = value.copyWith(
-        status: PageableStatus.LOADED_FIRST_PAGE,
+        status: PageableStatus.LOADED_PAGE,
         clearError: true,
       );
       
@@ -443,12 +460,15 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
       
       if (items.isEmpty) {
         newStatus = PageableStatus.NO_ITEMS_FOUND;
+        _log('No items found after refresh');
       } else {
         final isLastPage = _isLastPage(items);
         if (isLastPage) {
           newStatus = PageableStatus.COMPLETED;
+          _log('Refresh completed - no more pages');
         } else {
-          newStatus = PageableStatus.LOADED_FIRST_PAGE;
+          newStatus = PageableStatus.LOADED_PAGE;
+          _log('Refresh completed - more pages available');
           if (_nextPageKeyGenerator != null) {
             nextPageKey = _nextPageKeyGenerator!(firstPageKey, items, items.length);
           }
@@ -468,7 +488,7 @@ class PageableController<PageKey, Item> extends ValueNotifier<Pageable<PageKey, 
       
       _log('Error REFRESHING data: $error');
       value = value.copyWith(
-        status: value.hasData ? PageableStatus.LOADED_FIRST_PAGE : PageableStatus.FIRST_PAGE_ERROR,
+        status: value.hasData ? PageableStatus.LOADED_PAGE : PageableStatus.FIRST_PAGE_ERROR,
         error: error,
         stackTrace: stackTrace,
       );

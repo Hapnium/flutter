@@ -220,7 +220,7 @@ class _PageableBuilderState<PageKey, Item> extends State<PageableBuilder<PageKey
           newPageErrorBuilder,
           (context, index) => _buildItem(context, index, list),
         ),
-        PageableStatus.COMPLETED || PageableStatus.LOADED_FIRST_PAGE => widget.completedBuilder(
+        PageableStatus.COMPLETED || PageableStatus.LOADED_PAGE => widget.completedBuilder(
           context,
           itemCount,
           noMoreItemsBuilder,
