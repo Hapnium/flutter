@@ -16,13 +16,15 @@ class _TappyApplicationState extends State<TappyApplication> {
     Tappy.appInformation = widget.info;
     Tappy.lifecycle = widget.lifecycle ?? DefaultTappyLifecycle();
     Tappy.showLogs = widget.showLog;
-    Tappy.deviceNotificationBuilder = widget.deviceNotificationBuilder ?? DefaultDeviceNotificationBuilder();
-    Tappy.deviceNotificationManager = widget.deviceNotificationManager ?? DefaultDeviceNotificationManager();
-    Tappy.deviceNotificationService = widget.deviceNotificationService ?? DefaultDeviceNotification();
     Tappy.inAppNotificationService = widget.inAppNotificationService ?? DefaultInAppNotification();
 
     // Skip initialization for web platforms.
-    if (!PlatformEngine.isWeb) {
+    if (PlatformEngine.isWeb && widget.skipDeviceNotificationInitializationOnWeb) {
+      /// Skip
+    } else {
+      Tappy.deviceNotificationBuilder = widget.deviceNotificationBuilder ?? DefaultDeviceNotificationBuilder();
+      Tappy.deviceNotificationManager = widget.deviceNotificationManager ?? DefaultDeviceNotificationManager();
+      Tappy.deviceNotificationService = widget.deviceNotificationService ?? DefaultDeviceNotification();
       Tappy.deviceNotificationService.init(widget.handler, widget.backgroundHandler);
 
       // Handle app launches triggered by notifications.

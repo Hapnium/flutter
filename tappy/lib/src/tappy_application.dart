@@ -80,6 +80,11 @@ class TappyApplication extends StatefulWidget {
   /// a custom [TappyLifecycle] behavior.
   final TappyLifecycle? lifecycle;
 
+  /// Whether to skip device notification initialization on web platforms.
+  ///
+  /// Defaults to `true`.
+  final bool skipDeviceNotificationInitializationOnWeb;
+
   /// Custom builder used to construct device notifications.
   ///
   /// If not set, a default builder is used.
@@ -140,6 +145,7 @@ class TappyApplication extends StatefulWidget {
     this.deviceNotificationService,
     this.inAppNotificationService,
     this.showLog = true,
+    this.skipDeviceNotificationInitializationOnWeb = true,
   });
 
   @override
@@ -159,6 +165,12 @@ class TappyApplication extends StatefulWidget {
       value: showLog,
       ifTrue: 'show logs enabled',
       ifFalse: 'show logs disabled',
+    ));
+    properties.add(FlagProperty(
+      'skipDeviceNotificationInitializationOnWeb',
+      value: skipDeviceNotificationInitializationOnWeb,
+      ifTrue: 'skip device notification initialization on web platforms',
+      ifFalse: 'do not skip device notification initialization on web platforms',
     ));
     properties.add(ObjectFlagProperty<TappyLifecycle?>.has('lifecycle', lifecycle));
     properties.add(ObjectFlagProperty<DeviceNotificationBuilderInterface?>.has('deviceNotificationBuilder', deviceNotificationBuilder));
