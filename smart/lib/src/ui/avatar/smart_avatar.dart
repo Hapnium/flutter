@@ -167,9 +167,7 @@ class SmartAvatar extends BaseAvatar {
   @override
   Widget? avatar(BuildContext context) {
     if(super.foregroundImageBuilder.isNotNull) {
-      if(super.image.isNotNull && super.image!.isNotEmpty) {
-        return null;
-      }
+      return null;
     }
 
     final backgroundColor = (fullName.isNotNull || firstName.isNotNull || lastName.isNotNull)
